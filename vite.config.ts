@@ -16,6 +16,10 @@ export default defineConfig({
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                 }),
+                // Instrument Sans has no Thai glyphs. / ฟอนต์หลักไม่มีอักษรไทย
+                bunny('Noto Sans Thai', {
+                    weights: [400, 500, 600],
+                }),
             ],
         }),
         inertia(),

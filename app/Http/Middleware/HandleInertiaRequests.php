@@ -41,7 +41,27 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'locale' => app()->getLocale(),
+            'translations' => fn () => $this->translations(app()->getLocale()),
+            // Only the signed-in user's own spaces (for the switcher). / เฉพาะ space ของตัวเอง
+            'spaces' => fn () => $request->user()?->spaces()
+                ->with('members:id,name')->get()
+                ->map(fn ($s) => [
+                    'id' => $s->ulid,
+                    'name' => $s->name,
+                    'status' => $s->status,
+                    'partner' => $s->partnerOf($request->user())?->name,
+                    'url' => route('spaces.show', $s),
+                ]) ?? [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /** @return array<string, string> */
+    private function translations(string $locale): array
+    {
+        $path = lang_path("{$locale}.json");
+
+        return is_file($path) ? json_decode((string) file_get_contents($path), true) : [];
     }
 }

@@ -1,4 +1,6 @@
+import type { Locale } from '@/lib/i18n';
 import type { Auth } from '@/types/auth';
+import type { SpaceNavItem } from '@/types/space';
 
 declare module 'react' {
     interface InputHTMLAttributes<T> {
@@ -12,6 +14,9 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            locale: Locale;
+            translations: Record<string, string>;
+            spaces: SpaceNavItem[];
             [key: string]: unknown;
         };
     }

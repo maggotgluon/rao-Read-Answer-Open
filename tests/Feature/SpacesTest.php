@@ -123,6 +123,26 @@ test('guests opening an invite link are sent back to it after signing in', funct
         ->assertRedirect(route('invites.show', $invite->code));
 });
 
+test('a used invite does not reveal who sent it', function () {
+    [$a, $b, $c] = User::factory()->count(3)->create();
+    $space = Space::factory()->withMembers($a, $b)->create();
+    $invite = inviteFor($space, $a);
+    $invite->forceFill(['accepted_at' => now(), 'accepted_by' => $b->id])->save();
+
+    $this->actingAs($c)->get(route('invites.show', $invite->code))
+        ->assertInertia(fn ($page) => $page
+            ->where('problem', 'expired')
+            ->where('inviter', null));
+});
+
+test('joining shows a welcome toast', function () {
+    [$a, $b] = User::factory()->count(2)->create();
+    $space = Space::factory()->withMembers($a)->create();
+
+    $this->actingAs($b)->post(route('invites.accept', inviteFor($space, $a)->code))
+        ->assertInertiaFlash('toast.type', 'success');
+});
+
 // ── The wall / กำแพงระหว่าง space ─────────────────────────────────
 
 test('outsiders get 404 on a space, not 403', function () {

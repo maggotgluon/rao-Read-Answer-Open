@@ -92,16 +92,18 @@ class SpaceController extends Controller
         ]);
 
         $space->update($data);
+        $this->toast('space.saved');
 
-        return back()->with('success', __('space.saved'));
+        return back();
     }
 
     /** Unpair: freeze for 30 days, then the scheduler purges it. / เลิกจับคู่ */
     public function freeze(Request $request, Space $space): RedirectResponse
     {
         $space->freeze($request->user());
+        $this->toast('space.frozen_flash');
 
-        return redirect()->route('spaces.show', $space)->with('success', __('space.frozen_flash'));
+        return redirect()->route('spaces.show', $space);
     }
 
     public function restore(Request $request, Space $space): RedirectResponse
@@ -109,8 +111,9 @@ class SpaceController extends Controller
         abort_unless($space->isFrozen() && $space->frozen_by === $request->user()->id, 403);
 
         $space->restore();
+        $this->toast('space.restored_flash');
 
-        return back()->with('success', __('space.restored_flash'));
+        return back();
     }
 
     public function regenerateInvite(Request $request, Space $space): RedirectResponse
@@ -120,6 +123,11 @@ class SpaceController extends Controller
         $this->freshInvite($space, $request->user()->id);
 
         return back();
+    }
+
+    private function toast(string $key): void
+    {
+        Inertia::flash('toast', ['type' => 'success', 'message' => __($key)]);
     }
 
     private function freshInvite(Space $space, int $userId): SpaceInvite

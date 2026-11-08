@@ -11,15 +11,21 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Local test accounts only (verified, password "password").
+     * บัญชีทดสอบสำหรับเครื่อง local เท่านั้น
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (! app()->environment('local')) {
+            return;
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ([
+            ['name' => 'Mag', 'email' => 'mag@rao.test', 'locale' => 'th'],
+            ['name' => 'Partner', 'email' => 'partner@rao.test', 'locale' => 'th'],
+            ['name' => 'Third', 'email' => 'third@rao.test', 'locale' => 'en'],
+        ] as $u) {
+            User::factory()->create($u);
+        }
     }
 }

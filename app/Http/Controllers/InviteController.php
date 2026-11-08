@@ -33,10 +33,13 @@ class InviteController extends Controller
             $request->session()->put('pending_invite', $code);
         }
 
+        $problem = $this->problem($invite, $user);
+
         return Inertia::render('invites/show', [
             'code' => $code,
-            'inviter' => $invite?->creator?->name,
-            'problem' => $this->problem($invite, $user),
+            // Don't reveal who sent a dead/used invite. / ไม่เปิดเผยชื่อผู้เชิญถ้าโค้ดใช้ไม่ได้
+            'inviter' => in_array($problem, [null, 'already_member'], true) ? $invite?->creator?->name : null,
+            'problem' => $problem,
             'space_url' => $invite && $user && $invite->space->hasMember($user)
                 ? route('spaces.show', $invite->space) : null,
         ]);
@@ -65,7 +68,9 @@ class InviteController extends Controller
             return redirect()->route('invites.show', $code);
         }
 
-        return redirect()->route('spaces.show', $result)->with('success', __('invite.joined'));
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('invite.joined')]);
+
+        return redirect()->route('spaces.show', $result);
     }
 
     /** Why this user can't use this invite, or null if they can. */

@@ -73,4 +73,4 @@ second: long-distance couples. Personal use first, built so it can go public.
 1. Off-host backup target (homelab / Google Drive / B2 / R2) — by weekend 3.
 2. Brand direction: "soft & warm" agreed; mock 2–3 directions before UI polish.
 3. PDPA / privacy policy — only if it goes public.
-4. **Host PHP version:** Laravel 13 requires PHP **8.3+**. Confirm Plesk offers 8.3/8.4 for the subdomain (else drop to Laravel 12).
+4. ~~Host PHP version~~ — resolved: Laravel 13 confirmed running on the server. / ยืนยันแล้วว่าเซิร์ฟเวอร์รัน Laravel 13 ได้

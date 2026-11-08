@@ -8,7 +8,8 @@
 - [x] Strict walls: membership middleware, 404 for outsiders, tests / กำแพงระหว่าง space + เทสต์
 - [x] Unpair → freeze 30 days → purge (scheduled), restore by freezer / เลิกจับคู่ แช่แข็ง กู้คืน
 - [x] PWA shell: manifest, icons, service worker, offline page
-- [ ] Deploy pipeline: GitHub Actions → `deploy` branch → Plesk Git (needs host PHP 8.3+ confirmed)
+- [x] Deploy pipeline (CI side): GitHub Actions tests → builds → `deploy` branch (see `docs/deploy.md`)
+- [ ] Deploy pipeline (server side): Plesk Git pulls `deploy`, `.env`, migrations, cron — first real deploy
 
 ## Weekend 2 — Moments / ช่วงเวลา
 

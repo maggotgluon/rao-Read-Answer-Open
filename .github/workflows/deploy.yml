@@ -1,0 +1,82 @@
+# Test on every push; on main, build the full app and publish it to the
+# `deploy` branch, which Plesk Git pulls (the host has no SSH/Composer).
+# เทสต์ทุก push; ถ้าเป็น main จะ build แอปทั้งชุดแล้ว push ไป branch `deploy`
+# ให้ Plesk Git ดึงไปใช้ (โฮสต์ไม่มี SSH/Composer)
+name: test-and-deploy
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['**']
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, intl, gd, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - run: npm ci
+      - run: npm run build
+      - run: npm run types:check
+      - run: php artisan test
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, gd, zip
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Build production app
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+          cp .env.example .env && php artisan key:generate   # build-time only, not shipped
+          npm ci
+          npm run build
+
+      - name: Assemble deploy tree
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          rsync -a ./ "$RUNNER_TEMP/out/" \
+            --exclude .git --exclude .github --exclude node_modules \
+            --exclude tests --exclude .env --exclude 'storage/logs/*.log' \
+            --exclude 'database/database.sqlite' --exclude '.phpunit.result.cache'
+          # Built assets and vendor are normally gitignored — ship them on this branch.
+          printf '.env\n/storage/*.key\n/storage/logs/*.log\n' > "$RUNNER_TEMP/out/.gitignore"
+
+      - name: Push to deploy branch
+        run: |
+          cd "$RUNNER_TEMP/out"
+          git init -q -b deploy
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          # -f: vendor packages ship their own .gitignore files; .env is already excluded by rsync.
+          git add -A -f
+          git commit -q -m "deploy: ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" deploy

@@ -162,7 +162,8 @@ class DailyPrompts
         $mine = $daily->answers->firstWhere('user_id', $viewer->id);
         $theirs = $daily->answers->first(fn ($a) => $a->user_id !== $viewer->id);
         $open = $daily->isOpen();
-        $author = $daily->prompt->author;
+        // Only couple-written prompts show an author (admin-added library prompts don't).
+        $author = $daily->prompt->space_id ? $daily->prompt->author : null;
 
         return [
             'id' => $daily->id,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\MomentReaction;
 use App\Models\Space;
+use App\Models\SpaceEvent;
 use App\Models\SpaceInvite;
 use App\Models\User;
 use App\Services\DailyPrompts;
@@ -94,12 +95,13 @@ class SpaceController extends Controller
                 ->map(fn ($d) => $prompts->present($d, $user, app()->getLocale()))->values(),
             'streak' => fn () => $prompts->streak($space),
             'todayEvents' => fn () => $calendar->occurrences($space, $today, $today)->values(),
+            'memories' => fn () => $calendar->memories($space, $today),
             'activity' => fn () => $activity->recent($space, $user),
         ]);
     }
 
     /** Tab 3 — Moments: the shared wall. / ช่วงเวลา */
-    public function moments(Request $request, Space $space): Response
+    public function moments(Request $request, Space $space, SpaceCalendar $calendar): Response
     {
         $user = $request->user();
 
@@ -108,6 +110,7 @@ class SpaceController extends Controller
             'moments' => fn () => $this->momentList($space, $user, Moment::STATUS_POSTED),
             'drafts' => fn () => $this->momentList($space, $user, Moment::STATUS_DRAFT),
             'reactionEmojis' => MomentReaction::EMOJIS,
+            'dateOptions' => fn () => $calendar->eventList($space),
         ]);
     }
 
@@ -116,10 +119,24 @@ class SpaceController extends Controller
         $data = $request->validate([
             'name' => ['nullable', 'string', 'max:60'],
             'timezone' => ['required', 'timezone:all'],
-            'anniversary_on' => ['nullable', 'date', 'before_or_equal:today'],
+            'anniversary_on' => ['nullable', 'date_format:Y-m-d', 'before_or_equal:today'],
         ]);
 
-        $space->update($data);
+        $space->update(['name' => $data['name'] ?? null, 'timezone' => $data['timezone']]);
+
+        // The anniversary is a normal "our date" (kind=anniversary) so moments can attach to it.
+        $anniversary = $space->anniversary();
+        if (filled($data['anniversary_on'] ?? null)) {
+            $anniversary
+                ? $anniversary->update(['date' => $data['anniversary_on']])
+                : $space->events()->create([
+                    'kind' => SpaceEvent::ANNIVERSARY, 'title' => 'anniversary',
+                    'date' => $data['anniversary_on'], 'repeats_yearly' => true,
+                    'created_by' => $request->user()->id,
+                ]);
+        } else {
+            $anniversary?->delete();   // attached moments stay, just unlinked
+        }
         $this->toast('space.saved');
 
         return back();
@@ -171,7 +188,7 @@ class SpaceController extends Controller
             'space' => [
                 ...$this->summary($space, $user),
                 'timezone' => $space->timezone,
-                'anniversary_on' => $space->anniversary_on?->toDateString(),
+                'anniversary_on' => $space->anniversary()?->date->toDateString(),
                 'today' => $space->today()->toDateString(),
                 'frozen_at' => $space->frozen_at?->toIso8601String(),
                 'delete_after' => $space->delete_after?->toIso8601String(),
@@ -237,7 +254,7 @@ class SpaceController extends Controller
     private function momentList(Space $space, User $user, string $status): array
     {
         $query = $space->moments()->where('status', $status)
-            ->with(['user:id,name', 'media', 'reactions', 'comments.user:id,name']);
+            ->with(['user:id,name', 'media', 'reactions', 'comments.user:id,name', 'event:id,kind,title']);
 
         $status === Moment::STATUS_DRAFT
             ? $query->where('user_id', $user->id)->latest()
@@ -250,6 +267,11 @@ class SpaceController extends Controller
             'body' => $m->body,
             'status' => $m->status,
             'posted_at' => $m->posted_at?->toIso8601String(),
+            'date' => $m->event ? [
+                'id' => $m->event->id,
+                'kind' => $m->event->kind,
+                'title' => $m->event->kind === SpaceEvent::ANNIVERSARY ? __('event.anniversary') : $m->event->title,
+            ] : null,
             'photos' => $m->media->map(fn ($media) => [
                 'url' => route('spaces.media.show', [$space, $m, $media]),
                 'width' => $media->width,

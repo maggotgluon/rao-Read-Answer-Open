@@ -6,8 +6,9 @@ use App\Models\Prompt;
 use Illuminate\Database\Seeder;
 
 /**
- * Idempotent: safe to run on every deploy (upserts by key).
- * รันซ้ำได้ทุกครั้งที่ deploy (อัปเดตตาม key)
+ * ADD-ONLY: inserts library prompts whose key doesn't exist yet and never touches
+ * existing rows — so edits made in the admin panel survive every deploy.
+ * เพิ่มเฉพาะคำถามใหม่ ไม่แก้ของเดิม (ที่แก้ในหน้าแอดมินจะไม่ถูกเขียนทับตอน deploy)
  *   php artisan db:seed --class=PromptLibrarySeeder --force
  */
 class PromptLibrarySeeder extends Seeder
@@ -25,6 +26,6 @@ class PromptLibrarySeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        Prompt::upsert($rows->all(), ['key'], ['kind', 'tag', 'text_en', 'text_th', 'updated_at']);
+        Prompt::insertOrIgnore($rows->all());
     }
 }

@@ -12,14 +12,16 @@ export default defineConfig({
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
+            // Fonts for the 3 themes; browsers only download the ones a theme uses.
+            // ฟอนต์ของ 3 ธีม เบราว์เซอร์โหลดเฉพาะที่ธีมใช้จริง
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
-                // Instrument Sans has no Thai glyphs. / ฟอนต์หลักไม่มีอักษรไทย
-                bunny('Noto Sans Thai', {
-                    weights: [400, 500, 600],
-                }),
+                bunny('Nunito', { weights: [500, 700, 800] }),
+                bunny('Mali', { weights: [400, 500, 600] }),
+                bunny('Noto Sans Thai', { weights: [400, 500, 600] }),
+                bunny('Fraunces', { weights: [500, 600] }),
+                bunny('Noto Serif Thai', { weights: [500, 600] }),
+                bunny('IBM Plex Sans Thai', { weights: [400, 500, 600] }),
+                bunny('DM Serif Display', { weights: [400] }),
             ],
         }),
         inertia(),

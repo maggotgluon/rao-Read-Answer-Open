@@ -26,6 +26,7 @@ class SpaceEventController extends Controller
 
     public function update(Request $request, Space $space, SpaceEvent $event): RedirectResponse
     {
+        abort_if($event->kind === SpaceEvent::ANNIVERSARY, 422, 'Change the anniversary in space settings.');
         $event->update($this->validated($request));
 
         return back();
@@ -33,7 +34,8 @@ class SpaceEventController extends Controller
 
     public function destroy(Space $space, SpaceEvent $event): RedirectResponse
     {
-        $event->delete();
+        abort_if($event->kind === SpaceEvent::ANNIVERSARY, 422, 'Change the anniversary in space settings.');
+        $event->delete();   // attached moments stay, just unlinked / ช่วงเวลายังอยู่
 
         return back();
     }

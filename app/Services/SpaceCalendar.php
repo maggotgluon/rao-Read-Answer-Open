@@ -131,6 +131,7 @@ class SpaceCalendar
             'prompt' => $daily ? $this->prompts->present($daily, $viewer, $locale) : null,
             'moments' => $moments->all(),
             'events' => $this->occurrences($space, $date, $date)->values()->all(),
+            'memories' => $this->memories($space, $date),
         ];
     }
 
@@ -152,11 +153,12 @@ class SpaceCalendar
     /** @return list<array<string, mixed>> */
     public function eventList(Space $space): array
     {
-        return $space->events()->with('author:id,name')->orderBy('date')->get()
+        return $space->events()->with('author:id,name')->withCount('moments')->orderBy('date')->get()
             ->map(fn (SpaceEvent $e) => [
                 'id' => $e->id,
                 'kind' => $e->kind,
-                'title' => $e->title,
+                'title' => $e->kind === 'anniversary' ? __('event.anniversary') : $e->title,
+                'moments' => $e->moments_count,
                 'date' => $e->date->toDateString(),
                 'repeats_yearly' => $e->repeats_yearly,
                 'author' => $e->author?->name,
@@ -164,8 +166,9 @@ class SpaceCalendar
     }
 
     /**
-     * Event occurrences between two local dates, incl. yearly repeats and the anniversary.
-     * Feb 29 falls on Feb 28 in non-leap years.
+     * Occurrences between two local dates: space events (incl. yearly repeats and the
+     * anniversary) + members' birthdays from their profiles. Feb 29 → Feb 28 in non-leap years.
+     * วันสำคัญของ space + วันเกิดของสมาชิก (จากโปรไฟล์)
      *
      * @return Collection<int, array<string, mixed>>
      */
@@ -175,14 +178,27 @@ class SpaceCalendar
         $to = $to->copy()->startOfDay();
         $out = collect();
 
-        $sources = $space->events()->get()->map(fn (SpaceEvent $e) => [
-            'id' => $e->id, 'kind' => $e->kind, 'title' => $e->title,
-            'date' => $e->date, 'yearly' => $e->repeats_yearly,
+        $sources = $space->events()->withCount('moments')->get()->map(fn (SpaceEvent $e) => [
+            'event_id' => $e->id,
+            'user_id' => null,
+            'kind' => $e->kind,
+            'title' => $e->kind === 'anniversary' ? __('event.anniversary') : $e->title,
+            'date' => $e->date,
+            'yearly' => $e->repeats_yearly || $e->kind === 'anniversary',
+            'show_years' => in_array($e->kind, ['anniversary', 'special'], true),
+            'memories' => $e->moments_count,
         ]);
-        if ($space->anniversary_on) {
+
+        foreach ($space->members()->whereNotNull('birthday')->get() as $member) {
             $sources->push([
-                'id' => null, 'kind' => 'anniversary', 'title' => __('event.anniversary'),
-                'date' => $space->anniversary_on, 'yearly' => true,
+                'event_id' => null,
+                'user_id' => $member->id,
+                'kind' => 'birthday',
+                'title' => __('event.birthday_of', ['name' => $member->name]),
+                'date' => $member->birthday,
+                'yearly' => true,
+                'show_years' => $member->show_age,   // each person decides / แต่ละคนเลือกเอง
+                'memories' => 0,
             ]);
         }
 
@@ -212,15 +228,46 @@ class SpaceCalendar
         return $out;
     }
 
+    /**
+     * Moments attached to the yearly dates that fall on $date, from earlier years.
+     * "On this day" memories. / ความทรงจำของวันสำคัญที่ตรงกับวันนี้ จากปีก่อน ๆ
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function memories(Space $space, Carbon $date): array
+    {
+        $eventIds = $this->occurrences($space, $date, $date)->pluck('event_id')->filter()->all();
+        if (! $eventIds) {
+            return [];
+        }
+
+        return $space->moments()->posted()
+            ->whereIn('space_event_id', $eventIds)
+            ->where('posted_at', '<', $date->copy()->startOfDay()->setTimezone('UTC'))
+            ->with('user:id,name', 'media', 'event:id,kind,title')
+            ->latest('posted_at')->get()
+            ->map(fn (Moment $m) => [
+                'id' => $m->ulid,
+                'author' => $m->user->name,
+                'body' => $m->body,
+                'posted_at' => $m->posted_at?->toIso8601String(),
+                'years_ago' => (int) $m->posted_at->copy()->setTimezone($space->timezone)->startOfDay()->diffInYears($date),
+                'event' => $m->event?->kind === 'anniversary' ? __('event.anniversary') : $m->event?->title,
+                'photos' => $m->media->map(fn ($media) => route('spaces.media.show', [$space, $m, $media]))->all(),
+            ])->all();
+    }
+
     /** @return array<string, mixed> */
     private function occurrence(array $source, Carbon $on, int $years): array
     {
         return [
-            'event_id' => $source['id'],
+            'event_id' => $source['event_id'],
+            'user_id' => $source['user_id'],
             'kind' => $source['kind'],
             'title' => $source['title'],
             'date' => $on->toDateString(),
-            'years' => $years,   // e.g. 3rd anniversary
+            'years' => $source['show_years'] ? $years : 0,   // 3rd anniversary / turns 30
+            'memories' => $source['memories'],
         ];
     }
 

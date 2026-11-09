@@ -2,13 +2,14 @@ import { MomentCard } from '@/components/space/moment-card';
 import { MomentComposer } from '@/components/space/moment-composer';
 import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
-import type { MomentItem, SpaceDetail } from '@/types/space';
+import type { MomentItem, SpaceDetail, SpaceEvent } from '@/types/space';
 
 type Props = {
     space: SpaceDetail;
     moments: MomentItem[];
     drafts: MomentItem[];
     reactionEmojis: string[];
+    dateOptions: SpaceEvent[];
 };
 
 /** Tab 3 — Moments: the couple's shared wall. / ช่วงเวลา */
@@ -17,6 +18,7 @@ export default function SpaceMoments({
     moments,
     drafts,
     reactionEmojis,
+    dateOptions,
 }: Props) {
     const { t } = useT();
     const frozen = space.status === 'frozen';
@@ -27,6 +29,7 @@ export default function SpaceMoments({
             spaceId={space.id}
             emojis={reactionEmojis}
             readOnly={frozen}
+            dateOptions={dateOptions}
         />
     );
 

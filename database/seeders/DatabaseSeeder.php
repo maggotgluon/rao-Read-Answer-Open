@@ -40,20 +40,29 @@ class DatabaseSeeder extends Seeder
         $mag = $users['Mag'];
         $partner = $users['Partner'];
 
-        $ours = Space::factory()->create([
-            'created_by' => $mag->id,
-            'anniversary_on' => now('Asia/Bangkok')->subYears(2)->addDays(9)->toDateString(),
-        ]);
+        // Birthdays live on profiles now. Mag shows age, Partner doesn't.
+        $mag->update(['birthday' => now()->addMonths(3)->subYears(31)->toDateString(), 'show_age' => true]);
+        $partner->update(['birthday' => now()->addDays(4)->subYears(29)->toDateString(), 'show_age' => false]);
+        $mag->forceFill(['is_admin' => true])->save();   // demo admin for the prompt library
+
+        $ours = Space::factory()->create(['created_by' => $mag->id]);
         $pairedAt = now()->subDays(21);
         $ours->members()->attach([$mag->id => ['joined_at' => $pairedAt], $partner->id => ['joined_at' => $pairedAt]]);
 
         $this->history($ours, $mag, $partner);
 
         $ours->events()->createMany([
-            ['title' => 'Partner birthday 🎂', 'kind' => 'birthday', 'date' => now()->addDays(4)->subYears(29)->toDateString(), 'repeats_yearly' => true, 'created_by' => $mag->id],
-            ['title' => 'Mag birthday', 'kind' => 'birthday', 'date' => now()->addMonths(3)->subYears(31)->toDateString(), 'repeats_yearly' => true, 'created_by' => $partner->id],
+            ['title' => 'anniversary', 'kind' => 'anniversary', 'date' => now('Asia/Bangkok')->subYears(2)->addDays(9)->toDateString(), 'repeats_yearly' => true, 'created_by' => $mag->id],
             ['title' => 'Trip to Chiang Mai', 'kind' => 'special', 'date' => now()->addDays(16)->toDateString(), 'repeats_yearly' => false, 'created_by' => $partner->id],
-            ['title' => 'First date', 'kind' => 'special', 'date' => now()->subDays(6)->subYears(3)->toDateString(), 'repeats_yearly' => true, 'created_by' => $mag->id],
+            ['title' => 'First date', 'kind' => 'special', 'date' => now()->subYears(3)->toDateString(), 'repeats_yearly' => true, 'created_by' => $mag->id],
+        ]);
+
+        // A memory: last year's "First date" moment comes back today. / ความทรงจำจากปีก่อน
+        $firstDate = $ours->events()->where('title', 'First date')->first();
+        $lastYear = now()->subYear()->setTime(19, 0);
+        $ours->moments()->create([
+            'user_id' => $partner->id, 'space_event_id' => $firstDate->id, 'status' => 'posted',
+            'body' => 'Same café as our first date, one year later ☕💛', 'posted_at' => $lastYear,
         ]);
 
         Space::factory()->withMembers($mag, $users['Third'])->create();

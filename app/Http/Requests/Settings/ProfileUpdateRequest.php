@@ -17,6 +17,12 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->profileRules($this->user()->id);
+        return [
+            ...$this->profileRules($this->user()->id),
+            // Birthday shows in every space you're in; you decide if age is shown.
+            // วันเกิดจะแสดงในทุก space ที่คุณอยู่ และเลือกได้ว่าจะโชว์อายุไหม
+            'birthday' => ['nullable', 'date_format:Y-m-d', 'before:today', 'after:1900-01-01'],
+            'show_age' => ['boolean'],
+        ];
     }
 }

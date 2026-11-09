@@ -17,6 +17,9 @@ declare module '@inertiajs/core' {
             locale: Locale;
             translations: Record<string, string>;
             spaces: SpaceNavItem[];
+            theme: 'blush' | 'paper' | 'candle';
+            isAdmin: boolean;
+            vapidPublicKey: string | null;
             [key: string]: unknown;
         };
     }

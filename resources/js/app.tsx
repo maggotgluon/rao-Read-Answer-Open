@@ -1,7 +1,6 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -33,15 +32,15 @@ void createInertiaApp({
         );
     },
     progress: {
-        color: '#4B5563',
+        color: 'var(--primary)',
     },
 });
 
-// This will set light / dark mode on load...
-initializeTheme();
+// Theme (incl. dark for "candle") is set server-side on <html>; see HandleAppearance.
 
-// PWA: register the service worker in production builds only (no caching surprises in dev).
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// PWA: service worker (offline page + push notifications). Navigation is network-first,
+// so it's safe in dev too. / service worker สำหรับหน้าออฟไลน์และการแจ้งเตือน
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         void navigator.serviceWorker.register('/sw.js');
     });

@@ -30,20 +30,30 @@ second: long-distance couples. Personal use first, built so it can go public.
 
 ## Space tabs / แท็บของ space (decided 2026-11-09)
 
-| Tab | Content |
-|---|---|
+| Tab                             | Content                                                                                                                                                                                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Overview / ภาพรวม** (default) | Month calendar: both answered / one answered / free miss ❄️ / missed; dots for events + moments. Tap a day → that day's prompt, answers, moments, events. Today / this week / this month stats. Upcoming dates. Manage dates. Settings. |
-| **Daily / รายวัน** | Today's question or quest, streak, earlier days (late answers), "write one for us", today's events, activity feed (last 7 days). |
-| **Moments / ช่วงเวลา** | Shared wall: compose (text + up to 4 photos), my drafts, feed, reactions, comments. |
+| **Daily / รายวัน**               | Today's question or quest, streak, earlier days (late answers), "write one for us", today's events, activity feed (last 7 days).                                                                                                        |
+| **Moments / ช่วงเวลา**           | Shared wall: compose (text + up to 4 photos), my drafts, feed, reactions, comments.                                                                                                                                                     |
 
 - **Today card:** weekdays = question, Sat/Sun = quest (quests pulled forward from v1.5). Quest = each writes how it went; same reveal rule.
 - **Prompt choice:** couple-written first, then random library; never repeats in a space. / คำถามที่คู่เขียนเองมาก่อน ไม่ซ้ำ
 - **Editing answers:** allowed until the partner answers, then locked. / แก้ได้จนกว่าอีกฝ่ายจะตอบ
 - **Looking back:** if you never answered a day, the partner's answer stays hidden **forever**. / ถ้าไม่ตอบ คำตอบอีกฝ่ายซ่อนตลอดไป
 - **Events:** both partners add/edit/delete per space; optional yearly repeat; Feb 29 → Feb 28. Plus an "our anniversary" date in space settings (counts years). / วันสำคัญ ทั้งคู่จัดการได้ ซ้ำทุกปีได้ + วันครบรอบ
-- **Activity:** says *that* something happened (answered / quest done / moment / date added) — never answer text or drafts. / บอกแค่ว่ามีอะไรเกิดขึ้น ไม่แสดงเนื้อหา
+- **Activity:** says _that_ something happened (answered / quest done / moment / date added) — never answer text or drafts. / บอกแค่ว่ามีอะไรเกิดขึ้น ไม่แสดงเนื้อหา
 - **Moments:** up to 4 photos, private drafts, only the author deletes.
 - **Photo caching:** `private, no-cache` + ETag — browser must re-check membership every time (found in testing: a year-long cache let a different user on the same browser reuse a photo after logout).
+
+## Push, themes, birthdays, admin (decided 2026-11-09)
+
+- **Push (web push, VAPID):** morning "today's question/quest" at each person's own time (default 08:00) + date reminders (today & tomorrow); evening reminder (default 20:00) **only if not answered**; partner answered / finished quest; partner posted a moment; comment or new reaction on my moment. Each type can be switched off per person; times per person (space timezone). Lock-screen text never contains answers, moment text or comments. Missed slots > 3h late are skipped. iPhone needs "Add to Home Screen" (guide shown).
+  / แจ้งเตือนตอนเช้า + เตือนตอนเย็นถ้ายังไม่ตอบ + ความเคลื่อนไหว ปิดได้ทีละประเภท ไม่แสดงเนื้อหาส่วนตัว
+- **Themes:** 3 per-person themes — **blush (default)**, paper, candle (dark). / ธีม 3 แบบ เลือกเองได้ ค่าเริ่มต้น blush
+- **Birthdays:** on the personal profile (full date), shown in every space the person is in; each person chooses whether partners see their age. Space dates no longer have a "birthday" kind. / วันเกิดอยู่ในโปรไฟล์ เลือกได้ว่าจะโชว์อายุ
+- **Moments ↔ our dates:** any posted moment can be marked as one of our dates (existing, incl. the anniversary, or new). On that date in later years it returns as an "On this day" memory (Daily tab, day detail, morning push). / ช่วงเวลาผูกกับวันสำคัญได้ และกลับมาเป็นความทรงจำทุกปี
+- **Anniversary** is now a normal date (kind = anniversary), still set in space settings.
+- **Prompt library:** 300 prompts (215 questions + 85 quests; Thai = draft). Managed in a built-in **admin page** (admins only, 404 for others; `php artisan rao:admin email`). Couple-written prompts never appear there. Used prompts are deactivated, not deleted. The seeder is **add-only**, so admin edits survive deploys.
 
 ## Spaces & pairing / พื้นที่และการจับคู่
 

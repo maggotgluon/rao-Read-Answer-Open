@@ -39,7 +39,7 @@ class Space extends Model
 
     public const STATUS_FROZEN = 'frozen';
 
-    protected $fillable = ['name', 'timezone', 'anniversary_on', 'created_by'];
+    protected $fillable = ['name', 'timezone', 'created_by'];
 
     /** @return array<int, string> */
     public function uniqueIds(): array
@@ -57,7 +57,6 @@ class Space extends Model
         return [
             'frozen_at' => 'datetime',
             'delete_after' => 'datetime',
-            'anniversary_on' => 'date',
         ];
     }
 
@@ -91,6 +90,11 @@ class Space extends Model
     public function events(): HasMany
     {
         return $this->hasMany(SpaceEvent::class);
+    }
+
+    public function anniversary(): ?SpaceEvent
+    {
+        return $this->events()->where('kind', SpaceEvent::ANNIVERSARY)->first();
     }
 
     /** @return HasMany<Prompt, $this> */

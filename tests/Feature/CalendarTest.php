@@ -145,14 +145,14 @@ test('both partners can add, edit and delete events', function () {
     [$space, $a, $b] = calCouple();
 
     $this->actingAs($a)->post(route('spaces.events.store', $space), [
-        'title' => 'Mag birthday', 'date' => '1995-03-14', 'kind' => 'birthday', 'repeats_yearly' => true,
+        'title' => 'First trip', 'date' => '2024-03-14', 'kind' => 'special', 'repeats_yearly' => true,
     ])->assertRedirect()->assertSessionHasNoErrors();
     $event = SpaceEvent::first();
 
     $this->actingAs($b)->patch(route('spaces.events.update', [$space, $event]), [
-        'title' => "Mag's birthday 🎂", 'date' => '1995-03-14', 'kind' => 'birthday', 'repeats_yearly' => true,
+        'title' => 'First trip 🏝️', 'date' => '2024-03-14', 'kind' => 'special', 'repeats_yearly' => true,
     ])->assertRedirect();
-    expect($event->fresh()->title)->toBe("Mag's birthday 🎂");
+    expect($event->fresh()->title)->toBe('First trip 🏝️');
 
     $this->actingAs($b)->delete(route('spaces.events.destroy', [$space, $event]))->assertRedirect();
     expect(SpaceEvent::count())->toBe(0);
@@ -160,8 +160,8 @@ test('both partners can add, edit and delete events', function () {
 
 test('yearly events repeat, Feb 29 lands on Feb 28, and anniversaries count years', function () {
     [$space] = calCouple();
-    $space->update(['anniversary_on' => '2023-11-20']);
-    $space->events()->create(['title' => 'Leap', 'date' => '2024-02-29', 'kind' => 'birthday', 'repeats_yearly' => true]);
+    $space->events()->create(['title' => 'anniversary', 'date' => '2023-11-20', 'kind' => 'anniversary', 'repeats_yearly' => true]);
+    $space->events()->create(['title' => 'Leap', 'date' => '2024-02-29', 'kind' => 'special', 'repeats_yearly' => true]);
     $space->events()->create(['title' => 'One-off', 'date' => '2026-12-01', 'kind' => 'other']);
     $this->travelTo(at('2026-11-10 09:00'));
 
@@ -190,7 +190,11 @@ test('anniversary date is set in space settings and cannot be in the future', fu
     $this->actingAs($a)->patch(route('spaces.update', $space), ['timezone' => 'Asia/Bangkok', 'anniversary_on' => '2022-05-01'])
         ->assertSessionHasNoErrors();
 
-    expect($space->fresh()->anniversary_on->toDateString())->toBe('2022-05-01');
+    expect($space->fresh()->anniversary()->date->toDateString())->toBe('2022-05-01');
+
+    // Clearing it removes the anniversary date.
+    $this->actingAs($a)->patch(route('spaces.update', $space), ['timezone' => 'Asia/Bangkok', 'anniversary_on' => '']);
+    expect($space->fresh()->anniversary())->toBeNull();
 });
 
 test('wall: events of another space are unreachable', function () {
@@ -225,7 +229,7 @@ test('activity says what happened, never the answer text or drafts', function ()
 
 test('the daily tab lists today\'s events', function () {
     [$space, $a] = calCouple();
-    $space->update(['anniversary_on' => '2020-11-05']);
+    $space->events()->create(['title' => 'anniversary', 'date' => '2020-11-05', 'kind' => 'anniversary', 'repeats_yearly' => true]);
     $this->travelTo(at('2026-11-05 09:00'));
 
     $props = $this->actingAs($a)->get(route('spaces.daily', $space))->viewData('page')['props'];

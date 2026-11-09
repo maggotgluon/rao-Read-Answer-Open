@@ -12,6 +12,7 @@
 - [ ] Deploy pipeline (server side): Plesk Git pulls `deploy`, `.env`, migrations, cron — first real deploy
 
 ## Weekend 2 — Moments + Daily + Overview / ช่วงเวลา รายวัน ภาพรวม (done early, 2026-11-09)
+
 - [x] 3 tabs per space: Overview (calendar) · Daily · Moments; bottom tab bar on phones
 - [x] Moments: text + up to 4 photos, private drafts, browser compression + server re-encode (EXIF/GPS stripped)
 - [x] Private photo route (members only, drafts author-only, `no-cache` + ETag), reactions (1/person), comments
@@ -21,15 +22,19 @@
 - [x] Events (yearly repeat) + anniversary; upcoming list; activity feed
 - [x] Demo history seed (3 weeks) for local testing
 
-## Weekend 3 — Polish & safety / ปรับแต่งและความปลอดภัย
-- [ ] UI consistency pass (Mag noted inconsistencies) + brand direction (soft & warm)
-- [ ] Moments wall: pagination / "load more" beyond 50
-- [ ] Daily backup (DB + photos, keep 7) + off-host copy
-- [ ] Mag edits the Thai prompt library
+## Weekend 3 — Push, themes, library / แจ้งเตือน ธีม คลังคำถาม (2026-11-09)
+- [x] Web push: morning question, evening reminder (only if unanswered), partner answered, new moment, comments/reactions, date reminders; per-person switches + times; iPhone install guide
+- [x] 3 themes per person (blush default, paper, candle)
+- [x] Birthday on profile (+ show age choice); shown in all of a person's spaces
+- [x] Moments ↔ our dates + "On this day" memories; anniversary as a date
+- [x] Prompt library to 300 + admin page; add-only seeder
+- [ ] UI consistency pass (settings pages still partly English, blush background flatter than the mock-up)
+- [ ] Mag edits the Thai prompt library (now possible in the admin page)
+- [ ] Moments wall: "load more" beyond 50
 
 ## Weekend 4 — Push, polish, ship / แจ้งเตือนและเปิดใช้
 
-- [ ] Web push (VAPID): partner answered/posted + daily reminder; iOS "Add to Home Screen" onboarding
-- [ ] Brand pass (soft & warm), Thai typography check
+- [ ] First real deploy (Plesk) + VAPID keys on the server
+- [ ] Daily backup (DB + photos, keep 7) + off-host copy
 - [ ] SPF/DKIM/DMARC for host mail; password reset verified end-to-end
 - [ ] Ship to `rao.mag.codes` and use it for real

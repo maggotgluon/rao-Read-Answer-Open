@@ -12,6 +12,7 @@ import { useT } from '@/lib/i18n';
 import { daily } from '@/routes/spaces';
 import type { DayDetail } from '@/types/space';
 import { EventLabel } from './events-panel';
+import { Memories } from './memories';
 
 type Props = {
     date: string | null;
@@ -110,6 +111,8 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                                 {t('day.no_prompt')}
                             </p>
                         )}
+
+                        <Memories memories={day.memories ?? []} />
 
                         {day.moments.length > 0 && (
                             <section className="flex flex-col gap-2">

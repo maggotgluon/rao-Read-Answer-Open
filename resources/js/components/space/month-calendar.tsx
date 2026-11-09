@@ -6,12 +6,12 @@ import { show } from '@/routes/spaces';
 import type { CalendarMonth, DayStatus } from '@/types/space';
 
 const STYLE: Record<DayStatus, string> = {
-    // Own colours (not theme "primary", which is near-white in dark mode).
-    complete: 'bg-rose-500 font-medium text-white',
-    partial: 'bg-rose-200 text-rose-900 dark:bg-rose-900/60 dark:text-rose-100',
-    forgiven: 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300',
+    // Theme tokens (--streak / --freeze) so every theme colours the calendar its own way.
+    complete: 'bg-streak font-medium text-streak-foreground',
+    partial: 'bg-streak-soft',
+    forgiven: 'bg-freeze text-freeze-foreground',
     missed: 'bg-muted text-muted-foreground',
-    today: 'ring-2 ring-rose-500',
+    today: 'ring-2 ring-streak',
     future: 'text-muted-foreground/60',
     before: 'text-muted-foreground/40',
 };
@@ -119,16 +119,16 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
 
             <footer className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <Legend
-                    className="bg-rose-500"
+                    className="bg-streak"
                     label={t('calendar.legend.complete')}
-                    icon={<Flame className="size-2.5 text-white" />}
+                    icon={<Flame className="size-2.5 text-streak-foreground" />}
                 />
                 <Legend
-                    className="bg-rose-200 dark:bg-rose-900/60"
+                    className="bg-streak-soft"
                     label={t('calendar.legend.partial')}
                 />
                 <Legend
-                    className="bg-sky-100 dark:bg-sky-950"
+                    className="bg-freeze"
                     label={t('calendar.legend.forgiven')}
                 />
                 <Legend

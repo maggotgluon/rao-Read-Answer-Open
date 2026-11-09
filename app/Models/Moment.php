@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
  * @property string $ulid
  * @property int $space_id
  * @property int $user_id
+ * @property int|null $space_event_id
  * @property string|null $body
  * @property string $status
  * @property Carbon|null $posted_at
@@ -28,7 +29,7 @@ class Moment extends Model
 
     public const STATUS_POSTED = 'posted';
 
-    protected $fillable = ['space_id', 'user_id', 'body', 'status', 'posted_at'];
+    protected $fillable = ['space_id', 'user_id', 'space_event_id', 'body', 'status', 'posted_at'];
 
     /** @return array<int, string> */
     public function uniqueIds(): array
@@ -50,6 +51,13 @@ class Moment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** One of "our dates" this moment belongs to. / วันสำคัญที่ช่วงเวลานี้ผูกอยู่ */
+    /** @return BelongsTo<SpaceEvent, $this> */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(SpaceEvent::class, 'space_event_id');
     }
 
     /** @return BelongsTo<Space, $this> */

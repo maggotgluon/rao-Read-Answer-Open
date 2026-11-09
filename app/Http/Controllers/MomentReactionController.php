@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\MomentReaction;
 use App\Models\Space;
+use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,7 +13,7 @@ use Illuminate\Validation\Rule;
 /** One reaction per person per moment; sending the same emoji again removes it. */
 class MomentReactionController extends Controller
 {
-    public function update(Request $request, Space $space, Moment $moment): RedirectResponse
+    public function update(Request $request, Space $space, Moment $moment, Push $push): RedirectResponse
     {
         abort_if($moment->isDraft(), 404);
 
@@ -26,6 +27,11 @@ class MomentReactionController extends Controller
                 ['user_id' => $request->user()->id],
                 ['emoji' => $data['emoji']],
             );
+
+            if (! $existing && $moment->user_id !== $request->user()->id) {
+                $push->notify($moment->user, 'moment_activity', 'reaction',
+                    ['name' => $request->user()->name, 'emoji' => $data['emoji']], route('spaces.moments', $space), $space);
+            }
         }
 
         return back();

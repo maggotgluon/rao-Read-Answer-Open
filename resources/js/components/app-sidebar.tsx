@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { Heart, Snowflake } from 'lucide-react';
+import { Heart, Library, Snowflake } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavUser } from '@/components/nav-user';
@@ -17,9 +17,10 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useT } from '@/lib/i18n';
 import { dashboard } from '@/routes';
+import { index as adminPrompts } from '@/routes/admin/prompts';
 
 export function AppSidebar() {
-    const { spaces } = usePage().props;
+    const { spaces, isAdmin } = usePage().props;
     const { t } = useT();
     const { isCurrentUrl } = useCurrentUrl();
 
@@ -76,6 +77,22 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                {isAdmin && (
+                    <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton
+                                asChild
+                                isActive={isCurrentUrl(adminPrompts.url())}
+                                tooltip={{ children: t('admin.title') }}
+                            >
+                                <Link href={adminPrompts.url()} prefetch>
+                                    <Library />
+                                    <span>{t('admin.title')}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                )}
                 <LanguageSwitch className="mx-2 self-start group-data-[collapsible=icon]:hidden" />
                 <NavUser />
             </SidebarFooter>

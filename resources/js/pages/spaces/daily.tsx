@@ -1,5 +1,6 @@
 import { ActivityFeed } from '@/components/space/activity-feed';
 import { EventLabel } from '@/components/space/events-panel';
+import { Memories } from '@/components/space/memories';
 import { SpaceShell } from '@/components/space/space-shell';
 import { StreakPill } from '@/components/space/streak-pill';
 import { TodaySection } from '@/components/space/today-section';
@@ -8,6 +9,7 @@ import type {
     ActivityItem,
     DayItem,
     EventOccurrence,
+    Memory,
     SpaceDetail,
     Streak,
 } from '@/types/space';
@@ -18,6 +20,7 @@ type Props = {
     streak: Streak;
     todayEvents: EventOccurrence[];
     activity: ActivityItem[];
+    memories: Memory[];
 };
 
 /** Tab 2 — Daily: today's question/quest, streak, today's events, activity. / รายวัน */
@@ -27,6 +30,7 @@ export default function SpaceDaily({
     streak,
     todayEvents,
     activity,
+    memories,
 }: Props) {
     const { t } = useT();
     const frozen = space.status === 'frozen';
@@ -34,7 +38,7 @@ export default function SpaceDaily({
     return (
         <SpaceShell space={space} tab="daily">
             {todayEvents.length > 0 && (
-                <section className="flex flex-col gap-1 rounded-2xl border border-amber-500/40 bg-amber-50 p-4 dark:bg-amber-950/30">
+                <section className="flex flex-col gap-1 rounded-2xl border border-primary/30 bg-primary/10 p-4">
                     <h2 className="text-sm font-medium">
                         {t('daily.today_events')} 🎉
                     </h2>
@@ -43,6 +47,8 @@ export default function SpaceDaily({
                     ))}
                 </section>
             )}
+
+            <Memories memories={memories} />
 
             {space.partner ? (
                 <>

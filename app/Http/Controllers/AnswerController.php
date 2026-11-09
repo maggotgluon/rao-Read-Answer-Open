@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DailyPrompt;
 use App\Models\Space;
 use App\Services\DailyPrompts;
+use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 /** Save my answer for a day (create, or edit until my partner has answered). */
 class AnswerController extends Controller
 {
-    public function store(Request $request, Space $space, DailyPrompt $dailyPrompt, DailyPrompts $prompts): RedirectResponse
+    public function store(Request $request, Space $space, DailyPrompt $dailyPrompt, DailyPrompts $prompts, Push $push): RedirectResponse
     {
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
         $user = $request->user();
@@ -21,7 +22,7 @@ class AnswerController extends Controller
         // Only days from the current window (pairing → today, max 7 days) can be answered.
         abort_unless($prompts->pairedOn($space) && $dailyPrompt->isOpen(), 422, __('today.closed'));
 
-        DB::transaction(function () use ($dailyPrompt, $user, $data) {
+        $isNew = DB::transaction(function () use ($dailyPrompt, $user, $data) {
             $answers = $dailyPrompt->answers()->lockForUpdate()->get();
             $mine = $answers->firstWhere('user_id', $user->id);
             $partnerAnswered = $answers->contains(fn ($a) => $a->user_id !== $user->id);
@@ -33,7 +34,16 @@ class AnswerController extends Controller
             $mine
                 ? $mine->update(['body' => $data['body']])
                 : $dailyPrompt->answers()->create(['user_id' => $user->id, 'body' => $data['body']]);
+
+            return ! $mine;
         });
+
+        // First answer only (not edits). / แจ้งเฉพาะครั้งแรกที่ตอบ
+        if ($isNew && $partner = $space->partnerOf($user)) {
+            $isQuest = $dailyPrompt->prompt->kind === 'quest';
+            $push->notify($partner, 'partner_answered', $isQuest ? 'quest_done' : 'answered',
+                ['name' => $user->name], route('spaces.daily', $space), $space);
+        }
 
         return back();
     }

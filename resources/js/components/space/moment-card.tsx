@@ -9,16 +9,24 @@ import {
 } from '@/routes/spaces/comments';
 import { destroy, publish } from '@/routes/spaces/moments';
 import { update as react } from '@/routes/spaces/reactions';
-import type { MomentItem } from '@/types/space';
+import type { MomentItem, SpaceEvent } from '@/types/space';
+import { MarkDateDialog } from './mark-date-dialog';
 
 type Props = {
     moment: MomentItem;
     spaceId: string;
     emojis: string[];
     readOnly: boolean;
+    dateOptions?: SpaceEvent[];
 };
 
-export function MomentCard({ moment, spaceId, emojis, readOnly }: Props) {
+export function MomentCard({
+    moment,
+    spaceId,
+    emojis,
+    readOnly,
+    dateOptions = [],
+}: Props) {
     const { t, locale } = useT();
     const args = { space: spaceId, moment: moment.id };
     const isDraft = moment.status === 'draft';
@@ -92,6 +100,23 @@ export function MomentCard({ moment, spaceId, emojis, readOnly }: Props) {
 
             {moment.body && (
                 <p className="whitespace-pre-line">{moment.body}</p>
+            )}
+
+            {!isDraft && (moment.date || !readOnly) && (
+                <div className="flex flex-wrap items-center gap-2">
+                    {moment.date && (
+                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                            ⭐ {moment.date.title}
+                        </span>
+                    )}
+                    {!readOnly && (
+                        <MarkDateDialog
+                            moment={moment}
+                            spaceId={spaceId}
+                            options={dateOptions}
+                        />
+                    )}
+                </div>
             )}
 
             {isDraft ? (

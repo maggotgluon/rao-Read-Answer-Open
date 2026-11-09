@@ -1,33 +1,15 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @class(['dark' => ($appearance ?? 'system') == 'dark'])>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ $theme ?? 'blush' }}" @class(['dark' => ($theme ?? 'blush') === 'candle'])>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-        {{-- Inline script to detect system dark mode preference and apply it immediately --}}
-        <script>
-            (function() {
-                const appearance = '{{ $appearance ?? "system" }}';
-
-                if (appearance === 'system') {
-                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-                    if (prefersDark) {
-                        document.documentElement.classList.add('dark');
-                    }
-                }
-            })();
-        </script>
-
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
-            html {
-                background-color: oklch(1 0 0);
-            }
-
-            html.dark {
-                background-color: oklch(0.145 0 0);
-            }
+            /* Paint the theme background before CSS loads (no white flash). */
+            html[data-theme='blush'] { background-color: #fff1ec; }
+            html[data-theme='paper'] { background-color: #fbf6ee; }
+            html[data-theme='candle'] { background-color: #1d1424; }
         </style>
 
         <link rel="icon" href="/favicon.ico" sizes="any">
@@ -36,7 +18,7 @@
 
         {{-- PWA --}}
         <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#e07a5f">
+        <meta name="theme-color" content="{{ ['blush' => '#fff1ec', 'paper' => '#fbf6ee', 'candle' => '#1d1424'][$theme ?? 'blush'] }}">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">

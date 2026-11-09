@@ -12,4 +12,5 @@ Artisan::command('inspire', function () {
 // โฮสต์ใช้ cron ของ Plesk เรียก schedule:run ทุกนาที
 Schedule::command('spaces:purge')->dailyAt('03:00');
 Schedule::command('prompts:assign')->hourly();
+Schedule::command('push:daily')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();

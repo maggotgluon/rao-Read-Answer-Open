@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\Space;
 use App\Services\MomentPhotos;
+use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +15,7 @@ use Throwable;
 
 class MomentController extends Controller
 {
-    public function store(Request $request, Space $space, MomentPhotos $photos): RedirectResponse
+    public function store(Request $request, Space $space, MomentPhotos $photos, Push $push): RedirectResponse
     {
         $data = $request->validate([
             'body' => ['nullable', 'string', 'max:2000'],
@@ -55,16 +56,21 @@ class MomentController extends Controller
             throw $e;
         }
 
+        if ($publish) {
+            $this->tellPartner($request, $space, $push);
+        }
+
         Inertia::flash('toast', ['type' => 'success', 'message' => __($publish ? 'moment.posted' : 'moment.saved_draft')]);
 
         return back();
     }
 
-    public function publish(Request $request, Space $space, Moment $moment): RedirectResponse
+    public function publish(Request $request, Space $space, Moment $moment, Push $push): RedirectResponse
     {
         $this->ownDraftOr404($request, $moment);
 
         $moment->update(['status' => Moment::STATUS_POSTED, 'posted_at' => now()]);
+        $this->tellPartner($request, $space, $push);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('moment.posted')]);
 
         return back();
@@ -80,6 +86,13 @@ class MomentController extends Controller
         $paths->each(fn ($p) => $photos->delete($p));
 
         return back();
+    }
+
+    private function tellPartner(Request $request, Space $space, Push $push): void
+    {
+        if ($partner = $space->partnerOf($request->user())) {
+            $push->notify($partner, 'partner_moment', 'moment', ['name' => $request->user()->name], route('spaces.moments', $space), $space);
+        }
     }
 
     private function ownDraftOr404(Request $request, Moment $moment): void

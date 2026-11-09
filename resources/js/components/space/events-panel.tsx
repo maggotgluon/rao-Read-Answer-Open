@@ -37,13 +37,22 @@ export function EventLabel({
             <Icon className="size-4 shrink-0 text-amber-500" />
             <span className="flex-1">
                 {event.title}
-                {event.years > 0 &&
-                    (event.kind === 'anniversary' ||
-                        event.kind === 'special') && (
-                        <span className="ml-1 text-xs text-muted-foreground">
-                            · {t('event.years', { count: event.years })}
-                        </span>
-                    )}
+                {(event.memories ?? 0) > 0 && (
+                    <span className="ml-1 text-xs">🎞️</span>
+                )}
+                {event.years > 0 && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                        ·{' '}
+                        {t(
+                            event.kind === 'birthday'
+                                ? 'event.turns'
+                                : 'event.years',
+                            {
+                                count: event.years,
+                            },
+                        )}
+                    </span>
+                )}
             </span>
             {showWhen && (
                 <span
@@ -146,7 +155,14 @@ export function ManageEvents({
                                 )}
                                 {e.repeats_yearly && ' ↻'}
                             </span>
-                            {!readOnly && (
+                            {e.moments > 0 && (
+                                <span className="text-xs text-primary">
+                                    {t('event.moments_count', {
+                                        count: e.moments,
+                                    })}
+                                </span>
+                            )}
+                            {!readOnly && e.kind !== 'anniversary' && (
                                 <>
                                     <button
                                         type="button"
@@ -210,7 +226,7 @@ function EventForm({
     const form = useForm<Draft>({
         title: event?.title ?? '',
         date: event?.date ?? '',
-        kind: event?.kind ?? 'birthday',
+        kind: event?.kind === 'other' ? 'other' : 'special',
         repeats_yearly: event?.repeats_yearly ?? true,
     });
 
@@ -230,7 +246,7 @@ function EventForm({
             className="grid gap-3 rounded-xl bg-muted/50 p-3"
         >
             <div className="flex gap-1">
-                {(['birthday', 'special', 'other'] as const).map((k) => (
+                {(['special', 'other'] as const).map((k) => (
                     <button
                         key={k}
                         type="button"

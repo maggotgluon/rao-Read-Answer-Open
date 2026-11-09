@@ -46,11 +46,17 @@ How it works / หลักการ:
     /opt/plesk/php/8.4/bin/php artisan db:seed --class=PromptLibrarySeeder --force   # idempotent / รันซ้ำได้
     /opt/plesk/php/8.4/bin/php artisan optimize
     ```
-7. **Scheduled task** (Plesk → Scheduled Tasks), every minute:
+7. **Push keys (once):** generate on your Mac with `php artisan push:vapid` and paste
+   `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` into the server `.env`. Never change them later
+   (every phone would have to re-enable notifications). / สร้างครั้งเดียว ห้ามเปลี่ยนภายหลัง
+8. **Admin (once, after you register):** add a one-off deploy action
+   `php artisan rao:admin you@example.com`, deploy, then remove it.
+9. **Scheduled task** (Plesk → Scheduled Tasks), every minute:
     ```bash
     cd /var/www/vhosts/<domain>/rao && /opt/plesk/php/8.4/bin/php artisan schedule:run
     ```
-    Drives the queue, `spaces:purge`, and (later) daily prompts, reminders, backups.
+    Drives the queue (push sending), `push:daily` (morning/evening/date pushes, every 5 min),
+   `prompts:assign`, `spaces:purge`, and later backups.
 
 ## Every deploy / ทุกครั้งที่ deploy
 

@@ -7,6 +7,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useT } from '@/lib/i18n';
 import { edit } from '@/routes/profile';
 import type { Auth } from '@/types';
 import { send } from '@/routes/verification';
@@ -23,6 +24,7 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const { t } = useT();
 
     return (
         <>
@@ -63,6 +65,40 @@ export default function Profile({
                                     className="mt-2"
                                     message={errors.name}
                                 />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="birthday">
+                                    {t('profile.birthday')}
+                                </Label>
+                                <Input
+                                    id="birthday"
+                                    type="date"
+                                    name="birthday"
+                                    className="mt-1 block w-auto"
+                                    defaultValue={auth.user.birthday ?? ''}
+                                />
+                                <label className="flex items-center gap-2 text-sm">
+                                    {/* unchecked boxes send nothing, so send 0 first */}
+                                    <input
+                                        type="hidden"
+                                        name="show_age"
+                                        value="0"
+                                    />
+                                    <input
+                                        type="checkbox"
+                                        name="show_age"
+                                        value="1"
+                                        defaultChecked={
+                                            auth.user.show_age ?? false
+                                        }
+                                    />
+                                    {t('profile.show_age')}
+                                </label>
+                                <p className="text-xs text-muted-foreground">
+                                    {t('profile.birthday_help')}
+                                </p>
+                                <InputError message={errors.birthday} />
                             </div>
 
                             <div className="grid gap-2">

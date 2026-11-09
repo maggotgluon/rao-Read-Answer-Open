@@ -59,6 +59,7 @@ export type MomentItem = {
     body: string | null;
     status: 'draft' | 'posted';
     posted_at: string | null;
+    date: { id: number; kind: string; title: string } | null;
     photos: { url: string; width: number; height: number }[];
     reactions: { emoji: string; mine: boolean }[];
     comments: {
@@ -101,6 +102,8 @@ export type CalendarMonth = {
 
 export type EventOccurrence = {
     event_id: number | null;
+    user_id?: number | null;
+    memories?: number;
     kind: 'birthday' | 'special' | 'other' | 'anniversary';
     title: string;
     date: string;
@@ -110,11 +113,22 @@ export type EventOccurrence = {
 
 export type SpaceEvent = {
     id: number;
-    kind: 'birthday' | 'special' | 'other';
+    kind: 'special' | 'other' | 'anniversary';
     title: string;
     date: string;
     repeats_yearly: boolean;
     author: string | null;
+    moments: number;
+};
+
+export type Memory = {
+    id: string;
+    author: string;
+    body: string | null;
+    posted_at: string | null;
+    years_ago: number;
+    event: string | null;
+    photos: string[];
 };
 
 export type DayDetail = {
@@ -127,6 +141,7 @@ export type DayDetail = {
         photos: string[];
     }[];
     events: EventOccurrence[];
+    memories: Memory[];
 };
 
 export type ActivityItem = {

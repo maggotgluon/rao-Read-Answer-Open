@@ -42,6 +42,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'locale' => app()->getLocale(),
+            'theme' => $request->attributes->get('theme', 'blush'),
+            'isAdmin' => (bool) $request->user()?->is_admin,
+            'vapidPublicKey' => config('services.webpush.public_key'),
             'translations' => fn () => $this->translations(app()->getLocale()),
             // Only the signed-in user's own spaces (for the switcher). / เฉพาะ space ของตัวเอง
             'spaces' => fn () => $request->user()?->spaces()

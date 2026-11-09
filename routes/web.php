@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Admin\PromptController as AdminPromptController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MomentCommentController;
 use App\Http\Controllers\MomentController;
+use App\Http\Controllers\MomentDateController;
 use App\Http\Controllers\MomentMediaController;
 use App\Http\Controllers\MomentReactionController;
 use App\Http\Controllers\PromptController;
@@ -65,11 +67,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->middleware('throttle:30,1')->name('moments.store');
             Route::post('moments/{moment}/publish', [MomentController::class, 'publish'])->name('moments.publish');
             Route::delete('moments/{moment}', [MomentController::class, 'destroy'])->name('moments.destroy');
+            Route::put('moments/{moment}/date', [MomentDateController::class, 'update'])->name('moments.date');
             Route::put('moments/{moment}/reaction', [MomentReactionController::class, 'update'])->name('reactions.update');
             Route::post('moments/{moment}/comments', [MomentCommentController::class, 'store'])->name('comments.store');
             Route::delete('moments/{moment}/comments/{comment}', [MomentCommentController::class, 'destroy'])->name('comments.destroy');
         });
     });
+});
+
+// Admin: prompt library. Non-admins get 404. / แอดมิน: คลังคำถาม
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('prompts', [AdminPromptController::class, 'index'])->name('prompts.index');
+    Route::post('prompts', [AdminPromptController::class, 'store'])->name('prompts.store');
+    Route::patch('prompts/{prompt}', [AdminPromptController::class, 'update'])->name('prompts.update');
+    Route::delete('prompts/{prompt}', [AdminPromptController::class, 'destroy'])->name('prompts.destroy');
 });
 
 require __DIR__.'/settings.php';

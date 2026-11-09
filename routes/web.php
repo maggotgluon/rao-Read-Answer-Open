@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\SpaceController;
+use App\Support\DevTools;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,6 +14,11 @@ Route::get('/', function () {
 Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::get('offline', fn () => inertia('offline'))->name('offline');
+
+// Dev only: one-click demo login (controller also refuses outside local).
+if (DevTools::enabled()) {
+    Route::post('dev/login', DevLoginController::class)->middleware('guest')->name('dev.login');
+}
 
 // Invite links work for guests too (they sign up, then come back).
 Route::get('join/{code}', [InviteController::class, 'show'])->name('invites.show');

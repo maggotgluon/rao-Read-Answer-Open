@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Space;
 use App\Models\User;
+use App\Support\DevTools;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -11,8 +13,9 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Local test accounts only (verified, password "password").
-     * บัญชีทดสอบสำหรับเครื่อง local เท่านั้น
+     * Local demo data (verified users, password "password"):
+     *   Mag ↔ Partner, Mag ↔ Third (poly), Solo has no space.
+     * ข้อมูลเดโมสำหรับเครื่อง local เท่านั้น
      */
     public function run(): void
     {
@@ -20,12 +23,16 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        foreach ([
-            ['name' => 'Mag', 'email' => 'mag@rao.test', 'locale' => 'th'],
-            ['name' => 'Partner', 'email' => 'partner@rao.test', 'locale' => 'th'],
-            ['name' => 'Third', 'email' => 'third@rao.test', 'locale' => 'en'],
-        ] as $u) {
-            User::factory()->create($u);
+        $users = [];
+        foreach (DevTools::demoAccounts() as $a) {
+            $users[$a['name']] = User::factory()->create([
+                'name' => $a['name'],
+                'email' => $a['email'],
+                'locale' => $a['locale'],
+            ]);
         }
+
+        Space::factory()->withMembers($users['Mag'], $users['Partner'])->create();
+        Space::factory()->withMembers($users['Mag'], $users['Third'])->create();
     }
 }

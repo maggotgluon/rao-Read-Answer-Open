@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Features;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -44,6 +45,11 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'theme' => $request->attributes->get('theme', 'blush'),
             'isAdmin' => (bool) $request->user()?->is_admin,
+            // Person-level switches (themes, poly) + whether location is on in any of my spaces.
+            'features' => fn () => [
+                ...Features::forUser($request->user()),
+                'location' => (bool) $request->user()?->spaces()->get()->contains(fn ($s) => Features::on('location', $s)),
+            ],
             'vapidPublicKey' => config('services.webpush.public_key'),
             'translations' => fn () => $this->translations(app()->getLocale()),
             // Only the signed-in user's own spaces (for the switcher). / เฉพาะ space ของตัวเอง

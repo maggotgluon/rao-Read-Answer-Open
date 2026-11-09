@@ -17,7 +17,7 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useT } from '@/lib/i18n';
 import { dashboard } from '@/routes';
-import { index as adminPrompts } from '@/routes/admin/prompts';
+import { dashboard as adminHome } from '@/routes/admin';
 
 export function AppSidebar() {
     const { spaces, isAdmin } = usePage().props;
@@ -82,12 +82,12 @@ export function AppSidebar() {
                         <SidebarMenuItem>
                             <SidebarMenuButton
                                 asChild
-                                isActive={isCurrentUrl(adminPrompts.url())}
-                                tooltip={{ children: t('admin.title') }}
+                                isActive={isCurrentUrl(adminHome.url())}
+                                tooltip={{ children: t('admin.menu') }}
                             >
-                                <Link href={adminPrompts.url()} prefetch>
+                                <Link href={adminHome.url()} prefetch>
                                     <Library />
-                                    <span>{t('admin.title')}</span>
+                                    <span>{t('admin.menu')}</span>
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

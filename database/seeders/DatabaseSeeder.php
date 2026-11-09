@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Prompt;
+use App\Models\ScheduledPrompt;
 use App\Models\Space;
+use App\Models\SpecialDay;
 use App\Models\User;
 use App\Support\DevTools;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -66,6 +68,22 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Space::factory()->withMembers($mag, $users['Third'])->create();
+
+        // Location demo: Partner shares from Chiang Mai (rounded); Mag can switch on in the app.
+        // ตัวอย่างตำแหน่ง: Partner แชร์จากเชียงใหม่ Mag ลองเปิดเองในแอป
+        $partner->forceFill([
+            'share_location' => true, 'loc_lat' => 18.8, 'loc_lng' => 99.0,
+            'loc_city' => 'เชียงใหม่', 'loc_tz' => 'Asia/Bangkok', 'loc_at' => now(),
+        ])->save();
+
+        // Admin demo: a special day for everyone + a bonus question for today.
+        SpecialDay::create(['date' => '2026-02-14', 'emoji' => '💘', 'title_th' => 'วันวาเลนไทน์', 'title_en' => "Valentine's Day", 'repeats_yearly' => true]);
+        $bonus = Prompt::create([
+            'kind' => 'question', 'fit' => 'any', 'created_by' => $mag->id,
+            'text_th' => 'ถ้าวันนี้เป็นวันพิเศษของเรา อยากฉลองแบบไหน?',
+            'text_en' => 'If today were our special day, how would you celebrate?',
+        ]);
+        ScheduledPrompt::create(['date' => now('Asia/Bangkok')->toDateString(), 'prompt_id' => $bonus->id, 'audience' => 'all', 'created_by' => $mag->id]);
     }
 
     /** 3 weeks: mostly both answered, a few one-sided, a few missed, some moments. */
@@ -106,5 +124,6 @@ class DatabaseSeeder extends Seeder
             $at = Carbon::now($tz)->subDays($ago)->setTime(18, 30)->utc();
             $space->moments()->create(['user_id' => $user->id, 'body' => $body, 'status' => 'posted', 'posted_at' => $at, 'created_at' => $at, 'updated_at' => $at]);
         }
+
     }
 }

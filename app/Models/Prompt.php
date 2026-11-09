@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $tag
  * @property string|null $text_th
  * @property string|null $text_en
+ * @property string|null $fit
  * @property bool $active
  */
 class Prompt extends Model
@@ -31,7 +32,16 @@ class Prompt extends Model
 
     public const TAGS = ['fun', 'deep', 'memory', 'future'];
 
-    protected $fillable = ['key', 'space_id', 'created_by', 'kind', 'tag', 'text_th', 'text_en', 'active'];
+    /** together = needs the same place, any = works either way, apart = long-distance only. */
+    public const FITS = ['together', 'any', 'apart'];
+
+    protected $fillable = ['key', 'space_id', 'created_by', 'kind', 'tag', 'fit', 'text_th', 'text_en', 'active'];
+
+    /** Fit with defaults applied (question → any, quest → together). */
+    public function effectiveFit(): string
+    {
+        return $this->fit ?? ($this->kind === self::KIND_QUEST ? 'together' : 'any');
+    }
 
     protected function casts(): array
     {
@@ -54,6 +64,19 @@ class Prompt extends Model
     public function textFor(string $locale): string
     {
         return ($locale === 'en' ? ($this->text_en ?: $this->text_th) : ($this->text_th ?: $this->text_en)) ?? '';
+    }
+
+    /**
+     * Only prompts that suit this couple: long-distance → no "together" ones; otherwise no "apart".
+     *
+     * @param  Builder<Prompt>  $query
+     */
+    public function scopeFitting(Builder $query, bool $longDistance): void
+    {
+        $longDistance
+            ? $query->where(fn ($w) => $w->whereIn('fit', ['any', 'apart'])
+                ->orWhere(fn ($n) => $n->whereNull('fit')->where('kind', self::KIND_QUESTION)))
+            : $query->where(fn ($w) => $w->whereNull('fit')->orWhere('fit', '!=', 'apart'));
     }
 
     /** @param Builder<Prompt> $query */

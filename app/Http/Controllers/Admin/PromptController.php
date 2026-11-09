@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Prompt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,9 +26,19 @@ class PromptController extends Controller
             'tag' => ['nullable', Rule::in(Prompt::TAGS)],
             'status' => ['nullable', Rule::in(['active', 'inactive'])],
             'missing' => ['nullable', Rule::in(['th', 'en'])],
+            'fit' => ['nullable', Rule::in(Prompt::FITS)],
+            'sort' => ['nullable', Rule::in(['worst', 'best'])],
         ]);
 
-        $query = Prompt::query()->whereNull('space_id')->withCount('dailyUses');
+        // 👍/👎 totals per prompt (private ratings, counts only). / รวมคะแนนต่อคำถาม
+        $ratings = DB::table('prompt_ratings')->join('daily_prompts', 'daily_prompts.id', '=', 'prompt_ratings.daily_prompt_id')
+            ->selectRaw('daily_prompts.prompt_id, sum(case when value > 0 then 1 else 0 end) as up, sum(case when value < 0 then 1 else 0 end) as down')
+            ->groupBy('daily_prompts.prompt_id');
+
+        $query = Prompt::query()
+            ->select('prompts.*', DB::raw('coalesce(r.up, 0) as up'), DB::raw('coalesce(r.down, 0) as down'))
+            ->leftJoinSub($ratings, 'r', 'r.prompt_id', '=', 'prompts.id')
+            ->whereNull('space_id')->withCount('dailyUses');
 
         if ($q = $filters['q'] ?? null) {
             $query->where(fn ($w) => $w->where('text_en', 'like', "%{$q}%")
@@ -41,6 +52,18 @@ class PromptController extends Controller
         if ($s = $filters['status'] ?? null) {
             $query->where('active', $s === 'active');
         }
+        if ($fit = $filters['fit'] ?? null) {
+            $fit === 'any'
+                ? $query->where(fn ($w) => $w->where('fit', 'any')->orWhere(fn ($n) => $n->whereNull('fit')->where('kind', Prompt::KIND_QUESTION)))
+                : ($fit === 'together'
+                    ? $query->where(fn ($w) => $w->where('fit', 'together')->orWhere(fn ($n) => $n->whereNull('fit')->where('kind', Prompt::KIND_QUEST)))
+                    : $query->where('fit', 'apart'));
+        }
+        match ($filters['sort'] ?? null) {
+            'worst' => $query->orderByRaw('coalesce(r.up, 0) - coalesce(r.down, 0)')->orderByDesc('down'),
+            'best' => $query->orderByRaw('coalesce(r.up, 0) - coalesce(r.down, 0) desc'),
+            default => null,
+        };
         if ($m = $filters['missing'] ?? null) {
             $query->where(fn ($w) => $w->whereNull("text_{$m}")->orWhere("text_{$m}", ''));
         }
@@ -53,6 +76,9 @@ class PromptController extends Controller
                     'id' => $p->id, 'key' => $p->key, 'kind' => $p->kind, 'tag' => $p->tag,
                     'text_en' => $p->text_en, 'text_th' => $p->text_th, 'active' => $p->active,
                     'uses' => $p->daily_uses_count,
+                    'fit' => $p->effectiveFit(),
+                    'up' => (int) $p->up,
+                    'down' => (int) $p->down,
                 ]),
             'filters' => $filters,
             'stats' => [
@@ -63,6 +89,7 @@ class PromptController extends Controller
             ],
             'kinds' => Prompt::KINDS,
             'tags' => Prompt::TAGS,
+            'fits' => Prompt::FITS,
         ]);
     }
 
@@ -105,11 +132,12 @@ class PromptController extends Controller
         $data = $request->validate([
             'kind' => ['required', Rule::in(Prompt::KINDS)],
             'tag' => ['required', Rule::in(Prompt::TAGS)],
+            'fit' => ['nullable', Rule::in([...Prompt::FITS, ''])],
             'text_en' => ['nullable', 'string', 'max:300', 'required_without:text_th'],
             'text_th' => ['nullable', 'string', 'max:300', 'required_without:text_en'],
             'active' => ['boolean'],
         ]);
 
-        return [...$data, 'active' => $request->boolean('active', true)];
+        return [...$data, 'fit' => ($data['fit'] ?? null) ?: null, 'active' => $request->boolean('active', true)];
     }
 }

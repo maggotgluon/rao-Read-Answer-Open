@@ -28,6 +28,13 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $morning_at
  * @property string $evening_at
  * @property bool $is_admin
+ * @property bool $share_location
+ * @property float|null $loc_lat
+ * @property float|null $loc_lng
+ * @property string|null $loc_city
+ * @property string|null $loc_tz
+ * @property Carbon|null $loc_at
+ * @property Carbon|null $last_seen_at
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -37,8 +44,9 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'locale', 'birthday', 'show_age', 'theme', 'notify', 'morning_at', 'evening_at'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Fillable(['name', 'email', 'password', 'locale', 'birthday', 'show_age', 'theme', 'notify', 'morning_at', 'evening_at', 'share_location'])]
+// Location stays server-side (only distance/city/time are shown to partners).
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'loc_lat', 'loc_lng', 'loc_at', 'last_seen_at'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -89,6 +97,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'show_age' => 'boolean',
             'notify' => 'array',
             'is_admin' => 'boolean',
+            'share_location' => 'boolean',
+            'loc_lat' => 'float',
+            'loc_lng' => 'float',
+            'loc_at' => 'datetime',
+            'last_seen_at' => 'datetime',
         ];
     }
 }

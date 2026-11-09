@@ -45,6 +45,16 @@ second: long-distance couples. Personal use first, built so it can go public.
 - **Moments:** up to 4 photos, private drafts, only the author deletes.
 - **Photo caching:** `private, no-cache` + ETag — browser must re-check membership every time (found in testing: a year-long cache let a different user on the same browser reuse a photo after logout).
 
+## Long-distance, ratings, admin tools, feature switches (decided 2026-11-09, round 2)
+
+- **Location:** updates automatically when the app opens, only after the person switches sharing on (browser asks permission). Rounded to a ~5 km grid before saving, at most every 30 min; switching off deletes it. Partners see **distance + city + their local time**, and only when **both** share. City names from OpenStreetMap (only rounded coordinates are sent). Poly: one location per person, shown to all their partners (hiding per space = maybe later).
+  / ตำแหน่งอัปเดตอัตโนมัติเมื่อเปิดแอป (ต้องเปิดแชร์ก่อน) ปัดเป็น ~5 กม. เห็นระยะทาง เมือง เวลาท้องถิ่น เฉพาะเมื่อแชร์ทั้งคู่
+- **Long-distance mode (โหมดไกลกัน):** either partner turns it on; suggested when > 100 km apart. On: no "together" prompts, "apart" ones mixed in (~half). Off: no "apart" prompts. Prompt `fit` = together | any | apart (default: questions any, quests together).
+- **Ratings:** 👍/👎 on each day's question/quest, private (partner never sees), only admin stats use it; 👎 does not swap the question.
+- **Admin schedule:** question/quest for a date (audience: all / long-distance / not long-distance) becomes that day's prompt and is never handed out early. If the couple queued their own, **both show**; the admin one is a **bonus** that doesn't affect the streak. Special days (e.g. Valentine's) show in every space's calendar.
+- **Admin dashboard & users:** counts and trends only (users, active 1/7/30 days, spaces, answer rate, streaks, best/worst prompts); user list = name, email, joined, last active, spaces. **Never** answers, moments, photos or locations. Activity is stored as dates only.
+- **Feature switches:** admin turns each feature on/off for everyone and tags it free or premium; premium works only in spaces the admin marks premium (no payments yet). Switchable: photos, weekend quests, couple-written questions, location & long-distance, memories, themes, multiple spaces (poly). Switched off = hidden + blocked on the server; things already made stay visible.
+
 ## Push, themes, birthdays, admin (decided 2026-11-09)
 
 - **Push (web push, VAPID):** morning "today's question/quest" at each person's own time (default 08:00) + date reminders (today & tomorrow); evening reminder (default 20:00) **only if not answered**; partner answered / finished quest; partner posted a moment; comment or new reaction on my moment. Each type can be switched off per person; times per person (space timezone). Lock-screen text never contains answers, moment text or comments. Missed slots > 3h late are skipped. iPhone needs "Add to Home Screen" (guide shown).

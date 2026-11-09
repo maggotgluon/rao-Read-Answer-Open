@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prompt;
 use App\Models\Space;
+use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -16,6 +17,8 @@ class PromptController extends Controller
 
     public function store(Request $request, Space $space): RedirectResponse
     {
+        abort_unless(Features::on('custom_prompts', $space), 404);
+
         $data = $request->validate([
             'kind' => ['required', Rule::in(Prompt::KINDS)],
             'text' => ['required', 'string', 'max:300'],

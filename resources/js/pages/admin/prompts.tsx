@@ -1,6 +1,7 @@
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Plus, Search } from 'lucide-react';
 import { useState } from 'react';
+import { AdminShell } from '@/components/admin/admin-shell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,9 @@ type Row = {
     text_th: string | null;
     active: boolean;
     uses: number;
+    fit: 'together' | 'any' | 'apart';
+    up: number;
+    down: number;
 };
 
 type Props = {
@@ -26,7 +30,10 @@ type Props = {
         total: number;
     };
     filters: Partial<
-        Record<'q' | 'kind' | 'tag' | 'status' | 'missing', string>
+        Record<
+            'q' | 'kind' | 'tag' | 'status' | 'missing' | 'fit' | 'sort',
+            string
+        >
     >;
     stats: {
         total: number;
@@ -36,6 +43,7 @@ type Props = {
     };
     kinds: string[];
     tags: string[];
+    fits: string[];
 };
 
 /** Admin: the shared prompt library. / แอดมิน: คลังคำถามกลาง */
@@ -45,6 +53,7 @@ export default function AdminPrompts({
     stats,
     kinds,
     tags,
+    fits,
 }: Props) {
     const { t } = useT();
     const [editing, setEditing] = useState<number | 'new' | null>(null);
@@ -57,229 +66,245 @@ export default function AdminPrompts({
         );
 
     return (
-        <>
-            <Head title={t('admin.title')} />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-4 md:p-8">
-                <header className="flex flex-wrap items-end gap-3">
-                    <div className="flex-1">
-                        <h1 className="text-2xl font-semibold">
-                            {t('admin.title')}
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            {t('admin.stats', {
-                                active: stats.active,
-                                total: stats.total,
-                            })}{' '}
-                            ·{' '}
-                            {kinds
-                                .map(
-                                    (k) =>
-                                        `${t(`today.custom.kind_${k}`)} ${stats.by_kind[k] ?? 0}`,
-                                )
-                                .join(' · ')}{' '}
-                            ·{' '}
-                            {tags
-                                .map(
-                                    (tg) =>
-                                        `${t(`today.tag.${tg}`)} ${stats.by_tag[tg] ?? 0}`,
-                                )
-                                .join(' · ')}
-                        </p>
-                    </div>
-                    <Button onClick={() => setEditing('new')}>
-                        <Plus /> {t('admin.add')}
-                    </Button>
-                </header>
+        <AdminShell
+            tab="prompts"
+            title={t('admin.title')}
+            actions={
+                <Button onClick={() => setEditing('new')}>
+                    <Plus /> {t('admin.add')}
+                </Button>
+            }
+        >
+            <p className="text-sm text-muted-foreground">
+                {t('admin.stats', {
+                    active: stats.active,
+                    total: stats.total,
+                })}{' '}
+                ·{' '}
+                {kinds
+                    .map(
+                        (k) =>
+                            `${t(`today.custom.kind_${k}`)} ${stats.by_kind[k] ?? 0}`,
+                    )
+                    .join(' · ')}{' '}
+                ·{' '}
+                {tags
+                    .map(
+                        (tg) =>
+                            `${t(`today.tag.${tg}`)} ${stats.by_tag[tg] ?? 0}`,
+                    )
+                    .join(' · ')}
+            </p>
 
-                <div className="flex flex-wrap gap-2">
-                    <form
-                        className="flex gap-1"
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            filter({ q: q || undefined });
-                        }}
+            <div className="flex flex-wrap gap-2">
+                <form
+                    className="flex gap-1"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        filter({ q: q || undefined });
+                    }}
+                >
+                    <Input
+                        value={q}
+                        onChange={(e) => setQ(e.target.value)}
+                        placeholder={t('admin.search')}
+                        className="w-56"
+                    />
+                    <Button
+                        type="submit"
+                        variant="secondary"
+                        size="icon"
+                        aria-label={t('admin.search')}
                     >
-                        <Input
-                            value={q}
-                            onChange={(e) => setQ(e.target.value)}
-                            placeholder={t('admin.search')}
-                            className="w-56"
-                        />
-                        <Button
-                            type="submit"
-                            variant="secondary"
-                            size="icon"
-                            aria-label={t('admin.search')}
-                        >
-                            <Search />
-                        </Button>
-                    </form>
-                    <Select
-                        value={filters.kind}
-                        onChange={(v) => filter({ kind: v })}
-                        options={kinds}
-                        label={(k) => t(`today.custom.kind_${k}`)}
-                        all={t('admin.all_kinds')}
-                    />
-                    <Select
-                        value={filters.tag}
-                        onChange={(v) => filter({ tag: v })}
-                        options={tags}
-                        label={(k) => t(`today.tag.${k}`)}
-                        all={t('admin.all_tags')}
-                    />
-                    <Select
-                        value={filters.status}
-                        onChange={(v) => filter({ status: v })}
-                        options={['active', 'inactive']}
-                        label={(k) => t(`admin.${k}`)}
-                        all={t('admin.all_status')}
-                    />
-                    <Select
-                        value={filters.missing}
-                        onChange={(v) => filter({ missing: v })}
-                        options={['th', 'en']}
-                        label={(k) => t(`admin.missing_${k}`)}
-                        all={t('admin.any_text')}
-                    />
-                </div>
-
-                {editing === 'new' && (
-                    <PromptForm
-                        kinds={kinds}
-                        tags={tags}
-                        onDone={() => setEditing(null)}
-                    />
-                )}
-
-                <p className="text-xs text-muted-foreground">
-                    {t('admin.showing', { count: prompts.total })}
-                </p>
-                <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
-                    {prompts.data.map((p) =>
-                        editing === p.id ? (
-                            <li key={p.id} className="p-3">
-                                <PromptForm
-                                    prompt={p}
-                                    kinds={kinds}
-                                    tags={tags}
-                                    onDone={() => setEditing(null)}
-                                />
-                            </li>
-                        ) : (
-                            <li
-                                key={p.id}
-                                className={cn(
-                                    'flex gap-3 p-3 text-sm',
-                                    !p.active && 'opacity-50',
-                                )}
-                            >
-                                <div className="flex w-28 shrink-0 flex-col gap-1">
-                                    <Badge
-                                        variant={
-                                            p.kind === 'quest'
-                                                ? 'default'
-                                                : 'secondary'
-                                        }
-                                    >
-                                        {t(`today.custom.kind_${p.kind}`)}
-                                    </Badge>
-                                    <span className="text-xs text-muted-foreground">
-                                        {t(`today.tag.${p.tag}`)} ·{' '}
-                                        {p.key ?? 'admin'}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {t('admin.uses', { count: p.uses })}
-                                    </span>
-                                </div>
-                                <div className="flex flex-1 flex-col gap-1">
-                                    <p>
-                                        {p.text_th || (
-                                            <em className="text-destructive">
-                                                {t('admin.missing_th')}
-                                            </em>
-                                        )}
-                                    </p>
-                                    <p className="text-muted-foreground">
-                                        {p.text_en || (
-                                            <em className="text-destructive">
-                                                {t('admin.missing_en')}
-                                            </em>
-                                        )}
-                                    </p>
-                                </div>
-                                <div className="flex shrink-0 flex-col items-end gap-1">
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() => setEditing(p.id)}
-                                    >
-                                        {t('event.edit')}
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={() =>
-                                            router.patch(
-                                                update.url(p.id),
-                                                { ...p, active: !p.active },
-                                                { preserveScroll: true },
-                                            )
-                                        }
-                                    >
-                                        {p.active
-                                            ? t('admin.deactivate')
-                                            : t('admin.activate')}
-                                    </Button>
-                                    {p.uses === 0 && (
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-destructive"
-                                            onClick={() =>
-                                                window.confirm(
-                                                    t('admin.delete_confirm'),
-                                                ) &&
-                                                router.delete(
-                                                    destroy.url(p.id),
-                                                    { preserveScroll: true },
-                                                )
-                                            }
-                                        >
-                                            {t('event.delete')}
-                                        </Button>
-                                    )}
-                                </div>
-                            </li>
-                        ),
-                    )}
-                </ul>
-
-                <nav className="flex flex-wrap gap-1">
-                    {prompts.links.map((l, i) =>
-                        l.url ? (
-                            <Link
-                                key={i}
-                                href={l.url}
-                                preserveScroll
-                                className={cn(
-                                    'rounded-lg px-3 py-1 text-sm',
-                                    l.active
-                                        ? 'bg-primary text-primary-foreground'
-                                        : 'hover:bg-muted',
-                                )}
-                            >
-                                <span
-                                    dangerouslySetInnerHTML={{
-                                        __html: l.label,
-                                    }}
-                                />
-                            </Link>
-                        ) : null,
-                    )}
-                </nav>
+                        <Search />
+                    </Button>
+                </form>
+                <Select
+                    value={filters.kind}
+                    onChange={(v) => filter({ kind: v })}
+                    options={kinds}
+                    label={(k) => t(`today.custom.kind_${k}`)}
+                    all={t('admin.all_kinds')}
+                />
+                <Select
+                    value={filters.tag}
+                    onChange={(v) => filter({ tag: v })}
+                    options={tags}
+                    label={(k) => t(`today.tag.${k}`)}
+                    all={t('admin.all_tags')}
+                />
+                <Select
+                    value={filters.status}
+                    onChange={(v) => filter({ status: v })}
+                    options={['active', 'inactive']}
+                    label={(k) => t(`admin.${k}`)}
+                    all={t('admin.all_status')}
+                />
+                <Select
+                    value={filters.missing}
+                    onChange={(v) => filter({ missing: v })}
+                    options={['th', 'en']}
+                    label={(k) => t(`admin.missing_${k}`)}
+                    all={t('admin.any_text')}
+                />
+                <Select
+                    value={filters.fit}
+                    onChange={(v) => filter({ fit: v })}
+                    options={fits}
+                    label={(k) => t(`fit.${k}`)}
+                    all={t('admin.all_fits')}
+                />
+                <Select
+                    value={filters.sort}
+                    onChange={(v) => filter({ sort: v })}
+                    options={['worst', 'best']}
+                    label={(k) => t(`admin.sort_${k}`)}
+                    all={t('admin.sort_default')}
+                />
             </div>
-        </>
+
+            {editing === 'new' && (
+                <PromptForm
+                    kinds={kinds}
+                    tags={tags}
+                    onDone={() => setEditing(null)}
+                />
+            )}
+
+            <p className="text-xs text-muted-foreground">
+                {t('admin.showing', { count: prompts.total })}
+            </p>
+            <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+                {prompts.data.map((p) =>
+                    editing === p.id ? (
+                        <li key={p.id} className="p-3">
+                            <PromptForm
+                                prompt={p}
+                                kinds={kinds}
+                                tags={tags}
+                                onDone={() => setEditing(null)}
+                            />
+                        </li>
+                    ) : (
+                        <li
+                            key={p.id}
+                            className={cn(
+                                'flex gap-3 p-3 text-sm',
+                                !p.active && 'opacity-50',
+                            )}
+                        >
+                            <div className="flex w-28 shrink-0 flex-col gap-1">
+                                <Badge
+                                    variant={
+                                        p.kind === 'quest'
+                                            ? 'default'
+                                            : 'secondary'
+                                    }
+                                >
+                                    {t(`today.custom.kind_${p.kind}`)}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">
+                                    {t(`today.tag.${p.tag}`)} ·{' '}
+                                    {p.key ?? 'admin'}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t('admin.uses', { count: p.uses })}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t(`fit.${p.fit}`)}
+                                </span>
+                                {p.up + p.down > 0 && (
+                                    <span className="text-xs">
+                                        👍 {p.up} · 👎 {p.down}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="flex flex-1 flex-col gap-1">
+                                <p>
+                                    {p.text_th || (
+                                        <em className="text-destructive">
+                                            {t('admin.missing_th')}
+                                        </em>
+                                    )}
+                                </p>
+                                <p className="text-muted-foreground">
+                                    {p.text_en || (
+                                        <em className="text-destructive">
+                                            {t('admin.missing_en')}
+                                        </em>
+                                    )}
+                                </p>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-end gap-1">
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => setEditing(p.id)}
+                                >
+                                    {t('event.edit')}
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() =>
+                                        router.patch(
+                                            update.url(p.id),
+                                            { ...p, active: !p.active },
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                >
+                                    {p.active
+                                        ? t('admin.deactivate')
+                                        : t('admin.activate')}
+                                </Button>
+                                {p.uses === 0 && (
+                                    <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-destructive"
+                                        onClick={() =>
+                                            window.confirm(
+                                                t('admin.delete_confirm'),
+                                            ) &&
+                                            router.delete(destroy.url(p.id), {
+                                                preserveScroll: true,
+                                            })
+                                        }
+                                    >
+                                        {t('event.delete')}
+                                    </Button>
+                                )}
+                            </div>
+                        </li>
+                    ),
+                )}
+            </ul>
+
+            <nav className="flex flex-wrap gap-1">
+                {prompts.links.map((l, i) =>
+                    l.url ? (
+                        <Link
+                            key={i}
+                            href={l.url}
+                            preserveScroll
+                            className={cn(
+                                'rounded-lg px-3 py-1 text-sm',
+                                l.active
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'hover:bg-muted',
+                            )}
+                        >
+                            <span
+                                dangerouslySetInnerHTML={{
+                                    __html: l.label,
+                                }}
+                            />
+                        </Link>
+                    ) : null,
+                )}
+            </nav>
+        </AdminShell>
     );
 }
 
@@ -327,6 +352,7 @@ function PromptForm({
     const form = useForm({
         kind: prompt?.kind ?? 'question',
         tag: prompt?.tag ?? 'fun',
+        fit: prompt?.fit ?? '',
         text_th: prompt?.text_th ?? '',
         text_en: prompt?.text_en ?? '',
         active: prompt?.active ?? true,
@@ -364,6 +390,20 @@ function PromptForm({
                     {tags.map((k) => (
                         <option key={k} value={k}>
                             {t(`today.tag.${k}`)}
+                        </option>
+                    ))}
+                </select>
+                <select
+                    value={form.data.fit}
+                    onChange={(e) =>
+                        form.setData('fit', e.target.value as Row['fit'])
+                    }
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                >
+                    <option value="">{t('fit.default')}</option>
+                    {(['together', 'any', 'apart'] as const).map((f) => (
+                        <option key={f} value={f}>
+                            {t(`fit.${f}`)}
                         </option>
                     ))}
                 </select>

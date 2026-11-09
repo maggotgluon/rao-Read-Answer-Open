@@ -1,5 +1,14 @@
 import { router, useForm } from '@inertiajs/react';
-import { Cake, Gift, Heart, Pencil, Plus, Star, Trash2 } from 'lucide-react';
+import {
+    Cake,
+    Gift,
+    Heart,
+    Pencil,
+    Plus,
+    Sparkles,
+    Star,
+    Trash2,
+} from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -14,6 +23,7 @@ const ICON = {
     special: Star,
     other: Gift,
     anniversary: Heart,
+    site: Sparkles,
 } as const;
 
 export function EventLabel({

@@ -10,7 +10,9 @@ import { edit as editAppearance } from '@/routes/appearance';
 /** Theme picker — each person chooses their own. / เลือกธีมของตัวเอง */
 export default function Appearance() {
     const { t } = useT();
-    const current = usePage().props.theme as Theme;
+    const { theme, features } = usePage().props;
+    const current = theme as Theme;
+    const allowed = features?.themes !== false;
 
     return (
         <>
@@ -21,12 +23,23 @@ export default function Appearance() {
                     title={t('theme.title')}
                     description={t('theme.description')}
                 />
-                <div className="grid gap-3 sm:grid-cols-3">
+                {!allowed && (
+                    <p className="rounded-xl bg-muted p-3 text-sm text-muted-foreground">
+                        {t('feature.themes_off')}
+                    </p>
+                )}
+                <div
+                    className={cn(
+                        'grid gap-3 sm:grid-cols-3',
+                        !allowed && 'pointer-events-none opacity-50',
+                    )}
+                >
                     {THEMES.map((th) => (
                         <button
                             key={th.id}
                             type="button"
-                            onClick={() => setTheme(th.id)}
+                            onClick={() => allowed && setTheme(th.id)}
+                            disabled={!allowed}
                             aria-pressed={current === th.id}
                             className={cn(
                                 'flex flex-col gap-3 rounded-2xl border p-4 text-left transition-shadow hover:shadow-md',

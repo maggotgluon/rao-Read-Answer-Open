@@ -49,14 +49,16 @@ How it works / หลักการ:
 7. **Push keys (once):** generate on your Mac with `php artisan push:vapid` and paste
    `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` into the server `.env`. Never change them later
    (every phone would have to re-enable notifications). / สร้างครั้งเดียว ห้ามเปลี่ยนภายหลัง
-8. **Admin (once, after you register):** add a one-off deploy action
+8. **Location:** city names come from OpenStreetMap Nominatim (outbound HTTPS from the host
+   must be allowed). Without it distances still work, just no city name.
+9. **Admin (once, after you register):** add a one-off deploy action
    `php artisan rao:admin you@example.com`, deploy, then remove it.
-9. **Scheduled task** (Plesk → Scheduled Tasks), every minute:
+10. **Scheduled task** (Plesk → Scheduled Tasks), every minute:
     ```bash
     cd /var/www/vhosts/<domain>/rao && /opt/plesk/php/8.4/bin/php artisan schedule:run
     ```
     Drives the queue (push sending), `push:daily` (morning/evening/date pushes, every 5 min),
-   `prompts:assign`, `spaces:purge`, and later backups.
+    `prompts:assign`, `spaces:purge`, and later backups.
 
 ## Every deploy / ทุกครั้งที่ deploy
 

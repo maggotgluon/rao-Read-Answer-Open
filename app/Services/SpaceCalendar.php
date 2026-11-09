@@ -6,7 +6,9 @@ use App\Models\DailyPrompt;
 use App\Models\Moment;
 use App\Models\Space;
 use App\Models\SpaceEvent;
+use App\Models\SpecialDay;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -33,7 +35,7 @@ class SpaceCalendar
         $today = $space->today();
         $pairedOn = $this->prompts->pairedOn($space);
 
-        $answerCounts = $space->dailyPrompts()
+        $answerCounts = $space->dailyPrompts()->where('slot', DailyPrompt::MAIN)
             ->whereBetween('date', [$start->copy()->startOfWeek()->toDateString(), $end->toDateString()])
             ->withCount('answers')->get()
             ->mapWithKeys(fn (DailyPrompt $d) => [$d->date->toDateString() => $d->answers_count]);
@@ -109,9 +111,11 @@ class SpaceCalendar
      */
     public function day(Space $space, Carbon $date, User $viewer, string $locale): array
     {
-        $daily = $space->dailyPrompts()->whereDate('date', $date->toDateString())
-            ->with(['prompt.author:id,name', 'answers'])->first();
-        $daily?->setRelation('space', $space);
+        $dailies = $space->dailyPrompts()->whereDate('date', $date->toDateString())
+            ->with(['prompt.author:id,name', 'answers', 'ratings'])->get()
+            ->each(fn (DailyPrompt $d) => $d->setRelation('space', $space));
+        $daily = $dailies->firstWhere('slot', DailyPrompt::MAIN);
+        $bonus = $dailies->firstWhere('slot', DailyPrompt::BONUS);
 
         $moments = $space->moments()->posted()
             ->whereBetween('posted_at', [
@@ -129,6 +133,7 @@ class SpaceCalendar
         return [
             'date' => $date->toDateString(),
             'prompt' => $daily ? $this->prompts->present($daily, $viewer, $locale) : null,
+            'bonus' => $bonus ? $this->prompts->present($bonus, $viewer, $locale) : null,
             'moments' => $moments->all(),
             'events' => $this->occurrences($space, $date, $date)->values()->all(),
             'memories' => $this->memories($space, $date),
@@ -189,6 +194,20 @@ class SpaceCalendar
             'memories' => $e->moments_count,
         ]);
 
+        // Days the admin added for everyone (Valentine's, Songkran…). / วันพิเศษจากแอดมิน
+        foreach (SpecialDay::where('active', true)->get() as $day) {
+            $sources->push([
+                'event_id' => null,
+                'user_id' => null,
+                'kind' => 'site',
+                'title' => $day->titleFor(app()->getLocale()),
+                'date' => $day->date,
+                'yearly' => $day->repeats_yearly,
+                'show_years' => false,
+                'memories' => 0,
+            ]);
+        }
+
         foreach ($space->members()->whereNotNull('birthday')->get() as $member) {
             $sources->push([
                 'event_id' => null,
@@ -236,6 +255,10 @@ class SpaceCalendar
      */
     public function memories(Space $space, Carbon $date): array
     {
+        if (! Features::on('memories', $space)) {
+            return [];
+        }
+
         $eventIds = $this->occurrences($space, $date, $date)->pluck('event_id')->filter()->all();
         if (! $eventIds) {
             return [];
@@ -285,7 +308,7 @@ class SpaceCalendar
                 continue;
             }
             $elapsed++;
-            $count = $answerCounts[$d->toDateString()] ?? $space->dailyPrompts()
+            $count = $answerCounts[$d->toDateString()] ?? $space->dailyPrompts()->where('slot', DailyPrompt::MAIN)
                 ->whereDate('date', $d->toDateString())->withCount('answers')->first()?->answers_count ?? 0;
             $complete += $count >= Space::MAX_MEMBERS ? 1 : 0;
         }

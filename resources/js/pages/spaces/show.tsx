@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { DaySheet } from '@/components/space/day-sheet';
+import { DistanceCard } from '@/components/space/distance-card';
 import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
 import { InviteCard } from '@/components/space/invite-card';
 import { MonthCalendar } from '@/components/space/month-calendar';
@@ -12,6 +13,7 @@ import type {
     DayDetail,
     EventOccurrence,
     Invite,
+    LocationInfo,
     SpaceDetail,
     SpaceEvent,
 } from '@/types/space';
@@ -23,6 +25,7 @@ type Props = {
     upcoming: EventOccurrence[];
     events: SpaceEvent[];
     day?: DayDetail | null;
+    location: LocationInfo | null;
 };
 
 /** Tab 1 — Overview / ภาพรวม */
@@ -33,6 +36,7 @@ export default function SpaceOverview({
     upcoming,
     events,
     day,
+    location,
 }: Props) {
     const { t } = useT();
     const [picked, setPicked] = useState<string | null>(null);
@@ -70,6 +74,14 @@ export default function SpaceOverview({
                     value={`${calendar.stats.month_complete}/${calendar.stats.month_elapsed}`}
                 />
             </div>
+
+            {location && (
+                <DistanceCard
+                    space={space}
+                    location={location}
+                    readOnly={frozen}
+                />
+            )}
 
             <MonthCalendar
                 calendar={calendar}

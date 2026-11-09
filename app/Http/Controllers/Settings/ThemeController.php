@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,6 +14,7 @@ class ThemeController extends Controller
 {
     public function update(Request $request): RedirectResponse
     {
+        abort_unless(Features::on('themes', $request->user()), 403);
         $data = $request->validate(['theme' => ['required', Rule::in(User::THEMES)]]);
 
         $request->user()?->update(['theme' => $data['theme']]);

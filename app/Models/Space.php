@@ -25,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $frozen_at
  * @property Carbon|null $delete_after
  * @property int|null $created_by
+ * @property bool $premium
+ * @property bool $long_distance
  */
 class Space extends Model
 {
@@ -57,6 +59,8 @@ class Space extends Model
         return [
             'frozen_at' => 'datetime',
             'delete_after' => 'datetime',
+            'premium' => 'boolean',
+            'long_distance' => 'boolean',
         ];
     }
 

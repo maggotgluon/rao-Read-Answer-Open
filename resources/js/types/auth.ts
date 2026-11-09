@@ -6,6 +6,7 @@ export type User = {
     email_verified_at: string | null;
     birthday?: string | null;
     show_age?: boolean;
+    share_location?: boolean;
     two_factor_enabled?: boolean;
     created_at: string;
     updated_at: string;

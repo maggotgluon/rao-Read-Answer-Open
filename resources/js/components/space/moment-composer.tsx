@@ -12,7 +12,13 @@ const MAX_PHOTOS = 4;
 
 type FormData = { body: string; photos: File[]; publish: boolean };
 
-export function MomentComposer({ spaceId }: { spaceId: string }) {
+export function MomentComposer({
+    spaceId,
+    photos = true,
+}: {
+    spaceId: string;
+    photos?: boolean;
+}) {
     const { t } = useT();
     const input = useRef<HTMLInputElement>(null);
     const [preparing, setPreparing] = useState(false);
@@ -100,28 +106,35 @@ export function MomentComposer({ spaceId }: { spaceId: string }) {
             <InputError message={photoError} />
 
             <div className="flex flex-wrap items-center gap-2">
-                <input
-                    ref={input}
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    hidden
-                    onChange={(e) => void addPhotos(e.target.files)}
-                />
-                <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={
-                        preparing || form.data.photos.length >= MAX_PHOTOS
-                    }
-                    onClick={() => input.current?.click()}
-                >
-                    {preparing ? <Spinner /> : <ImagePlus />}
-                    {preparing ? t('moment.preparing') : t('moment.add_photos')}
-                </Button>
-                <span className="text-xs text-muted-foreground">
-                    {t('moment.max_photos', { max: MAX_PHOTOS })}
-                </span>
+                {photos && (
+                    <>
+                        <input
+                            ref={input}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            hidden
+                            onChange={(e) => void addPhotos(e.target.files)}
+                        />
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={
+                                preparing ||
+                                form.data.photos.length >= MAX_PHOTOS
+                            }
+                            onClick={() => input.current?.click()}
+                        >
+                            {preparing ? <Spinner /> : <ImagePlus />}
+                            {preparing
+                                ? t('moment.preparing')
+                                : t('moment.add_photos')}
+                        </Button>
+                        <span className="text-xs text-muted-foreground">
+                            {t('moment.max_photos', { max: MAX_PHOTOS })}
+                        </span>
+                    </>
+                )}
                 <div className="ml-auto flex gap-2">
                     <Button
                         type="button"

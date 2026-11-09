@@ -9,8 +9,10 @@ use App\Models\SpaceEvent;
 use App\Models\SpaceInvite;
 use App\Models\User;
 use App\Services\DailyPrompts;
+use App\Services\Location;
 use App\Services\SpaceActivity;
 use App\Services\SpaceCalendar;
+use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -43,6 +45,13 @@ class SpaceController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        // "Multiple spaces" switched off: one active space per person. / ปิดฟีเจอร์หลาย space
+        if (! Features::on('poly', $request->user()) && $request->user()->spaces()->active()->exists()) {
+            Inertia::flash('toast', ['type' => 'error', 'message' => __('feature.poly_off')]);
+
+            return back();
+        }
+
         $data = $request->validate([
             'name' => ['nullable', 'string', 'max:60'],
             'timezone' => ['nullable', 'timezone:all'],
@@ -80,6 +89,7 @@ class SpaceController extends Controller
                 ? $calendar->day($space, $this->dayFrom($request, $space), $user, app()->getLocale())
                 : null),
             'invite' => fn () => $this->inviteFor($space, $user),
+            'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
         ]);
     }
 
@@ -97,6 +107,7 @@ class SpaceController extends Controller
             'todayEvents' => fn () => $calendar->occurrences($space, $today, $today)->values(),
             'memories' => fn () => $calendar->memories($space, $today),
             'activity' => fn () => $activity->recent($space, $user),
+            'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
         ]);
     }
 
@@ -142,6 +153,18 @@ class SpaceController extends Controller
         return back();
     }
 
+    /** Either partner switches long-distance mode on/off. / เปิด-ปิดโหมดไกลกัน */
+    public function longDistance(Request $request, Space $space): RedirectResponse
+    {
+        abort_unless(Features::on('location', $space), 404);
+        $on = $request->validate(['on' => ['required', 'boolean']])['on'];
+
+        $space->forceFill(['long_distance' => $on])->save();
+        $this->toast($on ? 'ld.on_flash' : 'ld.off_flash');
+
+        return back();
+    }
+
     /** Unpair: freeze for 30 days, then the scheduler purges it. / เลิกจับคู่ */
     public function freeze(Request $request, Space $space): RedirectResponse
     {
@@ -182,7 +205,7 @@ class SpaceController extends Controller
      */
     private function shell(Space $space, User $user): array
     {
-        $space->load('members:id,name');
+        $space->load('members');
 
         return [
             'space' => [
@@ -193,6 +216,9 @@ class SpaceController extends Controller
                 'frozen_at' => $space->frozen_at?->toIso8601String(),
                 'delete_after' => $space->delete_after?->toIso8601String(),
                 'can_restore' => $space->isFrozen() && $space->frozen_by === $user->id,
+                'long_distance' => (bool) $space->long_distance,
+                'premium' => (bool) $space->premium,
+                'features' => Features::forSpace($space),
             ],
         ];
     }

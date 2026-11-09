@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\DailyPrompt;
 use App\Models\Prompt;
+use App\Models\ScheduledPrompt;
 use App\Models\Space;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
@@ -21,14 +23,26 @@ use Illuminate\Support\Collection;
  *  - Days start once the space has 2 members (no prompts while waiting for a partner).
  *  - Answer window: the day itself + 6 earlier days.
  *  - Partner's answer is hidden until you answer; you can edit until they answer.
+ *  - Admin-scheduled prompt for a date becomes the day's prompt. If the couple queued their
+ *    own, theirs stays the main one and the admin's shows as a BONUS (no streak effect).
+ *  - Long-distance mode: no "together" prompts, "apart" ones mixed in. Normal: no "apart".
+ *  - Feature switches: quests off → questions every day; couple prompts off → library only.
+ *  ของแอดมินเป็นคำถามของวัน ถ้าคู่มีคำถามของตัวเองจะเป็นโบนัส / โหมดไกลกันเลือกคำถามที่ทำได้แม้อยู่ไกล
  */
 class DailyPrompts
 {
     public const FREEZES_PER_WEEK = 2;
 
-    public function kindFor(Carbon $date): string
+    public function kindFor(Carbon $date, ?Space $space = null): string
     {
-        return $date->isWeekend() ? Prompt::KIND_QUEST : Prompt::KIND_QUESTION;
+        $quests = $space ? Features::on('quests', $space) : true;
+
+        return $date->isWeekend() && $quests ? Prompt::KIND_QUEST : Prompt::KIND_QUESTION;
+    }
+
+    public function longDistance(Space $space): bool
+    {
+        return $space->long_distance && Features::on('location', $space);
     }
 
     /** When the couple became a couple in this space (local date), or null if still solo. */
@@ -45,26 +59,52 @@ class DailyPrompts
         return $joined->setTimezone($space->timezone)->startOfDay();
     }
 
-    /** Get (or assign) the prompt for a local date. Null when nothing is available. */
+    /** Get (or assign) the day's main prompt for a local date. Null when nothing is available. */
     public function forDate(Space $space, Carbon $date): ?DailyPrompt
     {
         $dateString = $date->toDateString();
 
-        $existing = $space->dailyPrompts()->whereDate('date', $dateString)->first();
+        $existing = $space->dailyPrompts()->where('slot', DailyPrompt::MAIN)->whereDate('date', $dateString)->first();
         if ($existing) {
             return $existing;
         }
 
-        $prompt = $this->pick($space, $this->kindFor($date));
+        $kind = $this->kindFor($date, $space);
+        $prompt = $this->custom($space, $kind)
+            ?? $this->scheduled($space, $date)
+            ?? $this->pick($space, $kind);
         if (! $prompt) {
             return null;
         }
 
+        return $this->assign($space, $prompt, $dateString, DailyPrompt::MAIN);
+    }
+
+    /** The admin's scheduled prompt as a bonus, when the couple's own took the main slot. */
+    public function bonusFor(Space $space, Carbon $date, DailyPrompt $main): ?DailyPrompt
+    {
+        $dateString = $date->toDateString();
+
+        $existing = $space->dailyPrompts()->where('slot', DailyPrompt::BONUS)->whereDate('date', $dateString)->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        $scheduled = $this->scheduled($space, $date);
+        if (! $scheduled || $scheduled->id === $main->prompt_id) {
+            return null;
+        }
+
+        return $this->assign($space, $scheduled, $dateString, DailyPrompt::BONUS);
+    }
+
+    private function assign(Space $space, Prompt $prompt, string $date, string $slot): ?DailyPrompt
+    {
         try {
-            return $space->dailyPrompts()->create(['prompt_id' => $prompt->id, 'date' => $dateString]);
+            return $space->dailyPrompts()->create(['prompt_id' => $prompt->id, 'date' => $date, 'slot' => $slot]);
         } catch (UniqueConstraintViolationException) {
             // Both partners opened the app at the same moment — use the one that won.
-            return $space->dailyPrompts()->whereDate('date', $dateString)->first();
+            return $space->dailyPrompts()->where('slot', $slot)->whereDate('date', $date)->first();
         }
     }
 
@@ -90,12 +130,15 @@ class DailyPrompts
             }
             if ($daily = $this->forDate($space, $date)) {
                 $days->push($daily);
+                if ($bonus = $this->bonusFor($space, $date, $daily)) {
+                    $days->push($bonus);
+                }
             }
         }
 
         return (new EloquentCollection($days->all()))
             ->each(fn (DailyPrompt $d) => $d->setRelation('space', $space))
-            ->load(['prompt.author:id,name', 'answers']);
+            ->load(['prompt.author:id,name', 'answers', 'ratings']);
     }
 
     /**
@@ -113,7 +156,7 @@ class DailyPrompts
             return $empty;
         }
 
-        $complete = $space->dailyPrompts()
+        $complete = $space->dailyPrompts()->where('slot', DailyPrompt::MAIN)
             ->has('answers', '>=', Space::MAX_MEMBERS)
             ->pluck('date')
             ->map(fn ($d) => Carbon::parse($d)->toDateString())
@@ -178,23 +221,61 @@ class DailyPrompts
             'partner_answered' => (bool) $theirs,
             'partner' => $mine && $theirs ? ['body' => $theirs->body] : null,
             'can_edit' => $open && ! $theirs,
+            'bonus' => $daily->slot === DailyPrompt::BONUS,
+            // Only my own rating, never the partner's. / เฉพาะคะแนนของฉัน
+            'my_rating' => (int) ($daily->ratings->firstWhere('user_id', $viewer->id)?->value ?? 0),
         ];
+    }
+
+    /** The couple's own next queued prompt (if that feature is on). */
+    private function custom(Space $space, string $kind): ?Prompt
+    {
+        if (! Features::on('custom_prompts', $space)) {
+            return null;
+        }
+
+        $used = $space->dailyPrompts()->select('prompt_id');
+
+        return $space->customPrompts()->where('kind', $kind)->where('active', true)
+            ->whereNotIn('id', $used)->oldest('id')->first();
+    }
+
+    /** Admin's prompt for this date and couple (specific audience beats "all"), if not used yet. */
+    private function scheduled(Space $space, Carbon $date): ?Prompt
+    {
+        $row = ScheduledPrompt::for($space, $date)->with('prompt')
+            ->orderByRaw("case when audience = 'all' then 1 else 0 end")->first();
+        $prompt = $row?->prompt;
+
+        if (! $prompt || ! $prompt->active) {
+            return null;
+        }
+
+        return $space->dailyPrompts()->where('prompt_id', $prompt->id)->exists() ? null : $prompt;
     }
 
     private function pick(Space $space, string $kind): ?Prompt
     {
         $used = $space->dailyPrompts()->select('prompt_id');
+        // Saved for their date — never handed out early. / เก็บไว้ให้วันที่แอดมินกำหนด
+        $reserved = ScheduledPrompt::query()->whereDate('date', '>=', $space->today()->toDateString())->select('prompt_id');
+        $ld = $this->longDistance($space);
         $other = $kind === Prompt::KIND_QUEST ? Prompt::KIND_QUESTION : Prompt::KIND_QUEST;
 
         foreach ([$kind, $other] as $k) {
-            $custom = $space->customPrompts()->where('kind', $k)->where('active', true)
-                ->whereNotIn('id', $used)->oldest('id')->first();
-            if ($custom) {
-                return $custom;
+            if ($k === Prompt::KIND_QUEST && ! Features::on('quests', $space)) {
+                continue;
             }
 
-            $library = Prompt::library()->where('kind', $k)->whereNotIn('id', $used)->inRandomOrder()->first();
-            if ($library) {
+            $base = fn () => Prompt::library()->where('kind', $k)->fitting($ld)
+                ->whereNotIn('id', $used)->whereNotIn('id', $reserved);
+
+            // Long-distance: half the time try the "apart" set first. / โหมดไกลกัน: สุ่มชุดไกลกันก่อนครึ่งหนึ่ง
+            if ($ld && random_int(0, 1) === 1 && ($apart = $base()->where('fit', 'apart')->inRandomOrder()->first())) {
+                return $apart;
+            }
+
+            if ($library = $base()->inRandomOrder()->first()) {
                 return $library;
             }
         }

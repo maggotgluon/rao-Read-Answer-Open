@@ -35,7 +35,12 @@ export default function SpaceMoments({
 
     return (
         <SpaceShell space={space} tab="moments">
-            {!frozen && <MomentComposer spaceId={space.id} />}
+            {!frozen && (
+                <MomentComposer
+                    spaceId={space.id}
+                    photos={space.features.photos}
+                />
+            )}
 
             {drafts.length > 0 && (
                 <section className="flex flex-col gap-2">

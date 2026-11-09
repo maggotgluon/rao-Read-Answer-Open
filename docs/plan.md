@@ -23,6 +23,7 @@
 - [x] Demo history seed (3 weeks) for local testing
 
 ## Weekend 3 — Push, themes, library / แจ้งเตือน ธีม คลังคำถาม (2026-11-09)
+
 - [x] Web push: morning question, evening reminder (only if unanswered), partner answered, new moment, comments/reactions, date reminders; per-person switches + times; iPhone install guide
 - [x] 3 themes per person (blush default, paper, candle)
 - [x] Birthday on profile (+ show age choice); shown in all of a person's spaces
@@ -31,6 +32,14 @@
 - [ ] UI consistency pass (settings pages still partly English, blush background flatter than the mock-up)
 - [ ] Mag edits the Thai prompt library (now possible in the admin page)
 - [ ] Moments wall: "load more" beyond 50
+
+## Weekend 3b — Long-distance, ratings, admin tools (2026-11-09)
+
+- [x] Feature switches (on/off + free/premium) + premium per space
+- [x] Location (auto on open, ~5 km rounding) + distance/city/local time + long-distance mode
+- [x] Private 👍/👎 on daily prompts
+- [x] Admin: dashboard, users, schedule (prompts for dates + special days), features
+- [ ] ~60 long-distance prompts + tag remote-friendly quests (in progress)
 
 ## Weekend 4 — Push, polish, ship / แจ้งเตือนและเปิดใช้
 

@@ -19,6 +19,7 @@ declare module '@inertiajs/core' {
             spaces: SpaceNavItem[];
             theme: 'blush' | 'paper' | 'candle';
             isAdmin: boolean;
+            features: { themes: boolean; poly: boolean; location: boolean };
             vapidPublicKey: string | null;
             [key: string]: unknown;
         };

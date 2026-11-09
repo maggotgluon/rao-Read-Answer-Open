@@ -12,13 +12,19 @@ use Illuminate\Support\Carbon;
  * @property int $space_id
  * @property int $prompt_id
  * @property Carbon $date
+ * @property string $slot
  */
 class DailyPrompt extends Model
 {
     /** Days you may still answer after the day itself (today + 6 earlier days = 7). */
     public const LATE_DAYS = 6;
 
-    protected $fillable = ['space_id', 'prompt_id', 'date'];
+    /** main = the day's prompt (streak); bonus = admin's extra when the couple had their own. */
+    public const MAIN = 'main';
+
+    public const BONUS = 'bonus';
+
+    protected $fillable = ['space_id', 'prompt_id', 'date', 'slot'];
 
     protected function casts(): array
     {
@@ -41,6 +47,12 @@ class DailyPrompt extends Model
     public function answers(): HasMany
     {
         return $this->hasMany(Answer::class);
+    }
+
+    /** @return HasMany<PromptRating, $this> */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(PromptRating::class);
     }
 
     /** Still inside the 7-day answer window (space's local time)? */

@@ -6,6 +6,7 @@ use App\Models\Moment;
 use App\Models\Space;
 use App\Services\MomentPhotos;
 use App\Services\Push;
+use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,9 @@ class MomentController extends Controller
         ]);
 
         $files = $request->file('photos', []);
+        if (count($files) > 0 && ! Features::on('photos', $space)) {
+            throw ValidationException::withMessages(['photos' => __('feature.off')]);
+        }
         if (blank($data['body'] ?? null) && count($files) === 0) {
             throw ValidationException::withMessages(['body' => __('moment.empty')]);
         }

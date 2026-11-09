@@ -8,11 +8,19 @@ type Props = {
     spaceId: string;
     partnerName: string;
     readOnly: boolean;
+    canWritePrompts?: boolean;
 };
 
-export function TodaySection({ days, spaceId, partnerName, readOnly }: Props) {
+export function TodaySection({
+    days,
+    spaceId,
+    partnerName,
+    readOnly,
+    canWritePrompts = true,
+}: Props) {
     const { t } = useT();
-    const [today, ...earlier] = days;
+    const todays = days.filter((d) => d.is_today);
+    const earlier = days.filter((d) => !d.is_today);
     // Earlier days worth showing: still answerable, or someone answered.
     const relevant = earlier.filter(
         (d) => d.mine || d.partner_answered || d.open,
@@ -20,19 +28,24 @@ export function TodaySection({ days, spaceId, partnerName, readOnly }: Props) {
 
     return (
         <section className="flex flex-col gap-3">
-            {today?.is_today ? (
-                <DayCard
-                    day={today}
-                    spaceId={spaceId}
-                    partnerName={partnerName}
-                    readOnly={readOnly}
-                />
+            {todays.length > 0 ? (
+                todays.map((d) => (
+                    <DayCard
+                        key={d.id}
+                        day={d}
+                        spaceId={spaceId}
+                        partnerName={partnerName}
+                        readOnly={readOnly}
+                    />
+                ))
             ) : (
                 <p className="text-sm text-muted-foreground">
                     {t('today.none')}
                 </p>
             )}
-            {!readOnly && <CustomPromptForm spaceId={spaceId} />}
+            {!readOnly && canWritePrompts && (
+                <CustomPromptForm spaceId={spaceId} />
+            )}
 
             {relevant.length > 0 && (
                 <details className="open:[&>*+*]:mt-2">

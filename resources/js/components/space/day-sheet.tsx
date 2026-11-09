@@ -112,6 +112,25 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                             </p>
                         )}
 
+                        {day.bonus && (
+                            <section className="flex flex-col gap-1 rounded-xl bg-primary/10 p-3 text-sm">
+                                <span className="text-xs font-medium text-primary">
+                                    ✨ {t('today.bonus')}
+                                </span>
+                                <p className="font-medium">{day.bonus.text}</p>
+                                {day.bonus.mine && (
+                                    <p className="whitespace-pre-line">
+                                        {t('today.you')}: {day.bonus.mine.body}
+                                    </p>
+                                )}
+                                {day.bonus.partner && (
+                                    <p className="whitespace-pre-line">
+                                        {partnerName}: {day.bonus.partner.body}
+                                    </p>
+                                )}
+                            </section>
+                        )}
+
                         <Memories memories={day.memories ?? []} />
 
                         {day.moments.length > 0 && (

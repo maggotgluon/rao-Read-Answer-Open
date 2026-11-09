@@ -1,4 +1,4 @@
-import { useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Lock, MessageCircleHeart, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/spaces/answers';
+import { update as rate } from '@/routes/spaces/ratings';
 import type { DayItem } from '@/types/space';
 
 type Props = {
@@ -68,6 +69,11 @@ export function DayCard({
                 {day.tag && (
                     <Badge variant="secondary">
                         {t(`today.tag.${day.tag}`)}
+                    </Badge>
+                )}
+                {day.bonus && (
+                    <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
+                        ✨ {t('today.bonus')}
                     </Badge>
                 )}
                 {day.written_by && (
@@ -157,10 +163,58 @@ export function DayCard({
 
             {day.mine && day.partner && day.is_today && (
                 <p className="text-sm font-medium text-primary">
-                    {t('today.both_done')}
+                    {day.bonus ? t('today.bonus_done') : t('today.both_done')}
                 </p>
             )}
+            {day.bonus && !day.mine && day.is_today && (
+                <p className="text-xs text-muted-foreground">
+                    {t('today.bonus_hint')}
+                </p>
+            )}
+
+            {!readOnly && <Rating day={day} spaceId={spaceId} />}
         </section>
+    );
+}
+
+/** Private 👍/👎 — only used for library feedback, the partner never sees it. */
+function Rating({ day, spaceId }: { day: DayItem; spaceId: string }) {
+    const { t } = useT();
+    const set = (value: -1 | 0 | 1) =>
+        router.put(
+            rate.url({ space: spaceId, dailyPrompt: day.id }),
+            { value: day.my_rating === value ? 0 : value },
+            { preserveScroll: true, only: ['days', 'day'] },
+        );
+
+    return (
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="mr-1">
+                {t(
+                    day.kind === 'quest'
+                        ? 'rating.ask_quest'
+                        : 'rating.ask_question',
+                )}
+            </span>
+            {([1, -1] as const).map((v) => (
+                <button
+                    key={v}
+                    type="button"
+                    onClick={() => set(v)}
+                    aria-pressed={day.my_rating === v}
+                    aria-label={t(v === 1 ? 'rating.up' : 'rating.down')}
+                    className={cn(
+                        'rounded-full px-2 py-1 text-base transition',
+                        day.my_rating === v
+                            ? 'bg-primary/15 grayscale-0'
+                            : 'opacity-60 grayscale hover:opacity-100',
+                    )}
+                >
+                    {v === 1 ? '👍' : '👎'}
+                </button>
+            ))}
+            {day.my_rating !== 0 && <span>{t('rating.thanks')}</span>}
+        </div>
     );
 }
 

@@ -1,4 +1,5 @@
 import { ActivityFeed } from '@/components/space/activity-feed';
+import { DistanceCard } from '@/components/space/distance-card';
 import { EventLabel } from '@/components/space/events-panel';
 import { Memories } from '@/components/space/memories';
 import { SpaceShell } from '@/components/space/space-shell';
@@ -9,6 +10,7 @@ import type {
     ActivityItem,
     DayItem,
     EventOccurrence,
+    LocationInfo,
     Memory,
     SpaceDetail,
     Streak,
@@ -21,6 +23,7 @@ type Props = {
     todayEvents: EventOccurrence[];
     activity: ActivityItem[];
     memories: Memory[];
+    location: LocationInfo | null;
 };
 
 /** Tab 2 — Daily: today's question/quest, streak, today's events, activity. / รายวัน */
@@ -31,6 +34,7 @@ export default function SpaceDaily({
     todayEvents,
     activity,
     memories,
+    location,
 }: Props) {
     const { t } = useT();
     const frozen = space.status === 'frozen';
@@ -48,6 +52,15 @@ export default function SpaceDaily({
                 </section>
             )}
 
+            {location && location.km !== null && (
+                <DistanceCard
+                    space={space}
+                    location={location}
+                    readOnly={frozen}
+                    compact
+                />
+            )}
+
             <Memories memories={memories} />
 
             {space.partner ? (
@@ -58,6 +71,7 @@ export default function SpaceDaily({
                         spaceId={space.id}
                         partnerName={space.partner.name}
                         readOnly={frozen}
+                        canWritePrompts={space.features.custom_prompts}
                     />
                 </>
             ) : (

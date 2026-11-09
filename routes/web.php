@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\FeatureController as AdminFeatureController;
 use App\Http\Controllers\Admin\PromptController as AdminPromptController;
+use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
@@ -11,6 +15,7 @@ use App\Http\Controllers\MomentDateController;
 use App\Http\Controllers\MomentMediaController;
 use App\Http\Controllers\MomentReactionController;
 use App\Http\Controllers\PromptController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\SpaceEventController;
 use App\Support\DevTools;
@@ -57,6 +62,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('invite', [SpaceController::class, 'regenerateInvite'])->name('invite');
 
             Route::post('today/{dailyPrompt}/answer', [AnswerController::class, 'store'])->name('answers.store');
+            Route::put('today/{dailyPrompt}/rating', [RatingController::class, 'update'])->name('ratings.update');
+            Route::put('long-distance', [SpaceController::class, 'longDistance'])->name('long-distance');
             Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
 
             Route::post('events', [SpaceEventController::class, 'store'])->name('events.store');
@@ -75,8 +82,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-// Admin: prompt library. Non-admins get 404. / แอดมิน: คลังคำถาม
+// Admin. Non-admins get 404. / แอดมิน (คนอื่นได้ 404)
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::put('spaces/{space}/premium', [AdminUserController::class, 'premium'])->name('spaces.premium');
+    Route::get('features', [AdminFeatureController::class, 'index'])->name('features.index');
+    Route::put('features/{key}', [AdminFeatureController::class, 'update'])->name('features.update');
+    Route::get('schedule', [AdminScheduleController::class, 'index'])->name('schedule.index');
+    Route::post('schedule', [AdminScheduleController::class, 'store'])->name('schedule.store');
+    Route::delete('schedule/{scheduled}', [AdminScheduleController::class, 'destroy'])->name('schedule.destroy');
+    Route::post('special-days', [AdminScheduleController::class, 'storeDay'])->name('days.store');
+    Route::patch('special-days/{day}', [AdminScheduleController::class, 'updateDay'])->name('days.update');
+    Route::delete('special-days/{day}', [AdminScheduleController::class, 'destroyDay'])->name('days.destroy');
+
     Route::get('prompts', [AdminPromptController::class, 'index'])->name('prompts.index');
     Route::post('prompts', [AdminPromptController::class, 'store'])->name('prompts.store');
     Route::patch('prompts/{prompt}', [AdminPromptController::class, 'update'])->name('prompts.update');

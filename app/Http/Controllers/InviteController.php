@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Space;
 use App\Models\SpaceInvite;
 use App\Models\User;
+use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +97,10 @@ class InviteController extends Controller
         }
         if ($user && $this->alreadyPaired($user, $space)) {
             return 'already_paired';
+        }
+        // "Multiple spaces" off: can't join while already in another active space.
+        if ($user && ! Features::on('poly', $user) && $user->spaces()->active()->whereKeyNot($space->id)->exists()) {
+            return 'poly_off';
         }
 
         return null;

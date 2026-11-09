@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Support\Features;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
@@ -21,6 +22,9 @@ class HandleAppearance
         // candle is the dark theme. / ธีม: ของผู้ใช้ → คุกกี้ → blush (ค่าเริ่มต้น)
         $theme = $request->user()?->theme ?? $request->cookie('theme');
         $theme = in_array($theme, User::THEMES, true) ? $theme : 'blush';
+        if ($theme !== 'blush' && ! Features::on('themes', $request->user())) {
+            $theme = 'blush';   // themes switched off → everyone gets the default
+        }
 
         $request->attributes->set('theme', $theme);
         View::share('theme', $theme);

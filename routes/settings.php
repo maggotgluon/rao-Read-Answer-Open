@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Settings\LocationController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\PushSubscriptionController;
@@ -32,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('settings/notifications', [NotificationController::class, 'update'])->name('notifications.update');
     Route::post('settings/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
     Route::delete('settings/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::put('settings/location', [LocationController::class, 'toggle'])->name('location.toggle');
+    Route::post('location', [LocationController::class, 'update'])->middleware('throttle:20,1')->name('location.update');
     Route::post('settings/push-test', [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
 });
 

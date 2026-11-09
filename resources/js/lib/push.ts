@@ -27,7 +27,7 @@ const xsrf = (): string =>
             ?.split('=')[1] ?? '',
     );
 
-const api = (url: string, method: string, body: unknown) =>
+export const api = (url: string, method: string, body: unknown) =>
     fetch(url, {
         method,
         headers: {

@@ -15,6 +15,27 @@ export type SpaceDetail = SpaceSummary & {
     frozen_at: string | null;
     delete_after: string | null;
     can_restore: boolean;
+    long_distance: boolean;
+    premium: boolean;
+    features: SpaceFeatures;
+};
+
+export type SpaceFeatures = {
+    photos: boolean;
+    quests: boolean;
+    custom_prompts: boolean;
+    location: boolean;
+    memories: boolean;
+};
+
+export type LocationInfo = {
+    me_sharing: boolean;
+    partner_sharing: boolean;
+    km: number | null;
+    partner_city: string | null;
+    partner_tz: string | null;
+    partner_updated_at: string | null;
+    suggest_long_distance: boolean;
 };
 
 export type SpaceNavItem = {
@@ -44,6 +65,8 @@ export type DayItem = {
     partner_answered: boolean;
     partner: { body: string } | null;
     can_edit: boolean;
+    bonus: boolean;
+    my_rating: -1 | 0 | 1;
 };
 
 export type Streak = {
@@ -104,7 +127,7 @@ export type EventOccurrence = {
     event_id: number | null;
     user_id?: number | null;
     memories?: number;
-    kind: 'birthday' | 'special' | 'other' | 'anniversary';
+    kind: 'birthday' | 'special' | 'other' | 'anniversary' | 'site';
     title: string;
     date: string;
     years: number;
@@ -134,6 +157,7 @@ export type Memory = {
 export type DayDetail = {
     date: string;
     prompt: DayItem | null;
+    bonus: DayItem | null;
     moments: {
         id: string;
         author: string;

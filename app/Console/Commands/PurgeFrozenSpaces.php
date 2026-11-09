@@ -3,7 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Space;
+use App\Services\MomentPhotos;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 
 class PurgeFrozenSpaces extends Command
 {
@@ -16,8 +18,8 @@ class PurgeFrozenSpaces extends Command
         $count = 0;
 
         Space::dueForPurge()->each(function (Space $space) use (&$count) {
-            // TODO(weekend 2): delete the space's media files from disk too.
             $space->delete();
+            Storage::disk(MomentPhotos::DISK)->deleteDirectory(MomentPhotos::folder($space));
             $count++;
         });
 

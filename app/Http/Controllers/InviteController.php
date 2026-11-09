@@ -58,7 +58,7 @@ class InviteController extends Controller
                 return $problem === 'already_member' ? $space : $problem;
             }
 
-            $space->members()->attach($user->id);
+            $space->members()->attach($user->id, ['joined_at' => now()]);
             $invite->forceFill(['accepted_by' => $user->id, 'accepted_at' => now()])->save();
 
             return $space;

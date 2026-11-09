@@ -1,299 +1,119 @@
-import { Form, Head, router } from '@inertiajs/react';
-import {
-    Copy,
-    Heart,
-    MessageCircleHeart,
-    RefreshCw,
-    Share2,
-    Snowflake,
-} from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { router } from '@inertiajs/react';
+import { useState } from 'react';
+import { DaySheet } from '@/components/space/day-sheet';
+import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
+import { InviteCard } from '@/components/space/invite-card';
+import { MonthCalendar } from '@/components/space/month-calendar';
+import { SpaceSettings } from '@/components/space/space-settings';
+import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
-import {
-    freeze,
-    invite as inviteRoute,
-    restore,
-    update,
-} from '@/routes/spaces';
-import type { Invite, SpaceDetail } from '@/types/space';
+import type {
+    CalendarMonth,
+    DayDetail,
+    EventOccurrence,
+    Invite,
+    SpaceDetail,
+    SpaceEvent,
+} from '@/types/space';
 
-const TIMEZONES = [
-    'Asia/Bangkok',
-    'Asia/Singapore',
-    'Asia/Tokyo',
-    'Asia/Seoul',
-    'Asia/Kolkata',
-    'Asia/Dubai',
-    'Australia/Sydney',
-    'Europe/London',
-    'Europe/Berlin',
-    'America/New_York',
-    'America/Los_Angeles',
-    'UTC',
-];
+type Props = {
+    space: SpaceDetail;
+    invite: Invite | null;
+    calendar: CalendarMonth;
+    upcoming: EventOccurrence[];
+    events: SpaceEvent[];
+    day?: DayDetail | null;
+};
 
-type Props = { space: SpaceDetail; invite: Invite | null };
-
-export default function SpaceShow({ space, invite }: Props) {
-    const { t, locale } = useT();
-    const frozen = space.status === 'frozen';
-    const title =
-        space.name ??
-        (space.partner
-            ? t('spaces.with', { name: space.partner.name })
-            : t('spaces.waiting'));
-
-    const formatDate = (iso: string) =>
-        new Date(iso).toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-GB', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        });
-
-    return (
-        <>
-            <Head title={title} />
-            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 md:p-8">
-                <header className="flex items-center gap-3">
-                    <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-                        <Heart className="size-6" />
-                    </span>
-                    <h1 className="text-2xl font-semibold">{title}</h1>
-                </header>
-
-                {frozen && (
-                    <section className="flex flex-col gap-3 rounded-2xl border border-border bg-muted p-4">
-                        <h2 className="flex items-center gap-2 font-medium">
-                            <Snowflake className="size-4" />{' '}
-                            {t('space.frozen.title')}
-                        </h2>
-                        {space.delete_after && (
-                            <p className="text-sm text-muted-foreground">
-                                {t('space.frozen.body', {
-                                    date: formatDate(space.delete_after),
-                                })}
-                            </p>
-                        )}
-                        {space.can_restore && (
-                            <Button
-                                className="self-start"
-                                onClick={() =>
-                                    router.post(restore.url(space.id))
-                                }
-                            >
-                                {t('space.frozen.restore')}
-                            </Button>
-                        )}
-                    </section>
-                )}
-
-                {invite && <InviteCard invite={invite} spaceId={space.id} />}
-
-                <ComingSoon
-                    icon={<MessageCircleHeart className="size-5" />}
-                    title={t('space.prompt.title')}
-                    body={t('space.prompt.soon')}
-                />
-                <ComingSoon
-                    icon={<Heart className="size-5" />}
-                    title={t('space.moments.title')}
-                    body={t('space.moments.soon')}
-                />
-
-                {!frozen && (
-                    <section className="flex flex-col gap-4 rounded-2xl border border-border p-4">
-                        <h2 className="font-medium">
-                            {t('space.settings.title')}
-                        </h2>
-                        <Form
-                            {...update.form(space.id)}
-                            options={{ preserveScroll: true }}
-                            className="grid gap-4"
-                        >
-                            {({ processing }) => (
-                                <>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="name">
-                                            {t('space.settings.name')}
-                                        </Label>
-                                        <Input
-                                            id="name"
-                                            name="name"
-                                            maxLength={60}
-                                            defaultValue={space.name ?? ''}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="timezone">
-                                            {t('space.settings.timezone')}
-                                        </Label>
-                                        <select
-                                            id="timezone"
-                                            name="timezone"
-                                            defaultValue={space.timezone}
-                                            className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
-                                        >
-                                            {[
-                                                ...new Set([
-                                                    space.timezone,
-                                                    ...TIMEZONES,
-                                                ]),
-                                            ].map((tz) => (
-                                                <option key={tz} value={tz}>
-                                                    {tz}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <p className="text-xs text-muted-foreground">
-                                            {t('space.settings.timezone_help')}
-                                        </p>
-                                    </div>
-                                    <Button
-                                        type="submit"
-                                        variant="secondary"
-                                        disabled={processing}
-                                        className="justify-self-start"
-                                    >
-                                        {t('space.settings.save')}
-                                    </Button>
-                                </>
-                            )}
-                        </Form>
-
-                        <UnpairDialog spaceId={space.id} />
-                    </section>
-                )}
-            </div>
-        </>
-    );
-}
-
-function InviteCard({ invite, spaceId }: { invite: Invite; spaceId: string }) {
+/** Tab 1 — Overview / ภาพรวม */
+export default function SpaceOverview({
+    space,
+    invite,
+    calendar,
+    upcoming,
+    events,
+    day,
+}: Props) {
     const { t } = useT();
-    const pretty = `${invite.code.slice(0, 4)}-${invite.code.slice(4)}`;
+    const [picked, setPicked] = useState<string | null>(null);
+    const frozen = space.status === 'frozen';
+    const todayEvents = upcoming.filter((e) => e.in_days === 0);
+    const todayStatus = calendar.days.find((d) => d.is_today)?.status;
+    const todayMark =
+        todayStatus === 'complete'
+            ? '🔥'
+            : todayStatus === 'partial'
+              ? '½'
+              : '○';
 
-    const copy = async () => {
-        await navigator.clipboard.writeText(invite.url);
-        toast.success(t('space.invite.copied'));
-    };
-
-    const share = async () => {
-        if (navigator.share) {
-            await navigator
-                .share({ text: t('space.invite.share_text'), url: invite.url })
-                .catch(() => {});
-        } else {
-            await copy();
-        }
+    const pick = (date: string) => {
+        setPicked(date);
+        router.reload({ only: ['day'], data: { day: date } });
     };
 
     return (
-        <section className="flex flex-col gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-5">
-            <div>
-                <h2 className="font-medium">{t('space.invite.title')}</h2>
-                <p className="text-sm text-muted-foreground">
-                    {t('space.invite.body')}
-                </p>
+        <SpaceShell space={space} tab="overview">
+            {invite && <InviteCard invite={invite} spaceId={space.id} />}
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+                <Stat
+                    label={t('overview.today')}
+                    value={todayMark}
+                    hint={todayEvents.map((e) => e.title).join(', ')}
+                />
+                <Stat
+                    label={t('overview.week')}
+                    value={`${calendar.stats.week_complete}/${calendar.stats.week_elapsed}`}
+                />
+                <Stat
+                    label={t('overview.month')}
+                    value={`${calendar.stats.month_complete}/${calendar.stats.month_elapsed}`}
+                />
             </div>
-            <p
-                className="font-mono text-3xl tracking-[0.2em]"
-                aria-label="code"
-            >
-                {pretty}
-            </p>
-            <div className="flex flex-wrap gap-2">
-                <Button onClick={share}>
-                    <Share2 /> {t('space.invite.share')}
-                </Button>
-                <Button variant="secondary" onClick={copy}>
-                    <Copy /> {t('space.invite.copy')}
-                </Button>
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        router.post(
-                            inviteRoute.url(spaceId),
-                            {},
-                            { preserveScroll: true },
-                        )
-                    }
-                >
-                    <RefreshCw /> {t('space.invite.new')}
-                </Button>
-            </div>
-        </section>
+
+            <MonthCalendar
+                calendar={calendar}
+                spaceId={space.id}
+                onPick={pick}
+            />
+            <UpcomingEvents upcoming={upcoming} />
+            <ManageEvents
+                spaceId={space.id}
+                events={events}
+                readOnly={frozen}
+            />
+            {!frozen && <SpaceSettings space={space} />}
+
+            <DaySheet
+                date={picked}
+                day={day}
+                spaceId={space.id}
+                partnerName={space.partner?.name ?? ''}
+                onClose={() => setPicked(null)}
+            />
+        </SpaceShell>
     );
 }
 
-function ComingSoon({
-    icon,
-    title,
-    body,
+function Stat({
+    label,
+    value,
+    hint,
 }: {
-    icon: React.ReactNode;
-    title: string;
-    body: string;
+    label: string;
+    value: string;
+    hint?: string;
 }) {
     return (
-        <section className="flex gap-3 rounded-2xl border border-dashed border-border p-4 text-muted-foreground">
-            <span className="mt-0.5">{icon}</span>
-            <div>
-                <h2 className="font-medium text-foreground">{title}</h2>
-                <p className="text-sm">{body}</p>
-            </div>
-        </section>
-    );
-}
-
-function UnpairDialog({ spaceId }: { spaceId: string }) {
-    const { t } = useT();
-
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button
-                    variant="ghost"
-                    className="justify-self-start text-destructive"
-                >
-                    {t('space.unpair.button')}
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>{t('space.unpair.title')}</DialogTitle>
-                    <DialogDescription>
-                        {t('space.unpair.body')}
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="gap-2">
-                    <DialogClose asChild>
-                        <Button variant="secondary">
-                            {t('space.unpair.cancel')}
-                        </Button>
-                    </DialogClose>
-                    <DialogClose asChild>
-                        <Button
-                            variant="destructive"
-                            onClick={() => router.post(freeze.url(spaceId))}
-                        >
-                            {t('space.unpair.confirm')}
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <div
+            className="flex flex-col gap-0.5 rounded-2xl bg-primary/5 p-3"
+            title={hint}
+        >
+            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className="text-lg font-semibold">{value}</span>
+            {hint && (
+                <span className="truncate text-xs text-primary">{hint}</span>
+            )}
+        </div>
     );
 }

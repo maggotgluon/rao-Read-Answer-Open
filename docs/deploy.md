@@ -43,6 +43,7 @@ How it works / หลักการ:
    usually `/opt/plesk/php/8.4/bin/php`):
     ```bash
     /opt/plesk/php/8.4/bin/php artisan migrate --force
+    /opt/plesk/php/8.4/bin/php artisan db:seed --class=PromptLibrarySeeder --force   # idempotent / รันซ้ำได้
     /opt/plesk/php/8.4/bin/php artisan optimize
     ```
 7. **Scheduled task** (Plesk → Scheduled Tasks), every minute:

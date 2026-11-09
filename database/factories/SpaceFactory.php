@@ -23,7 +23,7 @@ class SpaceFactory extends Factory
     public function withMembers(User ...$users): static
     {
         return $this->afterCreating(function (Space $space) use ($users) {
-            $space->members()->attach(collect($users)->pluck('id'));
+            $space->members()->attach(collect($users)->pluck('id'), ['joined_at' => now()]);
             $space->update(['created_by' => $users[0]->id ?? null]);
         });
     }

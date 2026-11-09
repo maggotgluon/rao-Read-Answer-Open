@@ -39,7 +39,7 @@ class Space extends Model
 
     public const STATUS_FROZEN = 'frozen';
 
-    protected $fillable = ['name', 'timezone', 'created_by'];
+    protected $fillable = ['name', 'timezone', 'anniversary_on', 'created_by'];
 
     /** @return array<int, string> */
     public function uniqueIds(): array
@@ -57,6 +57,7 @@ class Space extends Model
         return [
             'frozen_at' => 'datetime',
             'delete_after' => 'datetime',
+            'anniversary_on' => 'date',
         ];
     }
 
@@ -72,6 +73,36 @@ class Space extends Model
     public function invites(): HasMany
     {
         return $this->hasMany(SpaceInvite::class);
+    }
+
+    /** @return HasMany<DailyPrompt, $this> */
+    public function dailyPrompts(): HasMany
+    {
+        return $this->hasMany(DailyPrompt::class);
+    }
+
+    /** @return HasMany<Moment, $this> */
+    public function moments(): HasMany
+    {
+        return $this->hasMany(Moment::class);
+    }
+
+    /** @return HasMany<SpaceEvent, $this> */
+    public function events(): HasMany
+    {
+        return $this->hasMany(SpaceEvent::class);
+    }
+
+    /** @return HasMany<Prompt, $this> */
+    public function customPrompts(): HasMany
+    {
+        return $this->hasMany(Prompt::class);
+    }
+
+    /** "Today" in this space's timezone. / วันนี้ตามเขตเวลาของ space */
+    public function today(): Carbon
+    {
+        return Carbon::now($this->timezone)->startOfDay();
     }
 
     /** @return BelongsTo<User, $this> */

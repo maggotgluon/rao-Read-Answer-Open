@@ -28,6 +28,23 @@ second: long-distance couples. Personal use first, built so it can go public.
 | Language              | Thai + English UI from day 1 / ไทย + อังกฤษ ตั้งแต่วันแรก                                                                                                         |
 | Login                 | Email + password, long remember-me / อีเมล + รหัสผ่าน (magic link ใช้ไม่ได้ดีกับ PWA บน iPhone)                                                                      |
 
+## Space tabs / แท็บของ space (decided 2026-11-09)
+
+| Tab | Content |
+|---|---|
+| **Overview / ภาพรวม** (default) | Month calendar: both answered / one answered / free miss ❄️ / missed; dots for events + moments. Tap a day → that day's prompt, answers, moments, events. Today / this week / this month stats. Upcoming dates. Manage dates. Settings. |
+| **Daily / รายวัน** | Today's question or quest, streak, earlier days (late answers), "write one for us", today's events, activity feed (last 7 days). |
+| **Moments / ช่วงเวลา** | Shared wall: compose (text + up to 4 photos), my drafts, feed, reactions, comments. |
+
+- **Today card:** weekdays = question, Sat/Sun = quest (quests pulled forward from v1.5). Quest = each writes how it went; same reveal rule.
+- **Prompt choice:** couple-written first, then random library; never repeats in a space. / คำถามที่คู่เขียนเองมาก่อน ไม่ซ้ำ
+- **Editing answers:** allowed until the partner answers, then locked. / แก้ได้จนกว่าอีกฝ่ายจะตอบ
+- **Looking back:** if you never answered a day, the partner's answer stays hidden **forever**. / ถ้าไม่ตอบ คำตอบอีกฝ่ายซ่อนตลอดไป
+- **Events:** both partners add/edit/delete per space; optional yearly repeat; Feb 29 → Feb 28. Plus an "our anniversary" date in space settings (counts years). / วันสำคัญ ทั้งคู่จัดการได้ ซ้ำทุกปีได้ + วันครบรอบ
+- **Activity:** says *that* something happened (answered / quest done / moment / date added) — never answer text or drafts. / บอกแค่ว่ามีอะไรเกิดขึ้น ไม่แสดงเนื้อหา
+- **Moments:** up to 4 photos, private drafts, only the author deletes.
+- **Photo caching:** `private, no-cache` + ETag — browser must re-check membership every time (found in testing: a year-long cache let a different user on the same browser reuse a photo after logout).
+
 ## Spaces & pairing / พื้นที่และการจับคู่
 
 - A space has exactly **2 members** (DB allows N; v1 enforces 2). / 1 space มีสมาชิก 2 คน

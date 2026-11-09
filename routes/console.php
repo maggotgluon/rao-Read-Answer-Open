@@ -11,4 +11,5 @@ Artisan::command('inspire', function () {
 // Shared hosting: Plesk runs `php artisan schedule:run` every minute.
 // โฮสต์ใช้ cron ของ Plesk เรียก schedule:run ทุกนาที
 Schedule::command('spaces:purge')->dailyAt('03:00');
+Schedule::command('prompts:assign')->hourly();
 Schedule::command('queue:work --stop-when-empty --max-time=50')->everyMinute()->withoutOverlapping();

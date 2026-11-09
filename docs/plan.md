@@ -11,19 +11,21 @@
 - [x] Deploy pipeline (CI side): GitHub Actions tests → builds → `deploy` branch (see `docs/deploy.md`)
 - [ ] Deploy pipeline (server side): Plesk Git pulls `deploy`, `.env`, migrations, cron — first real deploy
 
-## Weekend 2 — Moments / ช่วงเวลา
+## Weekend 2 — Moments + Daily + Overview / ช่วงเวลา รายวัน ภาพรวม (done early, 2026-11-09)
+- [x] 3 tabs per space: Overview (calendar) · Daily · Moments; bottom tab bar on phones
+- [x] Moments: text + up to 4 photos, private drafts, browser compression + server re-encode (EXIF/GPS stripped)
+- [x] Private photo route (members only, drafts author-only, `no-cache` + ETag), reactions (1/person), comments
+- [x] Today card: weekday question / weekend quest, reveal, edit-until-partner-answers, 7-day late window
+- [x] Prompt library seed (80 questions + 26 quests, th/en — **Thai needs Mag's edit pass**) + couple-written prompts
+- [x] Streak with 2 free misses/week; month calendar with day detail
+- [x] Events (yearly repeat) + anniversary; upcoming list; activity feed
+- [x] Demo history seed (3 weeks) for local testing
 
-- [ ] Photo + quote moments; drafts private until posted
-- [ ] Client-side image compression; private storage; membership-checked media route
-- [ ] Timeline per space; reactions (1/person); comments
-
-## Weekend 3 — Daily prompt + reveal / คำถามประจำวัน
-
-- [ ] Prompt library seed (~100, th/en, tags) + custom prompts per space
-- [ ] Daily assignment per space timezone (scheduler)
-- [ ] Answer + reveal; late answers ≤ 7 days
-- [ ] Streak with 1–2 freeze days/week
+## Weekend 3 — Polish & safety / ปรับแต่งและความปลอดภัย
+- [ ] UI consistency pass (Mag noted inconsistencies) + brand direction (soft & warm)
+- [ ] Moments wall: pagination / "load more" beyond 50
 - [ ] Daily backup (DB + photos, keep 7) + off-host copy
+- [ ] Mag edits the Thai prompt library
 
 ## Weekend 4 — Push, polish, ship / แจ้งเตือนและเปิดใช้
 

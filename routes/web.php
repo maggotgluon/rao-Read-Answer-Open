@@ -1,9 +1,16 @@
 <?php
 
+use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\MomentCommentController;
+use App\Http\Controllers\MomentController;
+use App\Http\Controllers\MomentMediaController;
+use App\Http\Controllers\MomentReactionController;
+use App\Http\Controllers\PromptController;
 use App\Http\Controllers\SpaceController;
+use App\Http\Controllers\SpaceEventController;
 use App\Support\DevTools;
 use Illuminate\Support\Facades\Route;
 
@@ -33,15 +40,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('spaces', [SpaceController::class, 'store'])->name('spaces.store');
 
     // Everything below is behind the wall: members only (others get 404).
-    Route::prefix('s/{space}')->middleware('space.member')->name('spaces.')->group(function () {
+    // scopeBindings: a {moment}/{dailyPrompt}/{media}/{comment} from another space → 404.
+    Route::prefix('s/{space}')->middleware('space.member')->name('spaces.')->scopeBindings()->group(function () {
         Route::get('/', [SpaceController::class, 'show'])->name('show');
+        Route::get('daily', [SpaceController::class, 'daily'])->name('daily');
+        Route::get('moments', [SpaceController::class, 'moments'])->name('moments');
         Route::post('restore', [SpaceController::class, 'restore'])->name('restore');
+        Route::get('moments/{moment}/media/{media}', [MomentMediaController::class, 'show'])->name('media.show');
 
         // Writes need an active (not frozen) space.
         Route::middleware('space.member:active')->group(function () {
             Route::patch('/', [SpaceController::class, 'update'])->name('update');
             Route::post('freeze', [SpaceController::class, 'freeze'])->name('freeze');
             Route::post('invite', [SpaceController::class, 'regenerateInvite'])->name('invite');
+
+            Route::post('today/{dailyPrompt}/answer', [AnswerController::class, 'store'])->name('answers.store');
+            Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
+
+            Route::post('events', [SpaceEventController::class, 'store'])->name('events.store');
+            Route::patch('events/{event}', [SpaceEventController::class, 'update'])->name('events.update');
+            Route::delete('events/{event}', [SpaceEventController::class, 'destroy'])->name('events.destroy');
+
+            Route::post('moments', [MomentController::class, 'store'])
+                ->middleware('throttle:30,1')->name('moments.store');
+            Route::post('moments/{moment}/publish', [MomentController::class, 'publish'])->name('moments.publish');
+            Route::delete('moments/{moment}', [MomentController::class, 'destroy'])->name('moments.destroy');
+            Route::put('moments/{moment}/reaction', [MomentReactionController::class, 'update'])->name('reactions.update');
+            Route::post('moments/{moment}/comments', [MomentCommentController::class, 'store'])->name('comments.store');
+            Route::delete('moments/{moment}/comments/{comment}', [MomentCommentController::class, 'destroy'])->name('comments.destroy');
         });
     });
 });

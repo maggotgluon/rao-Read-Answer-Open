@@ -4,6 +4,7 @@ import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { show as legal } from '@/routes/legal';
+import { SensitiveCheckbox } from '@/pages/consent';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -94,6 +95,11 @@ export default function Register({ passwordRules }: Props) {
                                 <InputError
                                     message={errors.password_confirmation}
                                 />
+                            </div>
+
+                            <div className="grid gap-1">
+                                <SensitiveCheckbox />
+                                <InputError message={errors.sensitive} />
                             </div>
 
                             <label className="flex items-start gap-3 rounded-[calc(var(--radius)-2px)] bg-paper-2 p-3 text-sm text-ink">

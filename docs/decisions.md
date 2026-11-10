@@ -112,7 +112,6 @@ second: long-distance couples. Personal use first, built so it can go public.
 3. PDPA / privacy policy — only if it goes public.
 4. ~~Host PHP version~~ — resolved: Laravel 13 confirmed running on the server. / ยืนยันแล้วว่าเซิร์ฟเวอร์รัน Laravel 13 ได้
 
-
 ## Data rights, insights, nudges, replies, moods (2026-11-10) / สิทธิ์ข้อมูล ข้อมูลเชิงลึก การเตือน การตอบกลับ อารมณ์
 
 - **Delete account / ลบบัญชี:** 7-day grace period; signing in cancels. Then everything the person wrote/posted is deleted (FK cascades + photo files). Shared spaces become read-only (frozen, never auto-purged) for the other member, who keeps their own content. `accounts:purge` runs daily 03:15.

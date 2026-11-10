@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LegalController;
@@ -49,6 +50,13 @@ if (DevTools::enabled()) {
 Route::get('join/{code}', [InviteController::class, 'show'])->name('invites.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('consent', [ConsentController::class, 'show'])->name('consent.show');
+    Route::post('consent', [ConsentController::class, 'store'])->name('consent.store');
+    Route::delete('consent', [ConsentController::class, 'withdraw'])->name('consent.withdraw');
+});
+
+// Everything with letters needs the sensitive-topics consent. / ทุกอย่างที่มีจดหมายต้องได้รับความยินยอมก่อน
+Route::middleware(['auth', 'verified', 'consent'])->group(function () {
     Route::get('dashboard', [SpaceController::class, 'index'])->name('dashboard');
 
     Route::post('join', [InviteController::class, 'lookup'])->name('invites.lookup');

@@ -22,6 +22,7 @@ class PrivacyController extends Controller
         return Inertia::render('settings/privacy', [
             'analytics' => $request->user()->analyticsOn(),
             'graceDays' => User::DELETE_GRACE_DAYS,
+            'sensitiveSince' => $request->user()->sensitive_consent_at?->toIso8601String(),
         ]);
     }
 

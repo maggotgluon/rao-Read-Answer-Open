@@ -50,11 +50,11 @@ test('with consent: actions are recorded, never the content', function () {
 });
 
 test('sign-up consent is off unless ticked', function () {
-    $this->post(route('register.store'), ['name' => 'A', 'email' => 'a@x.test', 'password' => 'Str0ng!pass-word', 'password_confirmation' => 'Str0ng!pass-word']);
+    $this->post(route('register.store'), ['name' => 'A', 'email' => 'a@x.test', 'password' => 'Str0ng!pass-word', 'password_confirmation' => 'Str0ng!pass-word', 'sensitive' => '1']);
     expect(User::where('email', 'a@x.test')->first()->analytics_consent_at)->toBeNull();
     auth()->logout();
 
-    $this->post(route('register.store'), ['name' => 'B', 'email' => 'b@x.test', 'password' => 'Str0ng!pass-word', 'password_confirmation' => 'Str0ng!pass-word', 'analytics' => '1']);
+    $this->post(route('register.store'), ['name' => 'B', 'email' => 'b@x.test', 'password' => 'Str0ng!pass-word', 'password_confirmation' => 'Str0ng!pass-word', 'sensitive' => '1', 'analytics' => '1']);
     expect(User::where('email', 'b@x.test')->first()->analytics_consent_at)->not->toBeNull();
 });
 
@@ -185,12 +185,37 @@ test('insights page: admin only, numbers only', function () {
     expect($res->getContent())->not->toContain('PRIVATE');
 });
 
-test('legal pages render in both languages', function () {
-    foreach (['privacy', 'terms', 'cookies', 'data-rights'] as $doc) {
-        if (! is_file(resource_path("legal/th/{$doc}.md"))) {
-            $this->markTestSkipped('legal drafts not written yet');
+test('legal pages render in both languages, filled from .env, no owner markers', function () {
+    config(['legal.contact_email' => 'hello@rao.test', 'legal.effective_date' => '2026-12-01']);
+
+    foreach (['th', 'en'] as $locale) {
+        foreach (['privacy', 'terms', 'cookies', 'data-rights'] as $doc) {
+            $props = $this->withSession(['locale' => $locale])->get(route('legal.show', $doc))->assertOk()->viewData('page')['props'];
+            expect($props['html'])->not->toContain('PLACEHOLDER')->not->toContain('OPTIONAL')->not->toContain('{{')
+                ->and($props['effective'])->toBe('2026-12-01');
         }
-        $this->get(route('legal.show', $doc))->assertOk()->assertInertia(fn ($p) => $p->component('legal/show'));
     }
+    expect($props['html'])->toContain('hello@rao.test');
     $this->get('/legal/nope')->assertNotFound();
+});
+
+// --- sensitive-topics consent (PDPA s.26) / ความยินยอมเรื่องอ่อนไหว ---
+test('sign-up requires the separate sensitive-topics consent', function () {
+    $this->post(route('register.store'), ['name' => 'C', 'email' => 'c@x.test', 'password' => 'Str0ng!pass-word', 'password_confirmation' => 'Str0ng!pass-word'])
+        ->assertSessionHasErrors('sensitive');
+    expect(User::where('email', 'c@x.test')->exists())->toBeFalse();
+});
+
+test('without consent, spaces redirect to the consent page; giving it continues; withdrawing closes again', function () {
+    [$a, , $space] = piCouple();
+    $a->forceFill(['sensitive_consent_at' => null])->save();
+
+    $this->actingAs($a)->get(route('spaces.daily', $space))->assertRedirect(route('consent.show'));
+    $this->actingAs($a)->get(route('privacy.edit'))->assertOk();   // settings stay open
+    $this->actingAs($a)->post(route('consent.store'), [])->assertSessionHasErrors('sensitive');
+    $this->actingAs($a)->post(route('consent.store'), ['sensitive' => '1'])->assertRedirect(route('spaces.daily', $space));
+    expect($a->fresh()->sensitive_consent_at)->not->toBeNull();
+
+    $this->actingAs($a)->delete(route('consent.withdraw'))->assertRedirect(route('privacy.edit'));
+    $this->actingAs($a->fresh())->get(route('spaces.daily', $space))->assertRedirect(route('consent.show'));
 });

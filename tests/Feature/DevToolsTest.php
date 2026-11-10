@@ -33,6 +33,7 @@ function registerUser($test): User
         'email' => 'new@example.com',
         'password' => 'Long-enough-Pass-123!',
         'password_confirmation' => 'Long-enough-Pass-123!',
+        'sensitive' => '1',
     ])->assertSessionHasNoErrors();
 
     return User::where('email', 'new@example.com')->firstOrFail();

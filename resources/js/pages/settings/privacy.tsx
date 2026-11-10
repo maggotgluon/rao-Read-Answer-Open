@@ -16,6 +16,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useT } from '@/lib/i18n';
+import { withdraw as withdrawConsent } from '@/routes/consent';
 import { show as legal } from '@/routes/legal';
 import {
     analytics as analyticsRoute,
@@ -31,9 +32,11 @@ import { destroy } from '@/routes/profile';
 export default function Privacy({
     analytics,
     graceDays,
+    sensitiveSince,
 }: {
     analytics: boolean;
     graceDays: number;
+    sensitiveSince: string | null;
 }) {
     const { t } = useT();
 
@@ -66,6 +69,38 @@ export default function Privacy({
                 <p className="text-xs text-ink-soft">
                     {t('privacy.analytics_off_note')}
                 </p>
+            </section>
+
+            <section className="flex flex-col gap-4 border-t border-rule pt-8">
+                <Heading
+                    variant="small"
+                    title={t('consent.settings_title')}
+                    description={t('consent.settings_body')}
+                />
+                {sensitiveSince ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius)] bg-paper-2 p-4 text-sm text-ink">
+                        <span>
+                            {t('consent.given_on', {
+                                date: new Date(
+                                    sensitiveSince,
+                                ).toLocaleDateString(),
+                            })}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                window.confirm(t('consent.withdraw_confirm')) &&
+                                router.delete(withdrawConsent.url())
+                            }
+                        >
+                            {t('consent.withdraw')}
+                        </Button>
+                    </div>
+                ) : (
+                    <p className="text-sm text-ink-soft">
+                        {t('consent.not_given')}
+                    </p>
+                )}
             </section>
 
             <section className="flex flex-col gap-4 border-t border-rule pt-8">

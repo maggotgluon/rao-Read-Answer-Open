@@ -566,5 +566,19 @@
     "insights.event.long_distance_off": "Long-distance off",
     "insights.event.theme_changed": "Changed theme",
     "insights.event.export": "Downloaded data",
-    "nudge.no_push": ":name has notifications off, so a reminder can't reach them. Maybe send a message instead 💌"
+    "nudge.no_push": ":name has notifications off, so a reminder can't reach them. Maybe send a message instead 💌",
+    "consent.title": "Before you write",
+    "consent.body": "Letters to the person you love can be very personal: health, intimacy, faith. The law asks us to get your clear consent before we store things like that.",
+    "consent.label": "I agree that Rao may store very personal things I choose to write (such as health, intimacy or faith) only to show them to my own space.",
+    "consent.help": "We never analyse it or use it for anything else. You can withdraw any time in Settings → Privacy.",
+    "consent.continue": "Agree and continue",
+    "consent.no_hint": "Don't want to? You can still download your data or delete your account in",
+    "consent.settings_title": "Very personal topics",
+    "consent.settings_body": "Your consent for Rao to store very personal things you write (health, intimacy, faith) only for your space.",
+    "consent.given_on": "Given on :date",
+    "consent.withdraw": "Withdraw",
+    "consent.withdraw_confirm": "Withdraw consent? Your spaces will be closed to you until you consent again. Nothing is deleted.",
+    "consent.withdrawn": "Consent withdrawn. Your spaces stay closed until you agree again.",
+    "consent.not_given": "Not given. You'll be asked when you open a space.",
+    "validation.sensitive": "Please tick this box to use Rao."
 }

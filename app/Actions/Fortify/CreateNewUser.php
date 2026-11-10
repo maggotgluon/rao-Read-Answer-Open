@@ -25,7 +25,9 @@ class CreateNewUser implements CreatesNewUsers
             ...$this->profileRules(),
             'password' => $this->passwordRules(),
             'analytics' => ['nullable', 'boolean'],
-        ])->validate();
+            // Explicit, separate consent for sensitive topics (PDPA s.26). / ยินยอมโดยชัดแจ้ง
+            'sensitive' => ['accepted'],
+        ], ['sensitive.accepted' => __('validation.sensitive')])->validate();
 
         $user = User::create([
             'name' => $input['name'],
@@ -33,6 +35,7 @@ class CreateNewUser implements CreatesNewUsers
             'password' => $input['password'],
             'locale' => app()->getLocale(),
         ]);
+        $user->forceFill(['sensitive_consent_at' => now()])->save();
 
         // Optional analytics: off unless ticked at sign-up. / analytics เปิดเมื่อติ๊กยินยอมเท่านั้น
         if (filter_var($input['analytics'] ?? false, FILTER_VALIDATE_BOOLEAN)) {

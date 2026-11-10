@@ -25,6 +25,7 @@ class PurgeAccounts extends Command
         $old = now()->subMonths(Analytics::KEEP_MONTHS);
         $events = DB::table('analytics_events')->where('created_at', '<', $old)->delete();
         DB::table('activity_days')->where('date', '<', $old->toDateString())->delete();
+        DB::table('push_logs')->where('created_at', '<', now()->subDays(90))->delete();   // push log kept 90 days
 
         $this->info("Deleted {$count} account(s), {$events} old event(s).");
 

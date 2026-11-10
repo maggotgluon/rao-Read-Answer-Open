@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureSensitiveConsent;
 use App\Http\Middleware\EnsureSpaceMember;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'space.member' => EnsureSpaceMember::class,
             'admin' => EnsureAdmin::class,
+            'consent' => EnsureSensitiveConsent::class,
         ]);
 
         $middleware->web(append: [

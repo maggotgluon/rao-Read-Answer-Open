@@ -37,6 +37,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property Carbon|null $last_seen_at
  * @property Carbon|null $delete_at
  * @property Carbon|null $analytics_consent_at
+ * @property Carbon|null $sensitive_consent_at
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -48,7 +49,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password', 'locale', 'birthday', 'show_age', 'theme', 'notify', 'morning_at', 'evening_at', 'share_location'])]
 // Location stays server-side (only distance/city/time are shown to partners).
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'loc_lat', 'loc_lng', 'loc_at', 'last_seen_at', 'delete_at', 'analytics_consent_at'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'loc_lat', 'loc_lng', 'loc_at', 'last_seen_at', 'delete_at', 'analytics_consent_at', 'sensitive_consent_at'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -114,6 +115,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'last_seen_at' => 'datetime',
             'delete_at' => 'datetime',
             'analytics_consent_at' => 'datetime',
+            'sensitive_consent_at' => 'datetime',
         ];
     }
 }

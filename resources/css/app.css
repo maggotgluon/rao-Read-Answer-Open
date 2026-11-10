@@ -94,80 +94,14 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* ── Dusk (default) / ยามเย็น ───────────────────────────────── */
-:root,
-[data-theme='blush'] {
-    --ground: #f3e3e7;
-    --paper: #fffaf8;
-    --paper-2: #fbeef1;
-    --ink: #26305e;
-    --ink-soft: #5f5a7e;
-    --rule: #ebd0d7;
-    --rule-strong: #ddb7c1;
-    --stamp: #c92f3c;
-    --stamp-ink: #ffffff;
-    --stamp-soft: #f6d3d7;
-    --wax: #a51f2d;
-    --airmail: #2a5aae;
-    --airmail-ink: #ffffff;
-    --airmail-soft: #dbe5f6;
-    --postmark: #857aa1;
-    --kraft: #d6b08b;
-    --paper-shadow:
-        0 1px 0 rgb(38 48 94 / 0.05), 0 12px 24px -16px rgb(38 48 94 / 0.38);
-    --lift-shadow:
-        0 2px 0 rgb(38 48 94 / 0.05), 0 22px 40px -18px rgb(38 48 94 / 0.45);
-    --radius: 0.7rem;
-}
-
-/* ── Daytime / กลางวัน ─────────────────────────────────────── */
-[data-theme='paper'] {
-    --ground: #eef2f8;
-    --paper: #ffffff;
-    --paper-2: #f2f5fa;
-    --ink: #1c2747;
-    --ink-soft: #55607d;
-    --rule: #dbe2ee;
-    --rule-strong: #c3cddf;
-    --stamp: #d22a34;
-    --stamp-ink: #ffffff;
-    --stamp-soft: #fbd9db;
-    --wax: #a51c26;
-    --airmail: #2251b5;
-    --airmail-ink: #ffffff;
-    --airmail-soft: #dce6fa;
-    --postmark: #6d7895;
-    --kraft: #c9a07a;
-    --paper-shadow:
-        0 1px 0 rgb(28 39 71 / 0.05), 0 12px 24px -16px rgb(28 39 71 / 0.3);
-    --lift-shadow:
-        0 2px 0 rgb(28 39 71 / 0.05), 0 22px 40px -18px rgb(28 39 71 / 0.38);
-    --radius: 0.55rem;
-}
-
-/* ── Night / กลางคืน ───────────────────────────────────────── */
-[data-theme='candle'] {
-    --ground: #121a2c;
-    --paper: #1c2540;
-    --paper-2: #24304f;
-    --ink: #f1eadf;
-    --ink-soft: #aab1c9;
-    --rule: #2e3a5c;
-    --rule-strong: #3d4a70;
-    --stamp: #ff6b70;
-    --stamp-ink: #2a0b0f;
-    --stamp-soft: rgb(255 107 112 / 0.18);
-    --wax: #e24c57;
-    --airmail: #8ab1ff;
-    --airmail-ink: #0e1a33;
-    --airmail-soft: rgb(138 177 255 / 0.16);
-    --postmark: #8d96b7;
-    --kraft: #b38d68;
-    --paper-shadow:
-        0 1px 0 rgb(0 0 0 / 0.25), 0 14px 28px -16px rgb(0 0 0 / 0.7);
-    --lift-shadow:
-        0 2px 0 rgb(0 0 0 / 0.25), 0 24px 44px -18px rgb(0 0 0 / 0.8);
-    --radius: 0.7rem;
+/* Theme colours come from public/themes/<id>/theme.json (injected as :root vars in
+   app.blade.php). Images default to none. / สีของธีมมาจากโฟลเดอร์ธีม */
+:root {
+    --ground-image: none;
+    --paper-image: none;
+    --button-image: none;
+    --seal-image: none;
+    --airmail-edge-image: none;
 }
 
 /* shadcn tokens from the world's roles / โทเค็น shadcn จากบทบาทสี */
@@ -219,12 +153,16 @@
         color-scheme: light;
     }
 
-    html[data-theme='candle'] {
+    html.dark {
         color-scheme: dark;
     }
 
     body {
         @apply bg-background font-sans text-foreground;
+        /* optional desk texture from the theme / พื้นโต๊ะเป็นรูปได้ */
+        background-image: var(--ground-image);
+        background-size: cover;
+        background-attachment: fixed;
         min-height: 100dvh;
         overscroll-behavior-y: none;
     }
@@ -272,20 +210,24 @@
 @layer components {
     /* A sheet of letter paper. / แผ่นกระดาษจดหมาย */
     .paper {
-        background: var(--paper);
+        background:
+            var(--paper-image) center / cover,
+            var(--paper);
         border-radius: var(--radius);
         box-shadow: var(--paper-shadow);
     }
 
     /* Airmail stripe edge (red / blue diagonals). / ขอบลายจดหมายอากาศ */
     .airmail-edge {
-        background: repeating-linear-gradient(
-            -45deg,
-            var(--stamp) 0 9px,
-            transparent 9px 15px,
-            var(--airmail) 15px 24px,
-            transparent 24px 30px
-        );
+        background:
+            var(--airmail-edge-image) left / auto 100% repeat-x,
+            repeating-linear-gradient(
+                -45deg,
+                var(--stamp) 0 9px,
+                transparent 9px 15px,
+                var(--airmail) 15px 24px,
+                transparent 24px 30px
+            );
     }
 
     /* Postage-stamp perforation: holes show the ground behind. / ขอบฟันแสตมป์ */
@@ -470,4 +412,19 @@
 }
 .legal strong {
     font-weight: 600;
+}
+
+/* Theme pictures. Mono SVGs take the text colour (mask); PNGs show as drawn.
+   ภาพจากธีม: SVG สีเดียวใช้สีตัวอักษร PNG แสดงตามจริง */
+.asset-mono {
+    display: inline-block;
+    flex-shrink: 0;
+    background-color: currentColor;
+    -webkit-mask: var(--asset) center / contain no-repeat;
+    mask: var(--asset) center / contain no-repeat;
+}
+.asset-img {
+    display: inline-block;
+    flex-shrink: 0;
+    object-fit: contain;
 }

@@ -1,0 +1,35 @@
+{
+    "id": "daytime",
+    "extends": "dusk",
+    "name": {
+        "th": "กลางวัน",
+        "en": "Daytime"
+    },
+    "description": {
+        "th": "กระดาษจดหมายอากาศสีขาว สดใส อ่านง่าย",
+        "en": "Crisp airmail paper, bright and clear"
+    },
+    "dark": false,
+    "status_bar": "#eef2f8",
+    "tokens": {
+        "ground": "#eef2f8",
+        "paper": "#ffffff",
+        "paper-2": "#f2f5fa",
+        "ink": "#1c2747",
+        "ink-soft": "#55607d",
+        "rule": "#dbe2ee",
+        "rule-strong": "#c3cddf",
+        "stamp": "#d22a34",
+        "stamp-ink": "#ffffff",
+        "stamp-soft": "#fbd9db",
+        "wax": "#a51c26",
+        "airmail": "#2251b5",
+        "airmail-ink": "#ffffff",
+        "airmail-soft": "#dce6fa",
+        "postmark": "#6d7895",
+        "kraft": "#c9a07a",
+        "paper-shadow": "0 1px 0 rgb(28 39 71 / 0.05), 0 12px 24px -16px rgb(28 39 71 / 0.3)",
+        "lift-shadow": "0 2px 0 rgb(28 39 71 / 0.05), 0 22px 40px -18px rgb(28 39 71 / 0.38)",
+        "radius": "0.55rem"
+    }
+}

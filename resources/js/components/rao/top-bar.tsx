@@ -6,7 +6,7 @@ import {
     LogOut,
     Settings,
     Shield,
-} from 'lucide-react';
+} from '@/components/rao/ui-icons';
 import { MailboxIcon } from '@/components/rao/icons';
 import { Wordmark } from '@/components/rao/logo';
 import {

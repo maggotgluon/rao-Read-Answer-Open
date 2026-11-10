@@ -1,6 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
+import { Asset } from '@/components/rao/asset';
 import { AirmailIcon, EnvelopeIcon, SealIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -165,7 +166,7 @@ export function DayCard({
                                     }
                                     className="press group flex flex-col items-center gap-1 disabled:opacity-40"
                                 >
-                                    <span className="grid size-16 place-items-center rounded-full bg-stamp text-stamp-ink shadow-[inset_0_-3px_0_rgb(0_0_0/0.18),0_6px_14px_-6px_var(--stamp)] transition-transform group-enabled:group-hover:-rotate-6">
+                                    <span className="grid size-16 place-items-center rounded-full bg-stamp [background-image:var(--seal-image)] bg-cover text-stamp-ink shadow-[inset_0_-3px_0_rgb(0_0_0/0.18),0_6px_14px_-6px_var(--stamp)] transition-transform group-enabled:group-hover:-rotate-6">
                                         <SealIcon className="size-7" />
                                     </span>
                                     <span className="text-xs font-medium text-stamp">
@@ -395,7 +396,11 @@ function OnItsWay({
                         disabled={sending}
                         className="press self-start rounded-full bg-airmail-soft px-4 py-2 text-sm font-medium text-airmail disabled:opacity-50"
                     >
-                        🔔 {t('nudge.button', { name })}
+                        <Asset
+                            name="icons.bell-ring"
+                            className="mr-1.5 size-4 align-[-3px]"
+                        />
+                        {t('nudge.button', { name })}
                     </button>
                 ))}
         </div>
@@ -517,13 +522,16 @@ function Rating({ day, spaceId }: { day: DayItem; spaceId: string }) {
                     aria-pressed={day.my_rating === v}
                     aria-label={t(v === 1 ? 'rating.up' : 'rating.down')}
                     className={cn(
-                        'press grid size-9 place-items-center rounded-full text-base',
+                        'press grid size-9 place-items-center rounded-full',
                         day.my_rating === v
-                            ? 'bg-stamp-soft'
-                            : 'opacity-55 grayscale hover:opacity-100',
+                            ? 'bg-stamp-soft text-stamp'
+                            : 'text-ink-soft opacity-70 hover:opacity-100',
                     )}
                 >
-                    {v === 1 ? '👍' : '👎'}
+                    <Asset
+                        name={v === 1 ? 'icons.thumbs-up' : 'icons.thumbs-down'}
+                        className="size-[18px]"
+                    />
                 </button>
             ))}
             {day.my_rating !== 0 && (

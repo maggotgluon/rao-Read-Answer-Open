@@ -1,32 +1,16 @@
 import { router, useForm } from '@inertiajs/react';
-import {
-    Cake,
-    Gift,
-    Heart,
-    Pencil,
-    Plus,
-    Sparkles,
-    Star,
-    Trash2,
-} from 'lucide-react';
+import { Pencil, Plus, Trash2 } from '@/components/rao/ui-icons';
 import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useT } from '@/lib/i18n';
 import { Fold } from '@/components/rao/fold';
+import { Asset } from '@/components/rao/asset';
 import { LettersIcon, PostmarkIcon } from '@/components/rao/icons';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/spaces/events';
 import type { EventOccurrence, SpaceEvent } from '@/types/space';
-
-const ICON = {
-    birthday: Cake,
-    special: Star,
-    other: Gift,
-    anniversary: Heart,
-    site: Sparkles,
-} as const;
 
 export function EventLabel({
     event,
@@ -36,7 +20,6 @@ export function EventLabel({
     showWhen?: boolean;
 }) {
     const { t, locale } = useT();
-    const Icon = ICON[event.kind];
     const when =
         event.in_days === 0
             ? t('event.today')
@@ -46,7 +29,7 @@ export function EventLabel({
 
     return (
         <span className="flex items-center gap-2">
-            <Icon className="size-4 shrink-0 text-airmail" strokeWidth={1.75} />
+            <Asset name={event.icon} className="size-5 shrink-0 text-airmail" />
             <span className="flex-1">
                 {event.title}
                 {(event.memories ?? 0) > 0 && (
@@ -128,7 +111,13 @@ export function UpcomingEvents({ upcoming }: { upcoming: EventOccurrence[] }) {
                                     </span>
                                 </span>
                                 <span className="flex flex-1 flex-col gap-0.5">
-                                    <span className="text-ink">{e.title}</span>
+                                    <span className="flex items-center gap-1.5 text-ink">
+                                        <Asset
+                                            name={e.icon}
+                                            className="size-5 shrink-0 text-airmail"
+                                        />
+                                        {e.title}
+                                    </span>
                                     <span
                                         className={cn(
                                             'text-sm',
@@ -211,7 +200,12 @@ export function ManageEvents({
                     ) : (
                         <li key={e.id} className="flex items-center gap-2">
                             <EventLabel
-                                event={{ ...e, event_id: e.id, years: 0 }}
+                                event={{
+                                    ...e,
+                                    event_id: e.id,
+                                    years: 0,
+                                    icon: `dates.${e.kind}`,
+                                }}
                             />
                             <span className="text-xs text-muted-foreground">
                                 {new Date(

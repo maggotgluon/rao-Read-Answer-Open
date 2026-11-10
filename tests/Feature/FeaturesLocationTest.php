@@ -88,12 +88,12 @@ test('couple-written prompts off: cannot add, and queued ones are skipped', func
     expect(app(DailyPrompts::class)->forDate($space, $space->today())->prompt->text_en)->toBe('Library?');
 });
 
-test('themes off: everyone gets blush and cannot change it', function () {
-    $a = User::factory()->create(['theme' => 'candle']);
+test('themes off: everyone gets dusk and cannot change it', function () {
+    $a = User::factory()->create(['theme' => 'night']);
     setFeature('themes', false);
 
-    $this->actingAs($a)->get(route('profile.edit'))->assertSee('data-theme="blush"', false);
-    $this->actingAs($a)->put(route('theme.update'), ['theme' => 'paper'])->assertForbidden();
+    $this->actingAs($a)->get(route('profile.edit'))->assertSee('data-theme="dusk"', false);
+    $this->actingAs($a)->put(route('theme.update'), ['theme' => 'daytime'])->assertForbidden();
 });
 
 test('memories off: no "on this day"', function () {

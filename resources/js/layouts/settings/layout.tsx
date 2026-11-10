@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
@@ -27,10 +27,16 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const items = [
         { title: t('settings.profile'), href: edit() },
         { title: t('settings.notifications'), href: editNotifications() },
-        { title: t('settings.appearance'), href: editAppearance() },
         { title: t('settings.security'), href: editSecurity() },
         { title: t('settings.privacy'), href: editPrivacy() },
     ];
+    // Switched-off features are hidden, not greyed out. / ฟีเจอร์ที่ปิดจะซ่อนเมนู
+    if (usePage().props.features?.themes !== false) {
+        items.splice(2, 0, {
+            title: t('settings.appearance'),
+            href: editAppearance(),
+        });
+    }
 
     return (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">

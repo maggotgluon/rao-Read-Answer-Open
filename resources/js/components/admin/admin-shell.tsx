@@ -6,7 +6,7 @@ import {
     Library,
     ToggleRight,
     Users,
-} from 'lucide-react';
+} from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { dashboard, insights } from '@/routes/admin';

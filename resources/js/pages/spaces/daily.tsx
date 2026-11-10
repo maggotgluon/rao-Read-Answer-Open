@@ -4,7 +4,8 @@ import { EventLabel } from '@/components/space/events-panel';
 import { Memories } from '@/components/space/memories';
 import { MoodStamps } from '@/components/space/mood-stamps';
 import { SurveyCard } from '@/components/space/survey-card';
-import { AirmailIcon, PostmarkIcon } from '@/components/rao/icons';
+import { Asset } from '@/components/rao/asset';
+import { PostmarkIcon } from '@/components/rao/icons';
 import { SpaceShell } from '@/components/space/space-shell';
 import { StreakPill } from '@/components/space/streak-pill';
 import { TodaySection } from '@/components/space/today-section';
@@ -79,7 +80,10 @@ export default function SpaceDaily({
                 />
             ) : (
                 <section className="paper flex flex-col items-start gap-2 p-5">
-                    <AirmailIcon className="size-7 text-airmail" />
+                    <Asset
+                        name="decor.waiting-partner"
+                        className="size-12 text-airmail"
+                    />
                     <p className="hand text-xl text-ink">
                         {t('today.waiting_partner')}
                     </p>

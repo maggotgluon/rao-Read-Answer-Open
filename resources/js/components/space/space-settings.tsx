@@ -1,5 +1,5 @@
 import { Form, router } from '@inertiajs/react';
-import { Settings } from 'lucide-react';
+import { Settings } from '@/components/rao/ui-icons';
 import InputError from '@/components/input-error';
 import { Fold } from '@/components/rao/fold';
 import { Button } from '@/components/ui/button';

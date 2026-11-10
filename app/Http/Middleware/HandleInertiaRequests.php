@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Features;
+use App\Support\Themes;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,7 +44,9 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'locale' => app()->getLocale(),
-            'theme' => $request->attributes->get('theme', 'blush'),
+            'theme' => $request->attributes->get('theme', Themes::DEFAULT),
+            // Every picture the UI uses, by name → file in the theme folder. / ภาพทั้งหมดของธีม
+            'themeAssets' => fn () => Themes::get($request->attributes->get('theme', Themes::DEFAULT))['assets'],
             'isAdmin' => (bool) $request->user()?->is_admin,
             // Person-level switches (themes, poly) + whether location is on in any of my spaces.
             'features' => fn () => [

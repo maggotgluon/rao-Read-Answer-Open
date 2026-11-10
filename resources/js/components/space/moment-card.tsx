@@ -1,7 +1,8 @@
 import { router, useForm } from '@inertiajs/react';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X } from '@/components/rao/ui-icons';
 import { PostmarkIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import {
@@ -196,21 +197,24 @@ export function MomentCard({
                                             )
                                         }
                                         className={cn(
-                                            'press flex h-9 min-w-9 items-center justify-center gap-1 rounded-full px-2 text-base',
+                                            'press flex h-9 min-w-9 items-center justify-center gap-1 rounded-full px-2',
                                             mine
                                                 ? 'bg-stamp-soft'
                                                 : count
                                                   ? 'bg-ink/[0.05]'
-                                                  : 'opacity-50 grayscale-[0.4] hover:opacity-100',
+                                                  : 'opacity-60 hover:opacity-100',
                                         )}
                                     >
-                                        <span
+                                        <Asset
+                                            name={`reactions.${e}`}
+                                            alt={t(`reaction.${e}`)}
                                             className={cn(
-                                                mine && 'animate-thunk',
+                                                'size-5',
+                                                mine
+                                                    ? 'animate-thunk text-stamp'
+                                                    : 'text-ink',
                                             )}
-                                        >
-                                            {e}
-                                        </span>
+                                        />
                                         {count > 0 && (
                                             <span className="text-xs text-ink">
                                                 {count}

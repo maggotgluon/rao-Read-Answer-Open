@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown } from '@/components/rao/ui-icons';
 import { cn } from '@/lib/utils';
 
 /**

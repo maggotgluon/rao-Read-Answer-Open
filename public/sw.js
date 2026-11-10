@@ -8,7 +8,7 @@
  * Service worker แบบเล็ก: หน้าเว็บโหลดจากเน็ตก่อน ออฟไลน์แสดง /offline
  * ไฟล์ build แคชไว้ ข้อมูลส่วนตัวไม่แคช
  */
-const VERSION = 'rao-v3';
+const VERSION = 'rao-v4';
 const OFFLINE_URL = '/offline';
 
 self.addEventListener('install', (event) => {

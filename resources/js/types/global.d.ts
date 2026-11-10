@@ -17,7 +17,9 @@ declare module '@inertiajs/core' {
             locale: Locale;
             translations: Record<string, string>;
             spaces: SpaceNavItem[];
-            theme: 'blush' | 'paper' | 'candle';
+            /** theme folder id (public/themes/<id>) */
+            theme: string;
+            themeAssets: Record<string, { url: string; mono: boolean }>;
             isAdmin: boolean;
             features: { themes: boolean; poly: boolean; location: boolean };
             vapidPublicKey: string | null;

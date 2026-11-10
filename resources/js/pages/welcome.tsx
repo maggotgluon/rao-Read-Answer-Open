@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { LanguageSwitch } from '@/components/language-switch';
+import { Asset } from '@/components/rao/asset';
 import { SealIcon } from '@/components/rao/icons';
 import { StampLogo } from '@/components/rao/logo';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,10 @@ export default function Welcome() {
                     </div>
 
                     <div className="flex flex-col gap-3">
+                        <Asset
+                            name="decor.welcome"
+                            className="size-12 text-stamp"
+                        />
                         <h1 className="text-4xl leading-tight text-ink">
                             {t('welcome.title')}
                         </h1>

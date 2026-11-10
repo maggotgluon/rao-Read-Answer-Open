@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Prompt;
 use App\Models\ScheduledPrompt;
 use App\Models\SpecialDay;
+use App\Support\Themes;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -23,6 +24,7 @@ class ScheduleController extends Controller
         $locale = app()->getLocale();
 
         return Inertia::render('admin/schedule', [
+            'dateIcons' => self::dateIcons(),
             'scheduled' => ScheduledPrompt::with('prompt')->whereDate('date', '>=', now()->subDays(30)->toDateString())
                 ->orderBy('date')->get()->map(fn (ScheduledPrompt $s) => [
                     'id' => $s->id,
@@ -37,7 +39,7 @@ class ScheduleController extends Controller
                 ]),
             'specialDays' => SpecialDay::orderByRaw('repeats_yearly desc')->orderBy('date')->get()->map(fn (SpecialDay $d) => [
                 'id' => $d->id, 'date' => $d->date->toDateString(), 'title_th' => $d->title_th, 'title_en' => $d->title_en,
-                'emoji' => $d->emoji, 'repeats_yearly' => $d->repeats_yearly, 'active' => $d->active,
+                'emoji' => $d->emoji, 'icon' => $d->icon, 'repeats_yearly' => $d->repeats_yearly, 'active' => $d->active,
             ]),
             'audiences' => ScheduledPrompt::AUDIENCES,
         ]);
@@ -113,10 +115,19 @@ class ScheduleController extends Controller
             'title_th' => ['nullable', 'string', 'max:100', 'required_without:title_en'],
             'title_en' => ['nullable', 'string', 'max:100', 'required_without:title_th'],
             'emoji' => ['nullable', 'string', 'max:16'],
+            'icon' => ['nullable', Rule::in(self::dateIcons())],
             'repeats_yearly' => ['boolean'],
             'active' => ['boolean'],
         ]);
 
         return [...$data, 'repeats_yearly' => $request->boolean('repeats_yearly', true), 'active' => $request->boolean('active', true)];
+    }
+
+    /** Pictures in the default theme's dates/ folder. / ภาพวันสำคัญที่เลือกได้ */
+    public static function dateIcons(): array
+    {
+        return collect(Themes::get(Themes::DEFAULT)['assets'])->keys()
+            ->filter(fn ($k) => str_starts_with($k, 'dates.'))
+            ->map(fn ($k) => substr($k, 6))->values()->all();
     }
 }

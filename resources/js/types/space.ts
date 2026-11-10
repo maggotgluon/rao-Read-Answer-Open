@@ -143,6 +143,8 @@ export type EventOccurrence = {
     user_id?: number | null;
     memories?: number;
     kind: 'birthday' | 'special' | 'other' | 'anniversary' | 'site';
+    /** theme picture, e.g. dates.anniversary / ภาพในธีม */
+    icon: string;
     title: string;
     date: string;
     years: number;

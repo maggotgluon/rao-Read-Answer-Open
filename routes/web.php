@@ -115,6 +115,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('spaces/{space}/premium', [AdminUserController::class, 'premium'])->name('spaces.premium');
     Route::get('features', [AdminFeatureController::class, 'index'])->name('features.index');
     Route::put('features/{key}', [AdminFeatureController::class, 'update'])->name('features.update');
+    Route::put('themes/{theme}', [AdminFeatureController::class, 'updateTheme'])->name('themes.update');
     Route::get('schedule', [AdminScheduleController::class, 'index'])->name('schedule.index');
     Route::post('schedule', [AdminScheduleController::class, 'store'])->name('schedule.store');
     Route::delete('schedule/{scheduled}', [AdminScheduleController::class, 'destroy'])->name('schedule.destroy');

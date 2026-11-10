@@ -25,6 +25,9 @@ use Illuminate\Support\Collection;
  */
 class SpaceCalendar
 {
+    /** Default date picture per kind. / ภาพเริ่มต้นตามประเภท */
+    public const ICONS = ['anniversary' => 'anniversary', 'birthday' => 'birthday', 'special' => 'special', 'other' => 'other', 'site' => 'valentine'];
+
     public function __construct(private DailyPrompts $prompts) {}
 
     /** @return array<string, mixed> */
@@ -200,6 +203,7 @@ class SpaceCalendar
                 'event_id' => null,
                 'user_id' => null,
                 'kind' => 'site',
+                'icon' => $day->icon,
                 'title' => $day->titleFor(app()->getLocale()),
                 'date' => $day->date,
                 'yearly' => $day->repeats_yearly,
@@ -287,6 +291,8 @@ class SpaceCalendar
             'event_id' => $source['event_id'],
             'user_id' => $source['user_id'],
             'kind' => $source['kind'],
+            // picture in the theme's dates/ folder / ภาพในโฟลเดอร์ dates ของธีม
+            'icon' => 'dates.'.($source['icon'] ?? null ?: self::ICONS[$source['kind']] ?? 'other'),
             'title' => $source['title'],
             'date' => $on->toDateString(),
             'years' => $source['show_years'] ? $years : 0,   // 3rd anniversary / turns 30

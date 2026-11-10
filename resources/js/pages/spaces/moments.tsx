@@ -2,6 +2,7 @@ import { MomentCard } from '@/components/space/moment-card';
 import { MomentComposer } from '@/components/space/moment-composer';
 import { SpaceShell } from '@/components/space/space-shell';
 import { PostcardIcon } from '@/components/rao/icons';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import type { MomentItem, SpaceDetail, SpaceEvent } from '@/types/space';
 
@@ -9,7 +10,7 @@ type Props = {
     space: SpaceDetail;
     moments: MomentItem[];
     drafts: MomentItem[];
-    reactionEmojis: string[];
+    reactionKeys: string[];
     dateOptions: SpaceEvent[];
 };
 
@@ -18,7 +19,7 @@ export default function SpaceMoments({
     space,
     moments,
     drafts,
-    reactionEmojis,
+    reactionKeys,
     dateOptions,
 }: Props) {
     const { t } = useT();
@@ -28,7 +29,7 @@ export default function SpaceMoments({
             key={m.id}
             moment={m}
             spaceId={space.id}
-            emojis={reactionEmojis}
+            emojis={reactionKeys}
             readOnly={frozen}
             dateOptions={dateOptions}
         />
@@ -56,6 +57,10 @@ export default function SpaceMoments({
                 <section className="flex flex-col items-center gap-3 px-6 py-10 text-center">
                     <PostcardIcon className="size-12 -rotate-6 text-kraft" />
                     <p className="hand text-xl text-ink">
+                        <Asset
+                            name="decor.moments-empty"
+                            className="mx-auto mb-3 block size-16 text-kraft"
+                        />
                         {t('moment.feed_empty')}
                     </p>
                 </section>

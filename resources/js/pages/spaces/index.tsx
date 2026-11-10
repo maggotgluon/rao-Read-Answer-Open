@@ -1,7 +1,8 @@
-import { Form, Head, Link } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Plus } from '@/components/rao/ui-icons';
 import InputError from '@/components/input-error';
-import { AirmailIcon, MailboxIcon } from '@/components/rao/icons';
+import { Asset } from '@/components/rao/asset';
+import { AirmailIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useT } from '@/lib/i18n';
@@ -16,6 +17,10 @@ import type { SpaceSummary } from '@/types/space';
  */
 export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
     const { t } = useT();
+    const { features } = usePage().props;
+    // One space per person while "multiple spaces" is off: hide the button. / ซ่อนปุ่มเมื่อปิดฟีเจอร์
+    const canCreate =
+        features?.poly !== false || !spaces.some((s) => s.status === 'active');
 
     return (
         <>
@@ -25,7 +30,10 @@ export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
 
                 {spaces.length === 0 ? (
                     <section className="flex flex-col items-center gap-3 py-6 text-center">
-                        <MailboxIcon className="size-12 text-kraft" />
+                        <Asset
+                            name="decor.spaces-empty"
+                            className="size-16 text-kraft"
+                        />
                         <p className="hand text-xl text-ink">
                             {t('spaces.empty')}
                         </p>
@@ -111,18 +119,21 @@ export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
                 )}
 
                 <div className="flex flex-col gap-3">
-                    <Form {...store.form()}>
-                        {({ processing }) => (
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                size="lg"
-                                className="w-full sm:w-auto"
-                            >
-                                <Plus strokeWidth={1.75} /> {t('spaces.create')}
-                            </Button>
-                        )}
-                    </Form>
+                    {canCreate && (
+                        <Form {...store.form()}>
+                            {({ processing }) => (
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    size="lg"
+                                    className="w-full sm:w-auto"
+                                >
+                                    <Plus strokeWidth={1.75} />{' '}
+                                    {t('spaces.create')}
+                                </Button>
+                            )}
+                        </Form>
+                    )}
 
                     <Form
                         {...lookup.form()}

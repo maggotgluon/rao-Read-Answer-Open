@@ -137,7 +137,7 @@ test('wall: outsiders and other spaces cannot reach a moment or its photo', func
     // C directly, and C through their own A↔C space URL.
     $this->actingAs($c)->get(route('spaces.media.show', [$ab, $moment, $media]))->assertNotFound();
     $this->actingAs($c)->get(route('spaces.media.show', [$ac, $moment, $media]))->assertNotFound();
-    $this->actingAs($c)->put(route('spaces.reactions.update', [$ac, $moment]), ['emoji' => '❤️'])->assertNotFound();
+    $this->actingAs($c)->put(route('spaces.reactions.update', [$ac, $moment]), ['emoji' => 'love'])->assertNotFound();
     $this->actingAs($c)->post(route('spaces.comments.store', [$ac, $moment]), ['body' => 'hi'])->assertNotFound();
 
     // A's other space doesn't show it either.
@@ -179,12 +179,12 @@ test('one reaction per person: change it, or tap the same one to remove it', fun
     $moment = Moment::first();
     $react = fn ($emoji) => $this->actingAs($b)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => $emoji]);
 
-    $react('❤️');
-    $react('😂');
+    $react('love');
+    $react('yay');
     expect($moment->reactions()->count())->toBe(1)
-        ->and($moment->reactions()->value('emoji'))->toBe('😂');
+        ->and($moment->reactions()->value('emoji'))->toBe('yay');
 
-    $react('😂');
+    $react('yay');
     expect($moment->reactions()->count())->toBe(0);
 
     $react('💩')->assertSessionHasErrors('emoji');
@@ -195,7 +195,7 @@ test('no reactions or comments on drafts', function () {
     post($this, $space, $a, ['body' => 'draft']);
     $moment = Moment::first();
 
-    $this->actingAs($a)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => '❤️'])->assertNotFound();
+    $this->actingAs($a)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => 'love'])->assertNotFound();
     $this->actingAs($a)->post(route('spaces.comments.store', [$space, $moment]), ['body' => 'x'])->assertNotFound();
 });
 

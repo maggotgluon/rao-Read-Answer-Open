@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { Copy, RefreshCw, Share2 } from 'lucide-react';
+import { Copy, RefreshCw, Share2 } from '@/components/rao/ui-icons';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';

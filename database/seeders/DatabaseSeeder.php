@@ -77,7 +77,7 @@ class DatabaseSeeder extends Seeder
         ])->save();
 
         // Admin demo: a special day for everyone + a bonus question for today.
-        SpecialDay::create(['date' => '2026-02-14', 'emoji' => '💘', 'title_th' => 'วันวาเลนไทน์', 'title_en' => "Valentine's Day", 'repeats_yearly' => true]);
+        SpecialDay::create(['date' => '2026-02-14', 'icon' => 'valentine', 'title_th' => 'วันวาเลนไทน์', 'title_en' => "Valentine's Day", 'repeats_yearly' => true]);
         $bonus = Prompt::create([
             'kind' => 'question', 'fit' => 'any', 'created_by' => $mag->id,
             'text_th' => 'ถ้าวันนี้เป็นวันพิเศษของเรา อยากฉลองแบบไหน?',

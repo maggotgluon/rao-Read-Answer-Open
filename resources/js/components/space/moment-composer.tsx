@@ -1,5 +1,5 @@
 import { useForm } from '@inertiajs/react';
-import { ImagePlus, X } from 'lucide-react';
+import { ImagePlus, X } from '@/components/rao/ui-icons';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import { PostcardIcon } from '@/components/rao/icons';

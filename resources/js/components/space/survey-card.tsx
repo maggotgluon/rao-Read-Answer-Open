@@ -1,5 +1,6 @@
 import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { Asset } from '@/components/rao/asset';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -54,13 +55,21 @@ export function SurveyCard() {
                             setOpen(true);
                         }}
                         className={cn(
-                            'press grid size-12 place-items-center rounded-full text-2xl',
+                            'press grid size-12 place-items-center rounded-full',
                             form.data.score === n
                                 ? 'bg-stamp-soft'
                                 : 'opacity-70 grayscale-[0.4] hover:opacity-100',
                         )}
                     >
-                        {['😞', '😕', '😐', '🙂', '😍'][n - 1]}
+                        <Asset
+                            name={`faces.${n}`}
+                            className={cn(
+                                'size-8',
+                                form.data.score === n
+                                    ? 'text-stamp'
+                                    : 'text-ink',
+                            )}
+                        />
                     </button>
                 ))}
             </div>

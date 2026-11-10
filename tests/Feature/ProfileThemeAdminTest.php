@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Moment;
 use App\Models\Prompt;
 use App\Models\Space;
 use App\Models\User;
@@ -8,8 +7,9 @@ use App\Services\SpaceCalendar;
 use Database\Seeders\PromptLibrarySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 // ── Birthday on the profile / วันเกิดในโปรไฟล์ ──────────────────────────
 
@@ -111,16 +111,16 @@ test('the anniversary can only be changed in settings', function () {
 
 // ── Themes / ธีม ─────────────────────────────────────────────────
 
-test('blush is the default theme; each person keeps their own', function () {
+test('dusk is the default theme; each person keeps their own', function () {
     [$a, $b] = User::factory()->count(2)->create();
 
-    $this->get('/')->assertSee('data-theme="blush"', false);
+    $this->get('/')->assertSee('data-theme="dusk"', false);
 
-    $this->actingAs($a)->put(route('theme.update'), ['theme' => 'candle'])->assertRedirect();
-    expect($a->fresh()->theme)->toBe('candle')->and($b->fresh()->theme)->toBe('blush');
+    $this->actingAs($a)->put(route('theme.update'), ['theme' => 'night'])->assertRedirect();
+    expect($a->fresh()->theme)->toBe('night')->and($b->fresh()->theme)->toBe('dusk');
 
-    $this->actingAs($a)->get(route('profile.edit'))->assertSee('data-theme="candle"', false)->assertSee('class="dark"', false);
-    $this->actingAs($b)->get(route('profile.edit'))->assertSee('data-theme="blush"', false);
+    $this->actingAs($a)->get(route('profile.edit'))->assertSee('data-theme="night"', false)->assertSee('class="dark"', false);
+    $this->actingAs($b)->get(route('profile.edit'))->assertSee('data-theme="dusk"', false);
 
     $this->actingAs($a)->put(route('theme.update'), ['theme' => 'neon'])->assertSessionHasErrors('theme');
 });

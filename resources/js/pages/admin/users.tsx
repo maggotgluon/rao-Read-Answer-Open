@@ -1,10 +1,11 @@
 import { Link, router } from '@inertiajs/react';
-import { Search } from 'lucide-react';
+import { Search } from '@/components/rao/ui-icons';
 import { Fragment, useState } from 'react';
 import { AdminShell, fmtDate } from '@/components/admin/admin-shell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { premium } from '@/routes/admin/spaces';
@@ -146,8 +147,16 @@ export default function AdminUsers({ users, filters }: Props) {
                                                                 {t(
                                                                     `admin.users.status_${s.status}`,
                                                                 )}
-                                                                {s.long_distance &&
-                                                                    ' · ✈️'}
+                                                                {s.long_distance && (
+                                                                    <>
+                                                                        {' '}
+                                                                        ·{' '}
+                                                                        <Asset
+                                                                            name="icons.airmail"
+                                                                            className="size-3.5 align-[-2px]"
+                                                                        />
+                                                                    </>
+                                                                )}
                                                             </span>
                                                         </span>
                                                         <Button
@@ -172,7 +181,9 @@ export default function AdminUsers({ users, filters }: Props) {
                                                             }
                                                         >
                                                             {s.premium
-                                                                ? `⭐ ${t('admin.users.premium')}`
+                                                                ? t(
+                                                                      'admin.users.premium',
+                                                                  )
                                                                 : t(
                                                                       'admin.users.give_premium',
                                                                   )}

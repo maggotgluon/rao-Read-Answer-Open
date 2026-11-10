@@ -1,4 +1,5 @@
 import { router } from '@inertiajs/react';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { mood as moodRoute } from '@/routes/spaces';
@@ -37,9 +38,10 @@ export function MoodStamps({
                     {moods.partner ? (
                         <>
                             {t('mood.partner', { name: partnerName })}{' '}
-                            <span className="animate-thunk inline-block text-lg">
-                                {moods.options[moods.partner]}
-                            </span>{' '}
+                            <Asset
+                                name={`moods.${moods.partner}`}
+                                className="animate-thunk size-5 align-[-4px] text-stamp"
+                            />{' '}
                             {t(`mood.${moods.partner}`)}
                         </>
                     ) : (
@@ -52,7 +54,7 @@ export function MoodStamps({
                 aria-labelledby="mood-title"
                 className="-mx-4 flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 pb-1"
             >
-                {Object.entries(moods.options).map(([key, emoji]) => {
+                {Object.keys(moods.options).map((key) => {
                     const on = moods.mine === key;
                     const face = on ? 'var(--stamp-soft)' : 'var(--paper)';
 
@@ -82,14 +84,15 @@ export function MoodStamps({
                                 className="flex w-16 flex-col items-center gap-0.5 px-1 pt-1.5 pb-1"
                                 style={{ background: face }}
                             >
-                                <span
+                                <Asset
+                                    name={`moods.${key}`}
                                     className={cn(
-                                        'text-2xl',
-                                        on && 'animate-thunk',
+                                        'size-7',
+                                        on
+                                            ? 'animate-thunk text-stamp'
+                                            : 'text-ink',
                                     )}
-                                >
-                                    {emoji}
-                                </span>
+                                />
                                 <span
                                     className={cn(
                                         'text-[11px]',

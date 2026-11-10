@@ -1,10 +1,11 @@
-import { router, useForm } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
+import { router, useForm, usePage } from '@inertiajs/react';
+import { Trash2 } from '@/components/rao/ui-icons';
 import { AdminShell, fmtDate } from '@/components/admin/admin-shell';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import {
@@ -28,6 +29,7 @@ type Day = {
     title_th: string | null;
     title_en: string | null;
     emoji: string | null;
+    icon: string | null;
     repeats_yearly: boolean;
     active: boolean;
 };
@@ -36,6 +38,7 @@ type Props = {
     scheduled: Scheduled[];
     specialDays: Day[];
     audiences: string[];
+    dateIcons: string[];
 };
 
 const field = 'h-9 rounded-md border border-input bg-background px-3 text-sm';
@@ -136,7 +139,15 @@ export default function AdminSchedule({
                                     : fmtDate(d.date + 'T00:00:00', locale)}
                             </span>
                             <span className="flex-1">
-                                {d.emoji} {d.title_th}{' '}
+                                {d.icon ? (
+                                    <Asset
+                                        name={`dates.${d.icon}`}
+                                        className="mr-1 size-5 align-[-5px] text-airmail"
+                                    />
+                                ) : (
+                                    d.emoji
+                                )}{' '}
+                                {d.title_th}{' '}
                                 <span className="text-muted-foreground">
                                     · {d.title_en}
                                 </span>
@@ -267,9 +278,10 @@ function ScheduleForm({ audiences }: { audiences: string[] }) {
 
 function DayForm() {
     const { t } = useT();
+    const { dateIcons } = usePage<Props>().props;
     const form = useForm({
         date: '',
-        emoji: '',
+        icon: 'valentine',
         title_th: '',
         title_en: '',
         repeats_yearly: true,
@@ -293,13 +305,31 @@ function DayForm() {
                 required
                 className="w-auto"
             />
-            <Input
-                value={form.data.emoji}
-                onChange={(e) => form.setData('emoji', e.target.value)}
-                placeholder="💘"
-                className="w-16"
-                maxLength={16}
-            />
+            {/* picture from the theme's dates/ folder / เลือกภาพจากโฟลเดอร์ dates */}
+            <div
+                role="radiogroup"
+                aria-label={t('admin.schedule.icon')}
+                className="flex w-full flex-wrap gap-1"
+            >
+                {dateIcons.map((k) => (
+                    <button
+                        key={k}
+                        type="button"
+                        role="radio"
+                        aria-checked={form.data.icon === k}
+                        title={k}
+                        onClick={() => form.setData('icon', k)}
+                        className={cn(
+                            'press grid size-10 place-items-center rounded-full',
+                            form.data.icon === k
+                                ? 'bg-stamp-soft text-stamp'
+                                : 'text-ink-soft hover:text-ink',
+                        )}
+                    >
+                        <Asset name={`dates.${k}`} className="size-6" />
+                    </button>
+                ))}
+            </div>
             <Input
                 value={form.data.title_th}
                 onChange={(e) => form.setData('title_th', e.target.value)}

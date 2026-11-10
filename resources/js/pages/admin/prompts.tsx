@@ -1,10 +1,11 @@
 import { Link, router, useForm } from '@inertiajs/react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search } from '@/components/rao/ui-icons';
 import { useState } from 'react';
 import { AdminShell } from '@/components/admin/admin-shell';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { destroy, index, store, update } from '@/routes/admin/prompts';
@@ -215,7 +216,16 @@ export default function AdminPrompts({
                                 </span>
                                 {p.up + p.down > 0 && (
                                     <span className="text-xs">
-                                        👍 {p.up} · 👎 {p.down}
+                                        <Asset
+                                            name="icons.thumbs-up"
+                                            className="size-3.5 align-[-2px]"
+                                        />{' '}
+                                        {p.up} ·{' '}
+                                        <Asset
+                                            name="icons.thumbs-down"
+                                            className="size-3.5 align-[-2px]"
+                                        />{' '}
+                                        {p.down}
                                     </span>
                                 )}
                             </div>

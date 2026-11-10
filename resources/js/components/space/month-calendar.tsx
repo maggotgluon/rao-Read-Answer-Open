@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/spaces';

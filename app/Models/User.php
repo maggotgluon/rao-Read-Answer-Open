@@ -55,8 +55,6 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
-    public const THEMES = ['blush', 'paper', 'candle'];
-
     /** Push types a user can switch off. / ประเภทแจ้งเตือนที่ปิดได้ */
     public const NOTIFY_TYPES = ['morning', 'evening', 'partner_answered', 'nudges', 'replies', 'partner_moment', 'moment_activity', 'dates'];
 

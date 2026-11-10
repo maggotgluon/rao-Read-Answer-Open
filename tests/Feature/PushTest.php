@@ -78,8 +78,8 @@ test('comments and new reactions notify the author, not yourself', function () {
     $moment = $space->moments()->create(['user_id' => $a->id, 'body' => 'hi', 'status' => 'posted', 'posted_at' => now()]);
 
     $this->actingAs($b)->post(route('spaces.comments.store', [$space, $moment]), ['body' => 'so cute']);
-    $this->actingAs($b)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => '❤️']);
-    $this->actingAs($b)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => '😂']);   // change: no new push
+    $this->actingAs($b)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => 'love']);
+    $this->actingAs($b)->put(route('spaces.reactions.update', [$space, $moment]), ['emoji' => 'yay']);   // change: no new push
     $this->actingAs($a)->post(route('spaces.comments.store', [$space, $moment]), ['body' => 'self']);
 
     expect(pushedTo($a))->toHaveCount(2)

@@ -1,0 +1,44 @@
+{
+    "id": "dusk",
+    "default": true,
+    "name": {
+        "th": "ยามเย็น",
+        "en": "Dusk"
+    },
+    "description": {
+        "th": "กระดาษจดหมายสีชมพู แสงนุ่มตอนเย็น",
+        "en": "Rose letter paper, soft evening light"
+    },
+    "dark": false,
+    "status_bar": "#f3e3e7",
+    "tokens": {
+        "ground": "#f3e3e7",
+        "paper": "#fffaf8",
+        "paper-2": "#fbeef1",
+        "ink": "#26305e",
+        "ink-soft": "#5f5a7e",
+        "rule": "#ebd0d7",
+        "rule-strong": "#ddb7c1",
+        "stamp": "#c92f3c",
+        "stamp-ink": "#ffffff",
+        "stamp-soft": "#f6d3d7",
+        "wax": "#a51f2d",
+        "airmail": "#2a5aae",
+        "airmail-ink": "#ffffff",
+        "airmail-soft": "#dbe5f6",
+        "postmark": "#857aa1",
+        "kraft": "#d6b08b",
+        "paper-shadow": "0 1px 0 rgb(38 48 94 / 0.05), 0 12px 24px -16px rgb(38 48 94 / 0.38)",
+        "lift-shadow": "0 2px 0 rgb(38 48 94 / 0.05), 0 22px 40px -18px rgb(38 48 94 / 0.45)",
+        "radius": "0.7rem"
+    },
+    "images": {
+        "_comment": "Optional images instead of flat colours, paths relative to this theme folder (e.g. \"textures/desk.jpg\"). Keys: ground, paper, button, seal, airmail-edge. / ใช้รูปแทนสีได้",
+        "ground": null,
+        "paper": null,
+        "button": null,
+        "seal": null,
+        "airmail-edge": null
+    },
+    "mono": ["icons", "moods", "faces", "reactions", "dates", "decor"]
+}

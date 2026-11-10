@@ -19,7 +19,7 @@ use Illuminate\Support\Carbon;
  */
 class SpecialDay extends Model
 {
-    protected $fillable = ['date', 'title_th', 'title_en', 'emoji', 'repeats_yearly', 'active'];
+    protected $fillable = ['date', 'title_th', 'title_en', 'emoji', 'icon', 'repeats_yearly', 'active'];
 
     protected function casts(): array
     {
@@ -30,6 +30,7 @@ class SpecialDay extends Model
     {
         $t = $locale === 'en' ? ($this->title_en ?: $this->title_th) : ($this->title_th ?: $this->title_en);
 
-        return trim(($this->emoji ? $this->emoji.' ' : '').($t ?? ''));
+        // A picture (icon) replaces the old emoji prefix. / ใช้ภาพแทนอีโมจิ
+        return trim(($this->emoji && ! $this->icon ? $this->emoji.' ' : '').($t ?? ''));
     }
 }

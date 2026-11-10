@@ -11,7 +11,11 @@ use Illuminate\Database\Eloquent\Model;
  */
 class MomentReaction extends Model
 {
-    public const EMOJIS = ['❤️', '😂', '🥹', '😍', '🔥', '🫶'];
+    /**
+     * Reaction keys → theme picture reactions/<key> (emoji only for push text, which can't show images).
+     * ชื่อปฏิกิริยา → ภาพในธีม (อีโมจิใช้เฉพาะข้อความแจ้งเตือน)
+     */
+    public const REACTIONS = ['love' => '❤️', 'sweet' => '🫶', 'aww' => '🥹', 'crush' => '😍', 'yay' => '😂', 'melting' => '🔥'];
 
     protected $fillable = ['moment_id', 'user_id', 'emoji'];
 }

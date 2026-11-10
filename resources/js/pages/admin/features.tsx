@@ -2,7 +2,10 @@ import { router } from '@inertiajs/react';
 import { AdminShell } from '@/components/admin/admin-shell';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
+import { themeStyle } from '@/lib/theme';
 import { update } from '@/routes/admin/features';
+import { update as updateTheme } from '@/routes/admin/themes';
 
 type Row = {
     key: string;
@@ -16,7 +19,23 @@ type Row = {
  * Premium = only in spaces you gave premium (Users tab). No payments yet.
  * เปิด-ปิดฟีเจอร์ และกำหนดฟรี/พรีเมียม
  */
-export default function AdminFeatures({ features }: { features: Row[] }) {
+type ThemeRow = {
+    id: string;
+    name: string;
+    extends: string | null;
+    default: boolean;
+    enabled: boolean;
+    tier: 'free' | 'premium';
+    vars: Record<string, string>;
+};
+
+export default function AdminFeatures({
+    features,
+    themes,
+}: {
+    features: Row[];
+    themes: ThemeRow[];
+}) {
     const { t } = useT();
     const save = (f: Row, patch: Partial<Row>) =>
         router.put(
@@ -66,7 +85,7 @@ export default function AdminFeatures({ features }: { features: Row[] }) {
                                     )}
                                 >
                                     {tier === 'premium'
-                                        ? `⭐ ${t('admin.features.premium')}`
+                                        ? t('admin.features.premium')
                                         : t('admin.features.free')}
                                 </button>
                             ))}
@@ -94,6 +113,86 @@ export default function AdminFeatures({ features }: { features: Row[] }) {
                     </li>
                 ))}
             </ul>
+
+            {/* Theme folders in public/themes / โฟลเดอร์ธีม */}
+            <section className="flex flex-col gap-2">
+                <h2 className="text-xl text-ink">{t('admin.themes.title')}</h2>
+                <p className="text-sm text-ink-soft">
+                    {t('admin.themes.help')}
+                </p>
+                <ul className="paper flex flex-col divide-y divide-rule">
+                    {themes.map((th) => {
+                        const saveTheme = (patch: Partial<ThemeRow>) =>
+                            router.put(
+                                updateTheme.url(th.id),
+                                {
+                                    enabled: th.enabled,
+                                    tier: th.tier,
+                                    ...patch,
+                                },
+                                { preserveScroll: true },
+                            );
+
+                        return (
+                            <li
+                                key={th.id}
+                                className={cn(
+                                    'flex flex-wrap items-center gap-3 p-4',
+                                    !th.enabled && 'opacity-60',
+                                )}
+                            >
+                                <span
+                                    style={themeStyle(th)}
+                                    className="flex size-10 shrink-0 items-end justify-end rounded-[8px] bg-[var(--ground)] p-1.5 ring-1 ring-rule"
+                                >
+                                    <span className="size-4 rounded-full bg-[var(--stamp)]" />
+                                </span>
+                                <div className="flex flex-1 flex-col">
+                                    <span className="font-medium text-ink">
+                                        {th.name}
+                                    </span>
+                                    <span className="text-xs text-ink-soft">
+                                        public/themes/{th.id}
+                                        {th.extends &&
+                                            ` · ${t('admin.themes.extends', { parent: th.extends })}`}
+                                    </span>
+                                </div>
+                                {th.default ? (
+                                    <span className="text-xs text-ink-soft">
+                                        {t('admin.themes.default')}
+                                    </span>
+                                ) : (
+                                    <>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                saveTheme({
+                                                    tier:
+                                                        th.tier === 'free'
+                                                            ? 'premium'
+                                                            : 'free',
+                                                })
+                                            }
+                                            className="press rounded-full bg-ink/[0.06] px-3 py-1.5 text-xs text-ink"
+                                        >
+                                            {th.tier === 'premium'
+                                                ? t('admin.features.premium')
+                                                : t('admin.features.free')}
+                                        </button>
+                                        <Switch
+                                            checked={th.enabled}
+                                            onCheckedChange={(on: boolean) =>
+                                                saveTheme({ enabled: on })
+                                            }
+                                            aria-label={th.name}
+                                        />
+                                    </>
+                                )}
+                            </li>
+                        );
+                    })}
+                </ul>
+            </section>
         </AdminShell>
     );
 }

@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Lock } from 'lucide-react';
+import { Lock } from '@/components/rao/ui-icons';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { daily } from '@/routes/spaces';
 import type { DayDetail } from '@/types/space';
@@ -115,7 +116,11 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                         {day.bonus && (
                             <section className="flex flex-col gap-1 rounded-[calc(var(--radius)-2px)] border border-kraft/60 p-3 text-sm">
                                 <span className="text-xs font-medium text-kraft">
-                                    ✨ {t('today.bonus')}
+                                    <Asset
+                                        name="icons.sparkles"
+                                        className="mr-1 size-3.5 align-[-2px]"
+                                    />
+                                    {t('today.bonus')}
                                 </span>
                                 <p className="font-medium">{day.bonus.text}</p>
                                 {day.bonus.mine && (

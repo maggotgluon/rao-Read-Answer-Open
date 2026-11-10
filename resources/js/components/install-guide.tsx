@@ -1,4 +1,4 @@
-import { Share, SquarePlus } from 'lucide-react';
+import { Share, SquarePlus } from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
 
 /** iPhone: push needs the app on the Home Screen first. / iPhone ต้องเพิ่มลงหน้าจอโฮมก่อน */

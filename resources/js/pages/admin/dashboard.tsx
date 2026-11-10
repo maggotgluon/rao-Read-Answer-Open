@@ -1,4 +1,5 @@
 import { AdminShell, StatCard } from '@/components/admin/admin-shell';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 
 type Ranked = {
@@ -151,11 +152,11 @@ export default function AdminDashboard({ stats }: Props) {
 
             <section className="grid gap-3 md:grid-cols-2">
                 <Ranking
-                    title={`👍 ${t('admin.dash.best_prompts')}`}
+                    title={t('admin.dash.best_prompts')}
                     rows={prompts.best}
                 />
                 <Ranking
-                    title={`👎 ${t('admin.dash.worst_prompts')}`}
+                    title={t('admin.dash.worst_prompts')}
                     rows={prompts.worst}
                 />
             </section>
@@ -255,7 +256,16 @@ function Ranking({ title, rows }: { title: string; rows: Ranked[] }) {
                         <li key={r.id} className="flex gap-2">
                             <span className="flex-1">{r.text}</span>
                             <span className="shrink-0 text-xs text-muted-foreground">
-                                👍 {r.up} · 👎 {r.down}
+                                <Asset
+                                    name="icons.thumbs-up"
+                                    className="size-3.5 align-[-2px]"
+                                />{' '}
+                                {r.up} ·{' '}
+                                <Asset
+                                    name="icons.thumbs-down"
+                                    className="size-3.5 align-[-2px]"
+                                />{' '}
+                                {r.down}
                             </span>
                         </li>
                     ))}

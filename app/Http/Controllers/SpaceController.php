@@ -143,7 +143,7 @@ class SpaceController extends Controller
             ...$this->shell($space, $user),
             'moments' => fn () => $this->momentList($space, $user, Moment::STATUS_POSTED),
             'drafts' => fn () => $this->momentList($space, $user, Moment::STATUS_DRAFT),
-            'reactionEmojis' => MomentReaction::EMOJIS,
+            'reactionKeys' => array_keys(MomentReaction::REACTIONS),
             'dateOptions' => fn () => $calendar->eventList($space),
         ]);
     }

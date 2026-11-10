@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import { BellOff, BellRing } from 'lucide-react';
+import { BellOff, BellRing } from '@/components/rao/ui-icons';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import Heading from '@/components/heading';

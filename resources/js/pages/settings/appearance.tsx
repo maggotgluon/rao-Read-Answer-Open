@@ -1,23 +1,20 @@
 import { Head, usePage } from '@inertiajs/react';
-import { Check } from 'lucide-react';
 import Heading from '@/components/heading';
-import { SealIcon } from '@/components/rao/icons';
+import { Asset } from '@/components/rao/asset';
+import { Check } from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
-import { setTheme, THEMES } from '@/lib/theme';
-import type { Theme } from '@/lib/theme';
+import { setTheme, themeStyle } from '@/lib/theme';
+import type { ClientTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { edit as editAppearance } from '@/routes/appearance';
 
 /**
- * Theme = time of day at the same letter desk. Each preview renders in its own theme
- * (data-theme on the preview), so what you see is exactly what you get.
- * ธีม = ช่วงเวลาของวัน ตัวอย่างแสดงด้วยธีมนั้นจริง ๆ
+ * Pick a theme. The list comes from the theme folders (public/themes/*); each preview is
+ * painted with that theme's own colours. / รายการธีมมาจากโฟลเดอร์ธีม ตัวอย่างใช้สีของธีมนั้นจริง
  */
-export default function Appearance() {
+export default function Appearance({ themes }: { themes: ClientTheme[] }) {
     const { t } = useT();
-    const { theme, features } = usePage().props;
-    const current = theme as Theme;
-    const allowed = features?.themes !== false;
+    const current = usePage().props.theme as string;
 
     return (
         <>
@@ -28,19 +25,8 @@ export default function Appearance() {
                     title={t('theme.title')}
                     description={t('theme.description')}
                 />
-                {!allowed && (
-                    <p className="rounded-[calc(var(--radius)-2px)] border border-dashed border-postmark/60 p-3 text-sm text-ink-soft">
-                        {t('feature.themes_off')}
-                    </p>
-                )}
-                <div
-                    role="radiogroup"
-                    className={cn(
-                        'grid gap-3 sm:grid-cols-3',
-                        !allowed && 'pointer-events-none opacity-50',
-                    )}
-                >
-                    {THEMES.map((th) => {
+                <div role="radiogroup" className="grid gap-3 sm:grid-cols-3">
+                    {themes.map((th) => {
                         const on = current === th.id;
 
                         return (
@@ -49,8 +35,7 @@ export default function Appearance() {
                                 type="button"
                                 role="radio"
                                 aria-checked={on}
-                                disabled={!allowed}
-                                onClick={() => allowed && setTheme(th.id)}
+                                onClick={() => setTheme(th)}
                                 className={cn(
                                     'press flex flex-col gap-2 rounded-[var(--radius)] p-1.5 text-left',
                                     on
@@ -58,31 +43,33 @@ export default function Appearance() {
                                         : 'ring-1 ring-rule hover:ring-rule-strong',
                                 )}
                             >
-                                {/* live preview in that theme / ตัวอย่างในธีมนั้น */}
                                 <span
-                                    data-theme={th.id}
-                                    className="block rounded-[calc(var(--radius)-2px)] bg-background p-3"
+                                    style={themeStyle(th)}
+                                    className="block rounded-[calc(var(--radius)-2px)] bg-[var(--ground)] [background-image:var(--ground-image)] bg-cover p-3"
                                 >
                                     <span className="paper block overflow-hidden">
                                         <span className="airmail-edge block h-1" />
                                         <span className="flex items-start gap-2 p-2.5">
-                                            <span className="hand flex-1 text-sm leading-snug text-ink">
+                                            <span className="hand flex-1 text-sm leading-snug text-[var(--ink)]">
                                                 {t('theme.preview')}
                                             </span>
-                                            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-stamp text-stamp-ink">
-                                                <SealIcon className="size-4" />
+                                            <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[var(--stamp)] text-[var(--stamp-ink)]">
+                                                <Asset
+                                                    name="icons.seal"
+                                                    className="size-4"
+                                                />
                                             </span>
                                         </span>
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-1.5 px-1.5 font-medium text-ink">
-                                    {t(`theme.${th.id}`)}
+                                    {th.name}
                                     {on && (
                                         <Check className="size-4 text-stamp" />
                                     )}
                                 </span>
                                 <span className="px-1.5 pb-1 text-xs text-ink-soft">
-                                    {t(`theme.${th.id}_help`)}
+                                    {th.description}
                                 </span>
                             </button>
                         );

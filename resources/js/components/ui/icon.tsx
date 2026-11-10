@@ -1,7 +1,7 @@
-import type { LucideIcon } from 'lucide-react';
+import type { UiIcon } from '@/components/rao/ui-icons';
 
 interface IconProps {
-    iconNode?: LucideIcon | null;
+    iconNode?: UiIcon | null;
     className?: string;
 }
 

@@ -5,6 +5,7 @@ import {
     SealIcon,
 } from '@/components/rao/icons';
 import { useState } from 'react';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { ActivityItem } from '@/types/space';
@@ -34,7 +35,13 @@ export function ActivityFeed({ items }: { items: ActivityItem[] }) {
         <section className="flex flex-col gap-2">
             <h2 className="text-2xl text-ink">{t('activity.title')}</h2>
             {items.length === 0 ? (
-                <p className="text-sm text-ink-soft">{t('activity.empty')}</p>
+                <p className="flex items-center gap-3 text-sm text-ink-soft">
+                    <Asset
+                        name="decor.activity-empty"
+                        className="size-10 shrink-0 text-kraft"
+                    />
+                    {t('activity.empty')}
+                </p>
             ) : (
                 <ul className="flex flex-col">
                     {items

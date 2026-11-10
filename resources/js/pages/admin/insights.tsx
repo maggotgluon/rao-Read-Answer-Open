@@ -1,4 +1,5 @@
 import { AdminShell, StatCard } from '@/components/admin/admin-shell';
+import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -269,13 +270,7 @@ export default function AdminInsights({ insights }: Props) {
                                 className="flex flex-1 flex-col items-center gap-1 text-xs text-ink-soft"
                             >
                                 <span className="tabular">{n}</span>
-                                <span>
-                                    {
-                                        ['😞', '😕', '😐', '🙂', '😍'][
-                                            Number(s) - 1
-                                        ]
-                                    }
-                                </span>
+                                <Asset name={`faces.${s}`} className="size-5" />
                             </div>
                         ))}
                     </div>
@@ -288,21 +283,28 @@ export default function AdminInsights({ insights }: Props) {
                                 className="rounded-[calc(var(--radius)-2px)] bg-paper-2 p-3 text-sm"
                             >
                                 <div className="text-xs text-ink-soft">
-                                    {
-                                        ['😞', '😕', '😐', '🙂', '😍'][
-                                            c.score - 1
-                                        ]
-                                    }{' '}
+                                    <Asset
+                                        name={`faces.${c.score}`}
+                                        className="size-4 align-[-3px]"
+                                    />{' '}
                                     · {c.at}
                                 </div>
                                 {c.liked && (
                                     <p className="mt-1 text-ink">
-                                        👍 {c.liked}
+                                        <Asset
+                                            name="icons.thumbs-up"
+                                            className="mr-1 size-4 align-[-3px]"
+                                        />
+                                        {c.liked}
                                     </p>
                                 )}
                                 {c.change && (
                                     <p className="mt-1 text-ink">
-                                        ✏️ {c.change}
+                                        <Asset
+                                            name="icons.pencil"
+                                            className="mr-1 size-4 align-[-3px]"
+                                        />
+                                        {c.change}
                                     </p>
                                 )}
                             </li>

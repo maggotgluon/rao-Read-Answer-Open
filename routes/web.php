@@ -2,22 +2,29 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FeatureController as AdminFeatureController;
+use App\Http\Controllers\Admin\InsightsController as AdminInsightsController;
 use App\Http\Controllers\Admin\PromptController as AdminPromptController;
 use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\LegalController;
+use App\Http\Controllers\LetterReplyController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MomentCommentController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\MomentDateController;
 use App\Http\Controllers\MomentMediaController;
 use App\Http\Controllers\MomentReactionController;
+use App\Http\Controllers\MoodController;
+use App\Http\Controllers\NudgeController;
 use App\Http\Controllers\PromptController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\SpaceController;
 use App\Http\Controllers\SpaceEventController;
+use App\Http\Controllers\SurveyController;
 use App\Support\DevTools;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +35,10 @@ Route::get('/', function () {
 Route::post('locale', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::get('offline', fn () => inertia('offline'))->name('offline');
+
+// Legal pages (privacy, terms, cookies, data rights). / หน้าเอกสารกฎหมาย
+Route::get('legal/{doc}', [LegalController::class, 'show'])
+    ->whereIn('doc', LegalController::DOCS)->name('legal.show');
 
 // Dev only: one-click demo login (controller also refuses outside local).
 if (DevTools::enabled()) {
@@ -45,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:10,1')->name('invites.accept');
 
     Route::post('spaces', [SpaceController::class, 'store'])->name('spaces.store');
+    Route::post('a/open', [AnalyticsController::class, 'open'])->middleware('throttle:30,1')->name('analytics.open');
+    Route::post('survey', [SurveyController::class, 'store'])->middleware('throttle:10,1')->name('survey.store');
 
     // Everything below is behind the wall: members only (others get 404).
     // scopeBindings: a {moment}/{dailyPrompt}/{media}/{comment} from another space → 404.
@@ -63,6 +76,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
             Route::post('today/{dailyPrompt}/answer', [AnswerController::class, 'store'])->name('answers.store');
             Route::put('today/{dailyPrompt}/rating', [RatingController::class, 'update'])->name('ratings.update');
+            Route::post('today/{dailyPrompt}/nudge', [NudgeController::class, 'store'])->middleware('throttle:10,1')->name('nudge');
+            Route::post('today/{dailyPrompt}/replies', [LetterReplyController::class, 'store'])->middleware('throttle:30,1')->name('replies.store');
+            Route::delete('today/{dailyPrompt}/replies/{reply}', [LetterReplyController::class, 'destroy'])->name('replies.destroy');
+            Route::put('mood', [MoodController::class, 'update'])->middleware('throttle:30,1')->name('mood');
             Route::put('long-distance', [SpaceController::class, 'longDistance'])->name('long-distance');
             Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
 
@@ -85,6 +102,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Admin. Non-admins get 404. / แอดมิน (คนอื่นได้ 404)
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
+    Route::get('insights', AdminInsightsController::class)->name('insights');
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::put('spaces/{space}/premium', [AdminUserController::class, 'premium'])->name('spaces.premium');
     Route::get('features', [AdminFeatureController::class, 'index'])->name('features.index');

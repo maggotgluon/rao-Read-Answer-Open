@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\MomentComment;
 use App\Models\Space;
+use App\Services\Analytics;
 use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class MomentCommentController extends Controller
 
         $data = $request->validate(['body' => ['required', 'string', 'max:1000']]);
         $moment->comments()->create(['user_id' => $request->user()->id, 'body' => $data['body']]);
+        Analytics::track($request->user(), 'comment_posted', [], $space);
 
         if ($moment->user_id !== $request->user()->id) {
             $push->notify($moment->user, 'moment_activity', 'comment',

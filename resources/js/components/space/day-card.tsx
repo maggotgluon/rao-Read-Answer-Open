@@ -5,7 +5,12 @@ import { AirmailIcon, EnvelopeIcon, SealIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/spaces/answers';
+import { nudge } from '@/routes/spaces';
 import { update as rate } from '@/routes/spaces/ratings';
+import {
+    destroy as destroyReply,
+    store as storeReply,
+} from '@/routes/spaces/replies';
 import type { DayItem } from '@/types/space';
 
 type Props = {
@@ -202,7 +207,20 @@ export function DayCard({
                                 reveal={justSealed}
                             />
                         ) : (
-                            <OnItsWay name={partnerName} />
+                            <OnItsWay
+                                name={partnerName}
+                                day={day}
+                                spaceId={spaceId}
+                                canNudge={!readOnly && day.is_today}
+                            />
+                        )}
+                        {day.partner && (
+                            <Replies
+                                day={day}
+                                spaceId={spaceId}
+                                partnerName={partnerName}
+                                readOnly={readOnly}
+                            />
                         )}
                     </div>
                 ) : (
@@ -335,13 +353,139 @@ function PartnerLetter({
     );
 }
 
-function OnItsWay({ name }: { name: string }) {
+function OnItsWay({
+    name,
+    day,
+    spaceId,
+    canNudge,
+}: {
+    name: string;
+    day: DayItem;
+    spaceId: string;
+    canNudge: boolean;
+}) {
     const { t } = useT();
+    const [sending, setSending] = useState(false);
+    const send = () =>
+        router.post(
+            nudge.url({ space: spaceId, dailyPrompt: day.id }),
+            {},
+            {
+                preserveScroll: true,
+                onStart: () => setSending(true),
+                onFinish: () => setSending(false),
+            },
+        );
 
     return (
-        <div className="flex items-center gap-3 rounded-[calc(var(--radius)-2px)] border border-dashed border-airmail/40 px-4 py-3 text-sm text-ink-soft">
-            <AirmailIcon className="size-5 shrink-0 text-airmail" />
-            {t('letter.on_its_way', { name })}
+        <div className="flex flex-col gap-3 rounded-[calc(var(--radius)-2px)] border border-dashed border-airmail/40 px-4 py-3 text-sm text-ink-soft">
+            <div className="flex items-center gap-3">
+                <AirmailIcon className="size-5 shrink-0 text-airmail" />
+                {t('letter.on_its_way', { name })}
+            </div>
+            {canNudge &&
+                (day.nudged ? (
+                    <span className="hand text-base text-airmail">
+                        {t('nudge.done', { name })}
+                    </span>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={send}
+                        disabled={sending}
+                        className="press self-start rounded-full bg-airmail-soft px-4 py-2 text-sm font-medium text-airmail disabled:opacity-50"
+                    >
+                        🔔 {t('nudge.button', { name })}
+                    </button>
+                ))}
+        </div>
+    );
+}
+
+/** A short thread under the two open letters. / ตอบกลับสั้น ๆ ใต้จดหมายสองฉบับ */
+function Replies({
+    day,
+    spaceId,
+    partnerName,
+    readOnly,
+}: {
+    day: DayItem;
+    spaceId: string;
+    partnerName: string;
+    readOnly: boolean;
+}) {
+    const { t } = useT();
+    const form = useForm({ body: '' });
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        form.post(storeReply.url({ space: spaceId, dailyPrompt: day.id }), {
+            preserveScroll: true,
+            onSuccess: () => form.reset(),
+        });
+    };
+
+    if (readOnly && day.replies.length === 0) return null;
+
+    return (
+        <div className="flex flex-col gap-2 border-l-2 border-dashed border-rule pl-3">
+            {day.replies.map((r) => (
+                <div key={r.id} className="animate-arrive group flex flex-col">
+                    <span
+                        className={cn(
+                            'text-xs font-medium',
+                            r.mine ? 'text-stamp' : 'text-airmail',
+                        )}
+                    >
+                        {r.mine ? t('today.you') : partnerName}
+                    </span>
+                    <p className="hand text-lg leading-snug whitespace-pre-line text-ink">
+                        {r.body}
+                    </p>
+                    {r.mine && !readOnly && (
+                        <button
+                            type="button"
+                            onClick={() =>
+                                router.delete(
+                                    destroyReply.url({
+                                        space: spaceId,
+                                        dailyPrompt: day.id,
+                                        reply: r.id,
+                                    }),
+                                    { preserveScroll: true },
+                                )
+                            }
+                            className="self-start text-xs text-ink-soft underline opacity-70 hover:opacity-100"
+                        >
+                            {t('reply.delete')}
+                        </button>
+                    )}
+                </div>
+            ))}
+            {!readOnly && (
+                <form onSubmit={submit} className="flex items-end gap-2">
+                    <label className="sr-only" htmlFor={`reply-${day.id}`}>
+                        {t('reply.placeholder', { name: partnerName })}
+                    </label>
+                    <textarea
+                        id={`reply-${day.id}`}
+                        rows={1}
+                        maxLength={500}
+                        value={form.data.body}
+                        onChange={(e) => form.setData('body', e.target.value)}
+                        placeholder={t('reply.placeholder', {
+                            name: partnerName,
+                        })}
+                        className="lined hand [field-sizing:content] min-h-10 flex-1 resize-none bg-transparent px-1 text-lg text-ink outline-none placeholder:text-ink-soft/60"
+                    />
+                    <button
+                        type="submit"
+                        disabled={form.processing || !form.data.body.trim()}
+                        className="press rounded-full bg-ink px-4 py-2 text-sm text-paper disabled:opacity-40"
+                    >
+                        {t('reply.send')}
+                    </button>
+                </form>
+            )}
         </div>
     );
 }

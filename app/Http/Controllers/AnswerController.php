@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyPrompt;
 use App\Models\Space;
+use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
@@ -37,6 +38,16 @@ class AnswerController extends Controller
 
             return ! $mine;
         });
+
+        if ($isNew) {
+            Analytics::track($user, 'answer_submitted', [
+                'kind' => $dailyPrompt->prompt->kind,
+                'bonus' => $dailyPrompt->slot === DailyPrompt::BONUS,
+                'late' => ! $dailyPrompt->date->isSameDay($space->today()),
+                'second' => $dailyPrompt->answers()->count() >= Space::MAX_MEMBERS,   // opened the partner's letter
+                'len' => Analytics::lengthBucket($data['body']),
+            ], $space);
+        }
 
         // First answer only (not edits). / แจ้งเฉพาะครั้งแรกที่ตอบ
         if ($isNew && $partner = $space->partnerOf($user)) {

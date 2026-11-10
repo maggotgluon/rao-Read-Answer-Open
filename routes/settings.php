@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Settings\LocationController;
 use App\Http\Controllers\Settings\NotificationController;
+use App\Http\Controllers\Settings\PrivacyController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\PushSubscriptionController;
 use App\Http\Controllers\Settings\SecurityController;
@@ -17,7 +18,11 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Delete = scheduled after a grace period (see PrivacyController). / ลบแบบมีเวลา 7 วัน
+    Route::delete('settings/profile', [PrivacyController::class, 'destroy'])->name('profile.destroy');
+    Route::get('settings/privacy', [PrivacyController::class, 'edit'])->name('privacy.edit');
+    Route::put('settings/privacy/analytics', [PrivacyController::class, 'analytics'])->name('privacy.analytics');
+    Route::get('settings/privacy/export', [PrivacyController::class, 'export'])->middleware('throttle:3,10')->name('privacy.export');
 
     Route::get('settings/security', [SecurityController::class, 'edit'])
         ->middleware(RequirePassword::class)

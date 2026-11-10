@@ -158,7 +158,7 @@ test('admin gives premium to a space; premium features then work there', functio
 });
 
 test('activity is tracked as dates only, at most every 5 minutes', function () {
-    $u = User::factory()->create();
+    $u = User::factory()->create(['analytics_consent_at' => now()]);   // activity days need consent
     $this->actingAs($u)->get(route('profile.edit'));
     $first = $u->fresh()->last_seen_at;
     $this->travel(2)->minutes();

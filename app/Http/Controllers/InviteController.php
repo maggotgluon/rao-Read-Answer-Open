@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Space;
 use App\Models\SpaceInvite;
 use App\Models\User;
+use App\Services\Analytics;
 use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -69,6 +70,7 @@ class InviteController extends Controller
             return redirect()->route('invites.show', $code);
         }
 
+        Analytics::track($user, 'invite_accepted', [], $result);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('invite.joined')]);
 
         return redirect()->route('spaces.show', $result);

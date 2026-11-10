@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Services\Analytics;
 use App\Services\Location;
 use App\Support\Features;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +24,7 @@ class LocationController extends Controller
             $location->clear($user);   // turning off deletes it / ปิดแล้วลบตำแหน่งทันที
         }
 
+        Analytics::track($user, $on ? 'location_on' : 'location_off');
         Inertia::flash('toast', ['type' => 'success', 'message' => __($on ? 'location.on_flash' : 'location.off_flash')]);
 
         return back();

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\MomentReaction;
 use App\Models\Space;
+use App\Services\Analytics;
 use App\Services\Push;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -27,6 +28,8 @@ class MomentReactionController extends Controller
                 ['user_id' => $request->user()->id],
                 ['emoji' => $data['emoji']],
             );
+
+            Analytics::track($request->user(), 'reaction', [], $space);
 
             if (! $existing && $moment->user_id !== $request->user()->id) {
                 $push->notify($moment->user, 'moment_activity', 'reaction',

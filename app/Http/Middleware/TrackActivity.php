@@ -20,10 +20,13 @@ class TrackActivity
 
         if ($user && (! $user->last_seen_at || $user->last_seen_at->lt(now()->subMinutes(5)))) {
             $user->forceFill(['last_seen_at' => now()])->saveQuietly();
-            DB::table('activity_days')->insertOrIgnore([
-                'user_id' => $user->id,
-                'date' => now('Asia/Bangkok')->toDateString(),
-            ]);
+            // Which days someone used the app = analytics, so only with consent.
+            if ($user->analyticsOn()) {
+                DB::table('activity_days')->insertOrIgnore([
+                    'user_id' => $user->id,
+                    'date' => now('Asia/Bangkok')->toDateString(),
+                ]);
+            }
         }
 
         return $next($request);

@@ -2,13 +2,14 @@ import { Head, Link } from '@inertiajs/react';
 import {
     BarChart3,
     CalendarDays,
+    Lightbulb,
     Library,
     ToggleRight,
     Users,
 } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { dashboard } from '@/routes/admin';
+import { dashboard, insights } from '@/routes/admin';
 import { index as features } from '@/routes/admin/features';
 import { index as prompts } from '@/routes/admin/prompts';
 import { index as schedule } from '@/routes/admin/schedule';
@@ -16,6 +17,7 @@ import { index as users } from '@/routes/admin/users';
 
 export type AdminTab =
     | 'dashboard'
+    | 'insights'
     | 'users'
     | 'prompts'
     | 'schedule'
@@ -36,6 +38,7 @@ export function AdminShell({
     const { t } = useT();
     const tabs = [
         { key: 'dashboard', href: dashboard.url(), icon: BarChart3 },
+        { key: 'insights', href: insights.url(), icon: Lightbulb },
         { key: 'users', href: users.url(), icon: Users },
         { key: 'prompts', href: prompts.url(), icon: Library },
         { key: 'schedule', href: schedule.url(), icon: CalendarDays },

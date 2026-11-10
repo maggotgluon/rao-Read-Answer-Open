@@ -1,4 +1,6 @@
 import { TopBar } from '@/components/rao/top-bar';
+import { usePage } from '@inertiajs/react';
+import { useAppOpen } from '@/hooks/use-app-open';
 import { useAutoLocation } from '@/hooks/use-auto-location';
 import type { AppLayoutProps } from '@/types';
 
@@ -8,6 +10,7 @@ import type { AppLayoutProps } from '@/types';
  */
 export default function AppSidebarLayout({ children }: AppLayoutProps) {
     useAutoLocation();
+    useAppOpen(Boolean(usePage().props.auth.user));
 
     return (
         <div className="min-h-dvh">

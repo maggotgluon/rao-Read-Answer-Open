@@ -67,6 +67,21 @@ export type DayItem = {
     can_edit: boolean;
     bonus: boolean;
     my_rating: -1 | 0 | 1;
+    replies: LetterReply[];
+    nudged: boolean;
+};
+
+export type LetterReply = {
+    id: number;
+    mine: boolean;
+    body: string;
+    at: string | null;
+};
+
+export type Moods = {
+    options: Record<string, string>;
+    mine: string | null;
+    partner: string | null;
 };
 
 export type Streak = {

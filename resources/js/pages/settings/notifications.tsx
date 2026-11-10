@@ -20,6 +20,8 @@ type Prefs = Record<
     | 'morning'
     | 'evening'
     | 'partner_answered'
+    | 'nudges'
+    | 'replies'
     | 'partner_moment'
     | 'moment_activity'
     | 'dates',
@@ -189,6 +191,8 @@ export default function Notifications({
                         {t('notify.events')}
                     </h3>
                     {row('partner_answered')}
+                    {row('nudges')}
+                    {row('replies')}
                     {row('partner_moment')}
                     {row('moment_activity')}
                     {row('dates')}

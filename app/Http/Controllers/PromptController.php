@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prompt;
 use App\Models\Space;
+use App\Services\Analytics;
 use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,6 +36,7 @@ class PromptController extends Controller
             $column => $data['text'],
         ]);
 
+        Analytics::track($request->user(), 'custom_prompt', ['kind' => $data['kind']], $space);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('today.custom.added')]);
 
         return back();

@@ -2,6 +2,8 @@ import { ActivityFeed } from '@/components/space/activity-feed';
 import { DistanceCard } from '@/components/space/distance-card';
 import { EventLabel } from '@/components/space/events-panel';
 import { Memories } from '@/components/space/memories';
+import { MoodStamps } from '@/components/space/mood-stamps';
+import { SurveyCard } from '@/components/space/survey-card';
 import { AirmailIcon, PostmarkIcon } from '@/components/rao/icons';
 import { SpaceShell } from '@/components/space/space-shell';
 import { StreakPill } from '@/components/space/streak-pill';
@@ -13,6 +15,7 @@ import type {
     EventOccurrence,
     LocationInfo,
     Memory,
+    Moods,
     SpaceDetail,
     Streak,
 } from '@/types/space';
@@ -25,6 +28,8 @@ type Props = {
     activity: ActivityItem[];
     memories: Memory[];
     location: LocationInfo | null;
+    moods: Moods;
+    survey: boolean;
 };
 
 /** Tab 2 — Daily: today's question/quest, streak, today's events, activity. / รายวัน */
@@ -36,6 +41,8 @@ export default function SpaceDaily({
     activity,
     memories,
     location,
+    moods,
+    survey,
 }: Props) {
     const { t } = useT();
     const frozen = space.status === 'frozen';
@@ -78,6 +85,17 @@ export default function SpaceDaily({
                     </p>
                 </section>
             )}
+
+            {space.partner && (
+                <MoodStamps
+                    moods={moods}
+                    spaceId={space.id}
+                    partnerName={space.partner.name}
+                    readOnly={frozen}
+                />
+            )}
+
+            {survey && !frozen && <SurveyCard />}
 
             {location && location.km !== null && (
                 <DistanceCard

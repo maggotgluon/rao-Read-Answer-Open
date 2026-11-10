@@ -63,4 +63,10 @@ class DailyPrompt extends Model
 
         return $day->lte($today) && $day->gte($today->copy()->subDays(self::LATE_DAYS));
     }
+
+    /** @return HasMany<LetterReply, $this> */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(LetterReply::class)->oldest();
+    }
 }

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * The "Today" card: one question or quest per space per local day.
@@ -138,7 +139,7 @@ class DailyPrompts
 
         return (new EloquentCollection($days->all()))
             ->each(fn (DailyPrompt $d) => $d->setRelation('space', $space))
-            ->load(['prompt.author:id,name', 'answers', 'ratings']);
+            ->load(['prompt.author:id,name', 'answers', 'ratings', 'replies']);
     }
 
     /**
@@ -224,6 +225,14 @@ class DailyPrompts
             'bonus' => $daily->slot === DailyPrompt::BONUS,
             // Only my own rating, never the partner's. / เฉพาะคะแนนของฉัน
             'my_rating' => (int) ($daily->ratings->firstWhere('user_id', $viewer->id)?->value ?? 0),
+            // Replies only exist once both letters are open. / ตอบกลับได้เมื่อเปิดทั้งคู่แล้ว
+            'replies' => $mine && $theirs ? $daily->replies->map(fn ($r) => [
+                'id' => $r->id, 'mine' => $r->user_id === $viewer->id, 'body' => $r->body,
+                'at' => $r->created_at?->toIso8601String(),
+            ])->values()->all() : [],
+            // Already reminded the partner today? / เตือนไปแล้ววันนี้หรือยัง
+            'nudged' => $mine && ! $theirs && $daily->date->isSameDay($daily->space->today())
+                && DB::table('push_logs')->where(['user_id' => $viewer->id, 'space_id' => $daily->space_id, 'kind' => 'nudge', 'ref' => $daily->date->toDateString()])->exists(),
         ];
     }
 

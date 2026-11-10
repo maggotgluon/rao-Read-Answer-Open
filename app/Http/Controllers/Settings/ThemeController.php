@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\Analytics;
 use App\Support\Features;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ class ThemeController extends Controller
         $data = $request->validate(['theme' => ['required', Rule::in(User::THEMES)]]);
 
         $request->user()?->update(['theme' => $data['theme']]);
+        Analytics::track($request->user(), 'theme_changed', ['theme' => $data['theme']]);
 
         return back()->withCookie(cookie()->forever('theme', $data['theme']));
     }

@@ -111,3 +111,17 @@ second: long-distance couples. Personal use first, built so it can go public.
 2. Brand direction: "soft & warm" agreed; mock 2–3 directions before UI polish.
 3. PDPA / privacy policy — only if it goes public.
 4. ~~Host PHP version~~ — resolved: Laravel 13 confirmed running on the server. / ยืนยันแล้วว่าเซิร์ฟเวอร์รัน Laravel 13 ได้
+
+
+## Data rights, insights, nudges, replies, moods (2026-11-10) / สิทธิ์ข้อมูล ข้อมูลเชิงลึก การเตือน การตอบกลับ อารมณ์
+
+- **Delete account / ลบบัญชี:** 7-day grace period; signing in cancels. Then everything the person wrote/posted is deleted (FK cascades + photo files). Shared spaces become read-only (frozen, never auto-purged) for the other member, who keeps their own content. `accounts:purge` runs daily 03:15.
+  เวลา 7 วันเปลี่ยนใจได้ จากนั้นลบทุกอย่างที่คนนั้นเขียน/โพสต์ space ที่ใช้ร่วมกันจะอ่านได้อย่างเดียว
+- **Export / ส่งออก:** ZIP (JSON + readable HTML + own photos), only what the person wrote/posted themselves.
+- **Analytics / การเก็บข้อมูลการใช้งาน:** first-party table `analytics_events`, **opt-in** (checkbox at sign-up, switch in Settings → Privacy). Actions only, never content (letter length is a bucket; mood value not recorded). Withdrawing deletes past events + activity days. Raw events kept 13 months.
+  เก็บเฉพาะเมื่อผู้ใช้ยินยอม บันทึกการกระทำ ไม่บันทึกเนื้อหา ถอนความยินยอม = ลบข้อมูลที่เก็บไว้
+- **Admin Insights / ข้อมูลเชิงลึก:** funnel, weekly retention cohorts and writing hours come from core tables (everyone, numbers only); opens/push/features from opt-in events; 14-day survey (voluntary, shown without names).
+- **Nudge / เตือน:** after you sealed today's letter and your partner hasn't; once a day; if the partner has no push device we say so instead of pretending.
+- **Replies / ตอบกลับ:** short thread (≤500 chars) under the day's letters, only after both are open.
+- **Mood stamps / แสตมป์อารมณ์:** one per person per day, 8 moods, visible to the partner; admin never sees moods.
+- **Not adopted / ไม่ทำ:** AI counselor (sends private letters to a third party), compatibility score (pressure), home-screen widgets (needs native app). Time capsule, keepsakes, badges-as-stamps, bucket list, trivia, voice letters wait for pilot data.

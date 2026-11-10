@@ -9,9 +9,11 @@ use App\Models\User;
 use App\Services\DailyPrompts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Queue;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 function device(User $u): void
 {
@@ -35,7 +37,7 @@ function pushCouple(): array
     return [$space, $a, $b];
 }
 
-function pushedTo(User $u): Illuminate\Support\Collection
+function pushedTo(User $u): Collection
 {
     return Queue::pushed(SendPush::class)->filter(fn ($j) => $j->userId === $u->id)->values();
 }
@@ -55,7 +57,7 @@ test('answering notifies the partner, without the answer text; edits do not re-n
         ->and(pushedTo($a))->toHaveCount(0)
         ->and(pushedTo($b)[0]->payload['body'])->toContain($a->name)
         ->and(json_encode(pushedTo($b)[0]->payload))->not->toContain('secret')
-        ->and(pushedTo($b)[0]->payload['url'])->toBe(route('spaces.daily', $space));
+        ->and(pushedTo($b)[0]->payload['url'])->toBe(route('spaces.daily', $space).'?src=push');
 });
 
 test('posting a moment notifies the partner (not for drafts) without its text', function () {

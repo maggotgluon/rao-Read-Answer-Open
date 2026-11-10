@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Moment;
 use App\Models\Space;
+use App\Services\Analytics;
 use App\Services\MomentPhotos;
 use App\Services\Push;
 use App\Support\Features;
@@ -60,6 +61,7 @@ class MomentController extends Controller
             throw $e;
         }
 
+        Analytics::track($request->user(), $publish ? 'moment_posted' : 'moment_draft', ['photos' => count($stored)], $space);
         if ($publish) {
             $this->tellPartner($request, $space, $push);
         }
@@ -74,6 +76,7 @@ class MomentController extends Controller
         $this->ownDraftOr404($request, $moment);
 
         $moment->update(['status' => Moment::STATUS_POSTED, 'posted_at' => now()]);
+        Analytics::track($request->user(), 'moment_posted', ['from_draft' => true], $space);
         $this->tellPartner($request, $space, $push);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('moment.posted')]);
 

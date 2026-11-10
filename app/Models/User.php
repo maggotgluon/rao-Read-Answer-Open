@@ -35,6 +35,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $loc_tz
  * @property Carbon|null $loc_at
  * @property Carbon|null $last_seen_at
+ * @property Carbon|null $delete_at
+ * @property Carbon|null $analytics_consent_at
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $two_factor_secret
@@ -46,7 +48,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password', 'locale', 'birthday', 'show_age', 'theme', 'notify', 'morning_at', 'evening_at', 'share_location'])]
 // Location stays server-side (only distance/city/time are shown to partners).
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'loc_lat', 'loc_lng', 'loc_at', 'last_seen_at'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'loc_lat', 'loc_lng', 'loc_at', 'last_seen_at', 'delete_at', 'analytics_consent_at'])]
 class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -55,7 +57,10 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public const THEMES = ['blush', 'paper', 'candle'];
 
     /** Push types a user can switch off. / ประเภทแจ้งเตือนที่ปิดได้ */
-    public const NOTIFY_TYPES = ['morning', 'evening', 'partner_answered', 'partner_moment', 'moment_activity', 'dates'];
+    public const NOTIFY_TYPES = ['morning', 'evening', 'partner_answered', 'nudges', 'replies', 'partner_moment', 'moment_activity', 'dates'];
+
+    /** Days between asking to delete and deleting. / จำนวนวันก่อนลบจริง */
+    public const DELETE_GRACE_DAYS = 7;
 
     public function wants(string $type): bool
     {
@@ -66,6 +71,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function notifyPrefs(): array
     {
         return collect(self::NOTIFY_TYPES)->mapWithKeys(fn ($t) => [$t => $this->wants($t)])->all();
+    }
+
+    public function analyticsOn(): bool
+    {
+        return $this->analytics_consent_at !== null;
     }
 
     /** @return HasMany<PushSubscription, $this> */
@@ -102,6 +112,8 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'loc_lng' => 'float',
             'loc_at' => 'datetime',
             'last_seen_at' => 'datetime',
+            'delete_at' => 'datetime',
+            'analytics_consent_at' => 'datetime',
         ];
     }
 }

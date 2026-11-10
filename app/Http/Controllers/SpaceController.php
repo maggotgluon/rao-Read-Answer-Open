@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Moment;
 use App\Models\MomentReaction;
+use App\Models\Mood;
 use App\Models\Space;
 use App\Models\SpaceEvent;
 use App\Models\SpaceInvite;
+use App\Models\SurveyResponse;
 use App\Models\User;
+use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Location;
 use App\Services\SpaceActivity;
@@ -69,6 +72,7 @@ class SpaceController extends Controller
             return $space;
         });
 
+        Analytics::track($request->user(), 'space_created', [], $space);
         $this->freshInvite($space, $request->user()->id);
 
         return redirect()->route('spaces.show', $space);
@@ -94,6 +98,20 @@ class SpaceController extends Controller
         ]);
     }
 
+    /** @return array<string, mixed> */
+    private function moods(Space $space, User $user): array
+    {
+        $partner = $space->partnerOf($user);
+        $today = Mood::whereDate('date', $space->today()->toDateString())
+            ->whereIn('user_id', array_filter([$user->id, $partner?->id]))->pluck('mood', 'user_id');
+
+        return [
+            'options' => Mood::MOODS,
+            'mine' => $today[$user->id] ?? null,
+            'partner' => $partner ? ($today[$partner->id] ?? null) : null,
+        ];
+    }
+
     /** Tab 2 — Daily: today's card, streak, today's events, activity. / รายวัน */
     public function daily(Request $request, Space $space, DailyPrompts $prompts, SpaceCalendar $calendar, SpaceActivity $activity): Response
     {
@@ -109,6 +127,10 @@ class SpaceController extends Controller
             'memories' => fn () => $calendar->memories($space, $today),
             'activity' => fn () => $activity->recent($space, $user),
             'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
+            'moods' => fn () => $this->moods($space, $user),
+            // Ask once, ~14 days after joining. / ถามครั้งเดียวหลังสมัคร ~14 วัน
+            'survey' => fn () => $user->created_at?->lte(now()->subDays(14))
+                && ! SurveyResponse::where('user_id', $user->id)->exists(),
         ]);
     }
 
@@ -161,6 +183,7 @@ class SpaceController extends Controller
         $on = $request->validate(['on' => ['required', 'boolean']])['on'];
 
         $space->forceFill(['long_distance' => $on])->save();
+        Analytics::track($request->user(), $on ? 'long_distance_on' : 'long_distance_off', [], $space);
         $this->toast($on ? 'ld.on_flash' : 'ld.off_flash');
 
         return back();

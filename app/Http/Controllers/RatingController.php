@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyPrompt;
 use App\Models\Space;
+use App\Services\Analytics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,8 @@ class RatingController extends Controller
         $value === 0
             ? $dailyPrompt->ratings()->where('user_id', $userId)->delete()
             : $dailyPrompt->ratings()->updateOrCreate(['user_id' => $userId], ['value' => $value]);
+
+        Analytics::track($request->user(), 'prompt_rated', ['value' => $value], $space);
 
         return back();
     }

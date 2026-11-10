@@ -38,11 +38,13 @@ class Push
         $payload = [
             'title' => __("push.{$key}.title", $replace, $locale),
             'body' => __("push.{$key}.body", $replace, $locale),
-            'url' => $url ?? route('dashboard'),
+            // ?src=push lets the app count notification opens. / ใช้นับการเปิดจากแจ้งเตือน
+            'url' => ($url ?? route('dashboard')).(str_contains($url ?? '', '?') ? '&' : '?').'src=push',
             'tag' => $space ? "{$type}-{$space->ulid}" : $type,
         ];
 
         SendPush::dispatch($to->id, $payload);
+        Analytics::track($to, 'push_sent', ['type' => $type], $space);
 
         return true;
     }

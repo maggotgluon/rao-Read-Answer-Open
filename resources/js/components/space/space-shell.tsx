@@ -48,7 +48,7 @@ export function SpaceShell({
     return (
         <>
             <Head title={`${t(`tabs.${tab}`)} · ${title}`} />
-            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-5 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] md:px-6 md:pb-12">
+            <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-5 pb-2 md:px-6 md:pb-6">
                 {/* On phones the space name is already in the top bar. / มือถือมีชื่อในแถบบนแล้ว */}
                 <h1 className="sr-only text-3xl leading-tight text-ink md:not-sr-only">
                     {title}

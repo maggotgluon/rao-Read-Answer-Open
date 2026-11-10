@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AppVersion;
 use App\Support\Features;
 use App\Support\Themes;
 use Illuminate\Http\Request;
@@ -53,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                 ...Features::forUser($request->user()),
                 'location' => (bool) $request->user()?->spaces()->get()->contains(fn ($s) => Features::on('location', $s)),
             ],
+            'app' => AppVersion::info(),   // version + build for the footer / เวอร์ชันสำหรับท้ายหน้า
             'vapidPublicKey' => config('services.webpush.public_key'),
             'translations' => fn () => $this->translations(app()->getLocale()),
             // Only the signed-in user's own spaces (for the switcher). / เฉพาะ space ของตัวเอง

@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { LanguageSwitch } from '@/components/language-switch';
 import { Asset } from '@/components/rao/asset';
+import { SiteFooter } from '@/components/rao/site-footer';
 import { SealIcon } from '@/components/rao/icons';
 import { StampLogo } from '@/components/rao/logo';
 import { Button } from '@/components/ui/button';
@@ -91,6 +92,7 @@ export default function Welcome() {
                         )}
                     </div>
                 </main>
+                <SiteFooter />
             </div>
         </>
     );

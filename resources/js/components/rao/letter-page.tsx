@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { LanguageSwitch } from '@/components/language-switch';
 import { StampLogo } from '@/components/rao/logo';
+import { SiteFooter } from '@/components/rao/site-footer';
 import { cn } from '@/lib/utils';
 import { home } from '@/routes';
 
@@ -50,6 +51,7 @@ export function LetterPage({
                         {children}
                     </div>
                 </section>
+                <SiteFooter className="mt-auto pt-8" />
             </div>
         </>
     );

@@ -585,5 +585,9 @@
     "admin.themes.extends": "สืบทอดจาก :parent",
     "admin.themes.default": "ค่าเริ่มต้น เปิดเสมอ",
     "admin.schedule.icon": "ภาพ",
-    "letter.sealed_stamp": "ปิดผนึก"
+    "letter.sealed_stamp": "ปิดผนึก",
+    "footer.legal": "เอกสารทางกฎหมาย",
+    "footer.version": "เรา v:v",
+    "footer.changelog": "มีอะไรใหม่",
+    "footer.build": "บิลด์ :build"
 }

@@ -69,6 +69,8 @@ jobs:
             --exclude 'database/database.sqlite' --exclude '.phpunit.result.cache'
           # Built assets and vendor are normally gitignored — ship them on this branch.
           printf '.env\n/storage/*.key\n/storage/logs/*.log\n' > "$RUNNER_TEMP/out/.gitignore"
+          # Commit shown in the footer tooltip. / commit ที่แสดงท้ายหน้า
+          echo "${GITHUB_SHA::7}" > "$RUNNER_TEMP/out/BUILD"
 
       - name: Push to deploy branch
         run: |

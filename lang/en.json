@@ -585,5 +585,9 @@
     "admin.themes.extends": "extends :parent",
     "admin.themes.default": "Default, always on",
     "admin.schedule.icon": "Picture",
-    "letter.sealed_stamp": "Sealed"
+    "letter.sealed_stamp": "Sealed",
+    "footer.legal": "Legal",
+    "footer.version": "Rao v:v",
+    "footer.changelog": "What's new",
+    "footer.build": "Build :build"
 }

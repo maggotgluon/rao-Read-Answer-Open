@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\ChangelogController;
 use App\Http\Controllers\ConsentController;
 use App\Http\Controllers\DevLoginController;
 use App\Http\Controllers\InviteController;
@@ -38,6 +39,7 @@ Route::post('locale', [LocaleController::class, 'update'])->name('locale.update'
 Route::get('offline', fn () => inertia('offline'))->name('offline');
 
 // Legal pages (privacy, terms, cookies, data rights). / หน้าเอกสารกฎหมาย
+Route::get('changelog', ChangelogController::class)->name('changelog');
 Route::get('legal/{doc}', [LegalController::class, 'show'])
     ->whereIn('doc', LegalController::DOCS)->name('legal.show');
 

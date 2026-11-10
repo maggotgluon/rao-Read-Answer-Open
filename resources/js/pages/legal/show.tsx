@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { LanguageSwitch } from '@/components/language-switch';
 import { StampLogo } from '@/components/rao/logo';
+import { SiteFooter } from '@/components/rao/site-footer';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { home } from '@/routes';
+import { changelog, home } from '@/routes';
 import { show } from '@/routes/legal';
 
 type Props = {
@@ -51,6 +52,17 @@ export default function LegalShow({
                             {t(`legal.${d}`)}
                         </Link>
                     ))}
+                    <Link
+                        href={changelog.url()}
+                        className={cn(
+                            'press shrink-0 rounded-full px-4 py-2 text-sm',
+                            doc === 'changelog'
+                                ? 'bg-paper font-medium text-ink shadow-paper'
+                                : 'text-ink-soft hover:text-ink',
+                        )}
+                    >
+                        {t('footer.changelog')}
+                    </Link>
                 </nav>
                 <article className="paper overflow-hidden">
                     <div className="airmail-edge h-1.5" />
@@ -58,7 +70,7 @@ export default function LegalShow({
                         <h1 className="text-3xl leading-tight text-ink">
                             {title}
                         </h1>
-                        {(version || effective) && (
+                        {(version || effective) && doc !== 'changelog' && (
                             <p className="text-xs text-ink-soft">
                                 {[
                                     version &&
@@ -76,6 +88,7 @@ export default function LegalShow({
                         />
                     </div>
                 </article>
+                <SiteFooter className="pt-2" />
             </div>
         </>
     );

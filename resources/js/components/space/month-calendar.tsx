@@ -1,20 +1,9 @@
 import { router } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Flame, Snowflake } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/spaces';
 import type { CalendarMonth, DayStatus } from '@/types/space';
-
-const STYLE: Record<DayStatus, string> = {
-    // Theme tokens (--streak / --freeze) so every theme colours the calendar its own way.
-    complete: 'bg-streak font-medium text-streak-foreground',
-    partial: 'bg-streak-soft',
-    forgiven: 'bg-freeze text-freeze-foreground',
-    missed: 'bg-muted text-muted-foreground',
-    today: 'ring-2 ring-streak',
-    future: 'text-muted-foreground/60',
-    before: 'text-muted-foreground/40',
-};
 
 type Props = {
     calendar: CalendarMonth;
@@ -22,11 +11,16 @@ type Props = {
     onPick: (date: string) => void;
 };
 
+/**
+ * The month as a sheet of stamps. Both wrote = a red stamp cancelled by a postmark;
+ * one wrote = a pale stamp; free miss = a blue "rest" stamp; missed = an empty space.
+ * เดือนเป็นแผ่นแสตมป์: เขียนทั้งคู่ = แสตมป์แดงมีตราประทับ
+ */
 export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
     const { t, locale } = useT();
     const loc = locale === 'th' ? 'th-TH' : 'en-GB';
     const first = new Date(calendar.month + '-01T00:00:00');
-    const lead = (first.getDay() + 6) % 7; // Monday-first grid
+    const lead = (first.getDay() + 6) % 7; // Monday-first
     const weekdays = Array.from({ length: 7 }, (_, i) =>
         new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: 'narrow' }),
     );
@@ -36,19 +30,13 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
             { month },
             { preserveScroll: true, preserveState: true, only: ['calendar'] },
         );
+    const nav =
+        'press grid size-10 place-items-center rounded-full text-ink-soft hover:bg-ink/5';
 
     return (
-        <section className="flex flex-col gap-3 rounded-2xl border border-border p-4">
-            <header className="flex items-center gap-2">
-                <button
-                    type="button"
-                    aria-label={t('calendar.prev')}
-                    onClick={() => go(calendar.prev)}
-                    className="rounded-full p-1.5 hover:bg-muted"
-                >
-                    <ChevronLeft className="size-4" />
-                </button>
-                <h2 className="flex-1 text-center font-medium">
+        <section className="flex flex-col gap-3">
+            <header className="flex items-center gap-1">
+                <h2 className="flex-1 text-2xl text-ink">
                     {first.toLocaleDateString(loc, {
                         month: 'long',
                         year: 'numeric',
@@ -58,89 +46,83 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
                     <button
                         type="button"
                         onClick={() => go('')}
-                        className="text-xs text-primary"
+                        className="press rounded-full px-3 py-2 text-sm text-stamp"
                     >
                         {t('calendar.back_today')}
                     </button>
                 )}
                 <button
                     type="button"
+                    aria-label={t('calendar.prev')}
+                    onClick={() => go(calendar.prev)}
+                    className={nav}
+                >
+                    <ChevronLeft className="size-5" strokeWidth={1.75} />
+                </button>
+                <button
+                    type="button"
                     aria-label={t('calendar.next')}
                     onClick={() => go(calendar.next)}
-                    className="rounded-full p-1.5 hover:bg-muted"
+                    className={nav}
                 >
-                    <ChevronRight className="size-4" />
+                    <ChevronRight className="size-5" strokeWidth={1.75} />
                 </button>
             </header>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
-                {weekdays.map((w, i) => (
-                    <span key={i}>{w}</span>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: lead }, (_, i) => (
-                    <span key={`lead-${i}`} />
-                ))}
-                {calendar.days.map((d) => {
-                    const clickable =
-                        d.status !== 'future' && d.status !== 'before';
-
-                    return (
-                        <button
+            <div className="paper p-3">
+                <div className="grid grid-cols-7 gap-1.5 pb-1.5 text-center text-xs text-ink-soft">
+                    {weekdays.map((w, i) => (
+                        <span key={i}>{w}</span>
+                    ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1.5">
+                    {Array.from({ length: lead }, (_, i) => (
+                        <span key={`lead-${i}`} />
+                    ))}
+                    {calendar.days.map((d) => (
+                        <DayStamp
                             key={d.date}
-                            type="button"
-                            disabled={!clickable && d.events.length === 0}
-                            onClick={() => onPick(d.date)}
-                            title={d.events.join(', ')}
-                            className={cn(
-                                'relative flex aspect-square flex-col items-center justify-center rounded-xl text-sm transition-transform enabled:hover:scale-105',
-                                STYLE[d.status],
-                            )}
-                        >
-                            {d.status === 'forgiven' ? (
-                                <Snowflake className="size-3.5" />
-                            ) : (
-                                Number(d.date.slice(8))
-                            )}
-                            <span className="absolute bottom-1 flex gap-0.5">
-                                {d.events.length > 0 && (
-                                    <span className="size-1.5 rounded-full bg-amber-500" />
-                                )}
-                                {d.moments > 0 && (
-                                    <span className="size-1.5 rounded-full bg-fuchsia-500" />
-                                )}
-                            </span>
-                        </button>
-                    );
-                })}
+                            day={Number(d.date.slice(8))}
+                            status={d.status}
+                            events={d.events}
+                            moments={d.moments}
+                            onPick={() => onPick(d.date)}
+                            label={new Date(
+                                d.date + 'T00:00:00',
+                            ).toLocaleDateString(loc, {
+                                day: 'numeric',
+                                month: 'long',
+                            })}
+                            statusLabel={t(`calendar.legend.${d.status}`)}
+                        />
+                    ))}
+                </div>
             </div>
 
-            <footer className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <footer className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-ink-soft">
                 <Legend
-                    className="bg-streak"
+                    face="var(--stamp)"
+                    mark
                     label={t('calendar.legend.complete')}
-                    icon={<Flame className="size-2.5 text-streak-foreground" />}
                 />
                 <Legend
-                    className="bg-streak-soft"
+                    face="var(--stamp-soft)"
                     label={t('calendar.legend.partial')}
                 />
                 <Legend
-                    className="bg-freeze"
+                    face="var(--airmail-soft)"
                     label={t('calendar.legend.forgiven')}
                 />
-                <Legend
-                    className="bg-muted"
-                    label={t('calendar.legend.missed')}
-                />
-                <span className="flex items-center gap-1">
-                    <span className="size-1.5 rounded-full bg-amber-500" />
+                <span className="flex items-center gap-1.5">
+                    <span className="size-3.5 rounded-[3px] border border-dashed border-postmark" />
+                    {t('calendar.legend.missed')}
+                </span>
+                <span className="flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-airmail" />
                     {t('day.events')}
                 </span>
-                <span className="flex items-center gap-1">
-                    <span className="size-1.5 rounded-full bg-fuchsia-500" />
+                <span className="flex items-center gap-1.5">
+                    <span className="size-1.5 rounded-full bg-kraft" />
                     {t('day.moments')}
                 </span>
             </footer>
@@ -148,24 +130,137 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
     );
 }
 
-function Legend({
-    className,
+const FACE: Partial<Record<DayStatus, string>> = {
+    complete: 'var(--stamp)',
+    partial: 'var(--stamp-soft)',
+    forgiven: 'var(--airmail-soft)',
+};
+
+function DayStamp({
+    day,
+    status,
+    events,
+    moments,
+    onPick,
     label,
-    icon,
+    statusLabel,
 }: {
-    className: string;
+    day: number;
+    status: DayStatus;
+    events: string[];
+    moments: number;
+    onPick: () => void;
     label: string;
-    icon?: React.ReactNode;
+    statusLabel: string;
+}) {
+    const face = FACE[status];
+    const clickable = status !== 'future' && status !== 'before';
+    const dots = (
+        <span className="absolute inset-x-0 bottom-1 flex justify-center gap-0.5">
+            {events.length > 0 && (
+                <span className="size-1 rounded-full bg-airmail" />
+            )}
+            {moments > 0 && <span className="size-1 rounded-full bg-kraft" />}
+        </span>
+    );
+
+    return (
+        <button
+            type="button"
+            disabled={!clickable && events.length === 0}
+            onClick={onPick}
+            title={events.join(', ')}
+            aria-label={`${label} · ${statusLabel}${events.length ? ' · ' + events.join(', ') : ''}`}
+            className="press relative aspect-[5/6] disabled:cursor-default"
+        >
+            {face ? (
+                <span
+                    className="perforated absolute inset-0"
+                    style={{
+                        ['--stamp-face' as string]: face,
+                        ['--hole' as string]: '1.5px',
+                        ['--gap' as string]: '5px',
+                        padding: '2.5px',
+                    }}
+                >
+                    <span
+                        style={{ background: face }}
+                        className={cn(
+                            'relative grid size-full place-items-center overflow-hidden text-sm',
+                            status === 'complete'
+                                ? 'font-medium text-stamp-ink'
+                                : 'text-ink',
+                        )}
+                    >
+                        {day}
+                        {status === 'complete' && <Postmark />}
+                    </span>
+                </span>
+            ) : (
+                <span
+                    className={cn(
+                        'absolute inset-0 grid place-items-center rounded-[3px] text-sm',
+                        status === 'missed' &&
+                            'border border-dashed border-postmark/60 text-ink-soft',
+                        status === 'today' &&
+                            'border-2 border-dashed border-stamp font-medium text-stamp',
+                        status === 'future' && 'text-ink-soft/60',
+                        status === 'before' && 'text-ink-soft/35',
+                    )}
+                >
+                    {day}
+                </span>
+            )}
+            {dots}
+        </button>
+    );
+}
+
+/** Wavy cancellation lines over a completed day. / เส้นตราประทับบนวันที่เขียนครบ */
+function Postmark() {
+    return (
+        <svg
+            aria-hidden
+            viewBox="0 0 30 30"
+            className="pointer-events-none absolute -top-1 -right-1 size-[70%] opacity-55"
+        >
+            <circle
+                cx="15"
+                cy="15"
+                r="9"
+                fill="none"
+                stroke="var(--stamp-ink)"
+                strokeWidth="1.2"
+                strokeDasharray="2 2"
+            />
+            <path
+                d="M2 24c3-2 6 2 9 0s6 2 9 0 6 2 9 0"
+                fill="none"
+                stroke="var(--stamp-ink)"
+                strokeWidth="1.2"
+            />
+        </svg>
+    );
+}
+
+function Legend({
+    face,
+    label,
+    mark,
+}: {
+    face: string;
+    label: string;
+    mark?: boolean;
 }) {
     return (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1.5">
             <span
-                className={cn(
-                    'flex size-3.5 items-center justify-center rounded',
-                    className,
-                )}
+                className="relative size-3.5 rounded-[2px]"
+                style={{ background: face }}
             >
-                {icon}
+                {mark && (
+                    <span className="absolute inset-[3px] rounded-full border border-dashed border-stamp-ink/70" />
+                )}
             </span>
             {label}
         </span>

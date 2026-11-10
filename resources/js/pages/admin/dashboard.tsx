@@ -144,7 +144,7 @@ export default function AdminDashboard({ stats }: Props) {
                 />
             </Section>
 
-            <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
+            <section className="paper flex flex-col gap-3 p-4">
                 <h2 className="font-medium">{t('admin.dash.last_30')}</h2>
                 <Bars series={series} />
             </section>
@@ -243,7 +243,7 @@ function Ranking({ title, rows }: { title: string; rows: Ranked[] }) {
     const { t } = useT();
 
     return (
-        <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-4">
+        <div className="paper flex flex-col gap-2 p-4">
             <h2 className="font-medium">{title}</h2>
             {rows.length === 0 ? (
                 <p className="text-sm text-muted-foreground">

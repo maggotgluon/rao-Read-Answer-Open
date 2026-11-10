@@ -28,7 +28,7 @@ class UserController extends Controller
         }
 
         return Inertia::render('admin/users', [
-            'filters' => $filters,
+            'filters' => (object) $filters,   // {} not [] when empty (else filters.sort is Array#sort)
             'users' => $query->latest()->paginate(30)->withQueryString()->through(fn (User $u) => [
                 'id' => $u->id,
                 'name' => $u->name,

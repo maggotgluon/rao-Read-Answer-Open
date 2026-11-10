@@ -17,7 +17,7 @@ export function LanguageSwitch({ className }: { className?: string }) {
             role="group"
             aria-label={t('nav.language')}
             className={cn(
-                'inline-flex rounded-full border border-border p-0.5 text-xs',
+                'inline-flex rounded-full bg-ink/[0.06] p-0.5 text-xs',
                 className,
             )}
         >
@@ -34,10 +34,10 @@ export function LanguageSwitch({ className }: { className?: string }) {
                         )
                     }
                     className={cn(
-                        'rounded-full px-3 py-1 transition-colors',
+                        'press rounded-full px-3 py-1.5',
                         locale === l.code
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-muted-foreground hover:text-foreground',
+                            ? 'bg-paper text-ink shadow-paper'
+                            : 'text-ink-soft hover:text-ink',
                     )}
                 >
                     {l.label}

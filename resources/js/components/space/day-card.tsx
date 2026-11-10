@@ -1,9 +1,7 @@
 import { router, useForm } from '@inertiajs/react';
-import { Lock, MessageCircleHeart, Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { AirmailIcon, EnvelopeIcon, SealIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/spaces/answers';
@@ -18,6 +16,11 @@ type Props = {
     compact?: boolean;
 };
 
+/**
+ * One day's letter. You write on lined paper and press the wax seal; only then does
+ * your partner's letter open. The seal + reveal is the app's one big animation.
+ * จดหมายของวัน: เขียนแล้วกดปิดผนึก จดหมายของอีกฝ่ายจึงจะเปิด
+ */
 export function DayCard({
     day,
     spaceId,
@@ -32,6 +35,15 @@ export function DayCard({
         !readOnly && day.open && (!day.mine || (editing && day.can_edit));
     const isQuest = day.kind === 'quest';
 
+    // Animate only the moment it happens (not on every page load).
+    // แสดงแอนิเมชันเฉพาะตอนที่เพิ่งปิดผนึก / เพิ่งเปิดอ่าน
+    const hadMine = useRef(Boolean(day.mine));
+    const [justSealed, setJustSealed] = useState(false);
+    useEffect(() => {
+        if (!hadMine.current && day.mine) setJustSealed(true);
+        hadMine.current = Boolean(day.mine);
+    }, [day.mine]);
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         form.post(store.url({ space: spaceId, dailyPrompt: day.id }), {
@@ -42,138 +54,295 @@ export function DayCard({
 
     const dateLabel = new Date(day.date + 'T00:00:00').toLocaleDateString(
         locale === 'th' ? 'th-TH' : 'en-GB',
-        { weekday: 'long', day: 'numeric', month: 'short' },
+        { weekday: 'long', day: 'numeric', month: 'long' },
     );
+    const heading = day.bonus
+        ? t('letter.bonus')
+        : day.is_today
+          ? t(isQuest ? 'letter.today_quest' : 'letter.today_question')
+          : dateLabel;
 
     return (
-        <section
+        <article
             className={cn(
-                'flex flex-col gap-4 rounded-2xl border p-5',
-                day.is_today
-                    ? 'border-primary/30 bg-primary/5'
-                    : 'border-border',
-                compact && 'gap-3 p-4',
+                'paper relative overflow-hidden',
+                day.is_today && !compact && 'animate-arrive',
+                day.bonus && 'ring-1 ring-kraft/70',
             )}
         >
-            <header className="flex flex-wrap items-center gap-2 text-sm">
-                {isQuest ? (
-                    <Sparkles className="size-4 text-primary" />
-                ) : (
-                    <MessageCircleHeart className="size-4 text-primary" />
+            {/* envelope edge: airmail for the day's letter, kraft for a bonus */}
+            <div
+                className={cn(
+                    'h-1.5',
+                    day.bonus ? 'bg-kraft/70' : 'airmail-edge',
                 )}
-                <span className="font-medium">
-                    {day.is_today
-                        ? t(isQuest ? 'today.quest' : 'today.question')
-                        : dateLabel}
-                </span>
-                {day.tag && (
-                    <Badge variant="secondary">
-                        {t(`today.tag.${day.tag}`)}
-                    </Badge>
-                )}
-                {day.bonus && (
-                    <Badge className="bg-primary/15 text-primary hover:bg-primary/15">
-                        ✨ {t('today.bonus')}
-                    </Badge>
-                )}
-                {day.written_by && (
-                    <span className="text-xs text-muted-foreground">
-                        {t('today.written_by', { name: day.written_by })}
-                    </span>
-                )}
-            </header>
+            />
 
-            <p className={cn('font-medium', compact ? 'text-base' : 'text-xl')}>
-                {day.text}
-            </p>
-
-            {canWrite ? (
-                <form onSubmit={submit} className="grid gap-2">
-                    <textarea
-                        value={form.data.body}
-                        onChange={(e) => form.setData('body', e.target.value)}
-                        rows={3}
-                        maxLength={2000}
-                        required
-                        placeholder={t(
-                            isQuest
-                                ? 'today.placeholder_quest'
-                                : 'today.placeholder_question',
-                        )}
-                        className="w-full rounded-xl border border-input bg-background px-3 py-2 text-base"
-                    />
-                    <InputError message={form.errors.body} />
-                    {!day.is_today && !day.mine && (
-                        <p className="text-xs text-muted-foreground">
-                            {t('today.late_hint')}
-                        </p>
-                    )}
-                    {day.partner_answered && !day.mine && (
-                        <p className="text-sm text-primary">
-                            {t('today.partner_waiting', { name: partnerName })}
-                        </p>
-                    )}
-                    <div className="flex gap-2">
-                        <Button type="submit" disabled={form.processing}>
-                            {day.mine ? t('today.save') : t('today.send')}
-                        </Button>
-                        {editing && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => setEditing(false)}
-                            >
-                                {t('today.cancel')}
-                            </Button>
-                        )}
-                    </div>
-                </form>
-            ) : day.mine ? (
-                <div className="grid gap-3 sm:grid-cols-2">
-                    <Bubble label={t('today.you')} body={day.mine.body} mine>
-                        {day.can_edit && !readOnly && (
-                            <button
-                                type="button"
-                                onClick={() => setEditing(true)}
-                                className="text-xs text-muted-foreground underline"
-                            >
-                                {t('today.edit')}
-                            </button>
-                        )}
-                        {!day.can_edit && day.partner && (
-                            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Lock className="size-3" />
-                                {t('today.locked_hint', { name: partnerName })}
+            <div
+                className={cn(
+                    'flex flex-col gap-4 p-5',
+                    compact && 'gap-3 p-4',
+                )}
+            >
+                <header className="flex items-start gap-3">
+                    <div className="flex flex-1 flex-col gap-0.5">
+                        <span className="text-sm text-ink-soft">{heading}</span>
+                        {day.written_by && (
+                            <span className="text-xs text-ink-soft">
+                                {t('today.written_by', {
+                                    name: day.written_by,
+                                })}
                             </span>
                         )}
-                    </Bubble>
-                    {day.partner ? (
-                        <Bubble label={partnerName} body={day.partner.body} />
-                    ) : (
-                        <p className="self-center text-sm text-muted-foreground">
-                            {t('today.waiting', { name: partnerName })}
-                        </p>
+                    </div>
+                    {day.tag && (
+                        <span className="rounded-full bg-ink/[0.06] px-2.5 py-0.5 text-xs text-ink-soft">
+                            {t(`today.tag.${day.tag}`)}
+                        </span>
                     )}
-                </div>
-            ) : (
-                <p className="text-sm text-muted-foreground">
-                    {t('today.missed')}
-                </p>
-            )}
+                </header>
 
-            {day.mine && day.partner && day.is_today && (
-                <p className="text-sm font-medium text-primary">
-                    {day.bonus ? t('today.bonus_done') : t('today.both_done')}
+                <p
+                    className={cn(
+                        'hand text-ink',
+                        compact
+                            ? 'text-xl leading-snug'
+                            : 'text-[1.7rem] leading-[1.3]',
+                    )}
+                >
+                    {day.text}
                 </p>
-            )}
-            {day.bonus && !day.mine && day.is_today && (
-                <p className="text-xs text-muted-foreground">
-                    {t('today.bonus_hint')}
-                </p>
-            )}
 
-            {!readOnly && <Rating day={day} spaceId={spaceId} />}
-        </section>
+                {canWrite ? (
+                    <form onSubmit={submit} className="flex flex-col gap-3">
+                        <label className="sr-only" htmlFor={`answer-${day.id}`}>
+                            {t(
+                                isQuest
+                                    ? 'today.placeholder_quest'
+                                    : 'today.placeholder_question',
+                            )}
+                        </label>
+                        <textarea
+                            id={`answer-${day.id}`}
+                            value={form.data.body}
+                            onChange={(e) =>
+                                form.setData('body', e.target.value)
+                            }
+                            rows={compact ? 3 : 4}
+                            maxLength={2000}
+                            required
+                            placeholder={t(
+                                isQuest
+                                    ? 'today.placeholder_quest'
+                                    : 'today.placeholder_question',
+                            )}
+                            className="lined hand w-full resize-none bg-transparent px-1 text-xl text-ink outline-none placeholder:text-ink-soft/60"
+                        />
+                        <InputError message={form.errors.body} />
+
+                        <div className="flex items-end gap-3">
+                            <PartnerLine day={day} partnerName={partnerName} />
+                            <div className="ml-auto flex items-center gap-2">
+                                {editing && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setEditing(false)}
+                                        className="press rounded-full px-3 py-2 text-sm text-ink-soft"
+                                    >
+                                        {t('today.cancel')}
+                                    </button>
+                                )}
+                                <button
+                                    type="submit"
+                                    disabled={
+                                        form.processing ||
+                                        !form.data.body.trim()
+                                    }
+                                    className="press group flex flex-col items-center gap-1 disabled:opacity-40"
+                                >
+                                    <span className="grid size-16 place-items-center rounded-full bg-stamp text-stamp-ink shadow-[inset_0_-3px_0_rgb(0_0_0/0.18),0_6px_14px_-6px_var(--stamp)] transition-transform group-enabled:group-hover:-rotate-6">
+                                        <SealIcon className="size-7" />
+                                    </span>
+                                    <span className="text-xs font-medium text-stamp">
+                                        {day.mine
+                                            ? t('letter.reseal')
+                                            : t('letter.seal')}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        {!day.is_today && !day.mine && (
+                            <p className="text-xs text-ink-soft">
+                                {t('today.late_hint')}
+                            </p>
+                        )}
+                    </form>
+                ) : day.mine ? (
+                    <div className="flex flex-col gap-3">
+                        <Sheet
+                            who={t('today.you')}
+                            body={day.mine.body}
+                            tone="you"
+                            sealed={justSealed}
+                        >
+                            {day.can_edit && !readOnly && (
+                                <button
+                                    type="button"
+                                    onClick={() => setEditing(true)}
+                                    className="press text-xs text-ink-soft underline"
+                                >
+                                    {t('today.edit')}
+                                </button>
+                            )}
+                        </Sheet>
+                        {day.partner ? (
+                            <PartnerLetter
+                                name={partnerName}
+                                body={day.partner.body}
+                                reveal={justSealed}
+                            />
+                        ) : (
+                            <OnItsWay name={partnerName} />
+                        )}
+                    </div>
+                ) : (
+                    <p className="text-sm text-ink-soft">
+                        {t('letter.unsent')}
+                    </p>
+                )}
+
+                {day.mine && day.partner && day.is_today && (
+                    <p className="hand text-lg text-stamp">
+                        {day.bonus ? t('today.bonus_done') : t('letter.both')}
+                    </p>
+                )}
+                {day.bonus && !day.mine && day.is_today && (
+                    <p className="text-xs text-ink-soft">
+                        {t('today.bonus_hint')}
+                    </p>
+                )}
+
+                {!readOnly && <Rating day={day} spaceId={spaceId} />}
+            </div>
+        </article>
+    );
+}
+
+/** Where the partner's letter is, while you write. / สถานะจดหมายของอีกฝ่าย */
+function PartnerLine({
+    day,
+    partnerName,
+}: {
+    day: DayItem;
+    partnerName: string;
+}) {
+    const { t } = useT();
+
+    return day.partner_answered ? (
+        <p className="flex items-center gap-2 text-sm text-airmail">
+            <EnvelopeIcon className="size-4 shrink-0" />
+            {t('letter.waiting_for_you', { name: partnerName })}
+        </p>
+    ) : (
+        <p className="flex items-center gap-2 text-sm text-ink-soft">
+            <AirmailIcon className="size-4 shrink-0" />
+            {t('letter.not_yet', { name: partnerName })}
+        </p>
+    );
+}
+
+function Sheet({
+    who,
+    body,
+    tone,
+    sealed,
+    children,
+}: {
+    who: string;
+    body: string;
+    tone: 'you' | 'partner';
+    sealed?: boolean;
+    children?: React.ReactNode;
+}) {
+    return (
+        <div
+            className={cn(
+                'relative rounded-[calc(var(--radius)-2px)] bg-paper-2 px-4 pt-3 pb-4',
+                tone === 'partner' && 'bg-airmail-soft',
+            )}
+        >
+            <span
+                className={cn(
+                    'text-xs font-medium',
+                    tone === 'you' ? 'text-stamp' : 'text-airmail',
+                )}
+            >
+                {who}
+            </span>
+            <p className="hand mt-1 text-xl leading-relaxed whitespace-pre-line text-ink">
+                {body}
+            </p>
+            {children && <div className="mt-2">{children}</div>}
+            {tone === 'you' && (
+                <span
+                    aria-hidden
+                    className={cn(
+                        'absolute -top-2 right-3 grid size-10 -rotate-8 place-items-center rounded-full bg-stamp text-stamp-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.18)]',
+                        sealed && 'animate-seal',
+                    )}
+                >
+                    <SealIcon className="size-5" />
+                </span>
+            )}
+        </div>
+    );
+}
+
+/** Partner's letter, rising out of its envelope the moment you seal yours. / จดหมายของอีกฝ่าย */
+function PartnerLetter({
+    name,
+    body,
+    reveal,
+}: {
+    name: string;
+    body: string;
+    reveal: boolean;
+}) {
+    if (!reveal) return <Sheet who={name} body={body} tone="partner" />;
+
+    return (
+        <div className="relative [perspective:700px]">
+            <div
+                aria-hidden
+                className="animate-flap absolute inset-x-0 top-0 z-10 h-10 origin-top"
+            >
+                <svg
+                    viewBox="0 0 100 20"
+                    preserveAspectRatio="none"
+                    className="size-full"
+                >
+                    <path
+                        d="M0 0h100L50 20Z"
+                        fill="var(--airmail)"
+                        opacity="0.85"
+                    />
+                </svg>
+            </div>
+            <div className="animate-rise">
+                <Sheet who={name} body={body} tone="partner" />
+            </div>
+        </div>
+    );
+}
+
+function OnItsWay({ name }: { name: string }) {
+    const { t } = useT();
+
+    return (
+        <div className="flex items-center gap-3 rounded-[calc(var(--radius)-2px)] border border-dashed border-airmail/40 px-4 py-3 text-sm text-ink-soft">
+            <AirmailIcon className="size-5 shrink-0 text-airmail" />
+            {t('letter.on_its_way', { name })}
+        </div>
     );
 }
 
@@ -188,7 +357,7 @@ function Rating({ day, spaceId }: { day: DayItem; spaceId: string }) {
         );
 
     return (
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1 border-t border-dashed border-rule pt-3 text-xs text-ink-soft">
             <span className="mr-1">
                 {t(
                     day.kind === 'quest'
@@ -204,43 +373,18 @@ function Rating({ day, spaceId }: { day: DayItem; spaceId: string }) {
                     aria-pressed={day.my_rating === v}
                     aria-label={t(v === 1 ? 'rating.up' : 'rating.down')}
                     className={cn(
-                        'rounded-full px-2 py-1 text-base transition',
+                        'press grid size-9 place-items-center rounded-full text-base',
                         day.my_rating === v
-                            ? 'bg-primary/15 grayscale-0'
-                            : 'opacity-60 grayscale hover:opacity-100',
+                            ? 'bg-stamp-soft'
+                            : 'opacity-55 grayscale hover:opacity-100',
                     )}
                 >
                     {v === 1 ? '👍' : '👎'}
                 </button>
             ))}
-            {day.my_rating !== 0 && <span>{t('rating.thanks')}</span>}
-        </div>
-    );
-}
-
-function Bubble({
-    label,
-    body,
-    mine,
-    children,
-}: {
-    label: string;
-    body: string;
-    mine?: boolean;
-    children?: React.ReactNode;
-}) {
-    return (
-        <div
-            className={cn(
-                'flex flex-col gap-1 rounded-xl p-3',
-                mine ? 'bg-background' : 'bg-primary/10',
+            {day.my_rating !== 0 && (
+                <span className="animate-thunk">{t('rating.thanks')}</span>
             )}
-        >
-            <span className="text-xs font-medium text-muted-foreground">
-                {label}
-            </span>
-            <p className="whitespace-pre-line">{body}</p>
-            {children}
         </div>
     );
 }

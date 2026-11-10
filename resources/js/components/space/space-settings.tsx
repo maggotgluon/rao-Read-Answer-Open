@@ -1,6 +1,7 @@
 import { Form, router } from '@inertiajs/react';
 import { Settings } from 'lucide-react';
 import InputError from '@/components/input-error';
+import { Fold } from '@/components/rao/fold';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -37,11 +38,10 @@ export function SpaceSettings({ space }: { space: SpaceDetail }) {
     const { t } = useT();
 
     return (
-        <details className="rounded-2xl border border-border p-4 open:[&>*+*]:mt-4">
-            <summary className="flex cursor-pointer list-none items-center gap-2 font-medium">
-                <Settings className="size-4" />
-                {t('space.settings.open')}
-            </summary>
+        <Fold
+            title={t('space.settings.open')}
+            icon={<Settings className="size-5" strokeWidth={1.75} />}
+        >
             <Form
                 {...update.form(space.id)}
                 options={{ preserveScroll: true }}
@@ -111,7 +111,7 @@ export function SpaceSettings({ space }: { space: SpaceDetail }) {
                 )}
             </Form>
             <UnpairDialog spaceId={space.id} />
-        </details>
+        </Fold>
     );
 }
 

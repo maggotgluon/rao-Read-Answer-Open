@@ -30,7 +30,7 @@ export default function AdminFeatures({ features }: { features: Row[] }) {
             <p className="text-sm text-muted-foreground">
                 {t('admin.features.help')}
             </p>
-            <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+            <ul className="paper flex flex-col divide-y divide-rule">
                 {features.map((f) => (
                     <li
                         key={f.key}

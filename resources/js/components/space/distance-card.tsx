@@ -1,9 +1,10 @@
 import { router } from '@inertiajs/react';
-import { MapPin, Plane } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { AirmailIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { maybeUpdateLocation, timeIn } from '@/lib/location';
+import { cn } from '@/lib/utils';
 import { toggle } from '@/routes/location';
 import { longDistance } from '@/routes/spaces';
 import type { LocationInfo, SpaceDetail } from '@/types/space';
@@ -66,19 +67,15 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
     void now;
 
     return (
-        <section className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-start gap-3">
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    {space.long_distance ? (
-                        <Plane className="size-4" />
-                    ) : (
-                        <MapPin className="size-4" />
-                    )}
+        <section className={cn('flex flex-col gap-3', !compact && 'paper p-4')}>
+            <div className="flex items-center gap-3">
+                <span className="grid size-11 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-airmail/60 text-airmail">
+                    <AirmailIcon className="size-5" />
                 </span>
-                <div className="flex flex-1 flex-col gap-0.5">
+                <div className="flex flex-1 flex-col">
                     {hasDistance ? (
                         <>
-                            <p className="font-medium">
+                            <p className="hand text-xl leading-tight text-ink">
                                 {near
                                     ? t('location.near', { name: partner })
                                     : t('location.apart', {
@@ -87,7 +84,12 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
                                           ).toLocaleString(),
                                       })}
                             </p>
-                            <p className="text-sm text-muted-foreground">
+                            {space.long_distance && (
+                                <span className="my-1 self-start rounded-full bg-airmail-soft px-2.5 py-0.5 text-xs font-medium text-airmail">
+                                    {t('ld.badge')}
+                                </span>
+                            )}
+                            <p className="text-sm text-ink-soft">
                                 {[
                                     location.partner_city &&
                                         t('location.partner_in', {
@@ -107,7 +109,7 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
                             </p>
                         </>
                     ) : (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-ink-soft">
                             {!location.me_sharing
                                 ? t('location.ask')
                                 : !location.partner_sharing
@@ -117,16 +119,11 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
                                   : t('location.waiting_fix')}
                         </p>
                     )}
-                    {space.long_distance && (
-                        <span className="mt-1 self-start rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                            ✈️ {t('ld.badge')}
-                        </span>
-                    )}
                 </div>
             </div>
 
             {location.suggest_long_distance && !dismissed && !readOnly && (
-                <div className="flex flex-col gap-2 rounded-xl bg-primary/10 p-3 text-sm">
+                <div className="animate-arrive flex flex-col gap-2 rounded-[calc(var(--radius)-2px)] bg-airmail-soft p-3 text-sm text-ink">
                     <p>
                         {t('ld.suggest', {
                             km: (location.km ?? 0).toLocaleString(),
@@ -151,7 +148,7 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
             )}
 
             {!compact && !readOnly && (
-                <div className="flex flex-wrap gap-2 text-sm">
+                <div className="flex flex-wrap gap-2">
                     <Button
                         size="sm"
                         variant={location.me_sharing ? 'ghost' : 'default'}
@@ -173,9 +170,7 @@ export function DistanceCard({ space, location, readOnly, compact }: Props) {
                 </div>
             )}
             {!compact && (
-                <p className="text-xs text-muted-foreground">
-                    {t('location.privacy')}
-                </p>
+                <p className="text-xs text-ink-soft">{t('location.privacy')}</p>
             )}
         </section>
     );

@@ -7,56 +7,83 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Rao — "sealed letters" (จดหมาย). Every day is a letter between two people.
+ * โลกของ "จดหมาย": ทุกวันคือจดหมายระหว่างคนสองคน
+ *
+ * Roles (same in every theme) / บทบาทสี:
+ *   stamp   = you + "your move" (wax / postage red)      ตัวคุณ / ปุ่มหลัก
+ *   airmail = your partner (airmail blue)                  คู่ของคุณ
+ *   ink     = text; postmark = past / quiet               ตัวหนังสือ / อดีต
+ *   paper   = letter sheets; ground = the desk underneath  กระดาษ / พื้นโต๊ะ
+ *
+ * Themes = times of day (ids kept for stored settings):
+ *   blush  → dusk (default, rose letter paper)   ยามเย็น
+ *   paper  → daytime (white airmail paper)        กลางวัน
+ *   candle → night (ink-blue desk, dark)          กลางคืน
+ */
+
 @theme {
     --font-sans:
-        var(--app-font), 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-display: var(--app-font-display);
+        'Anuphan', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Noto Color Emoji';
+    --font-hand: 'Itim', 'Anuphan', ui-sans-serif, system-ui, sans-serif;
 
-    --color-streak: var(--streak);
-    --color-streak-soft: var(--streak-soft);
-    --color-streak-foreground: var(--streak-foreground);
-    --color-freeze: var(--freeze);
-    --color-freeze-foreground: var(--freeze-foreground);
+    --color-paper: var(--paper);
+    --color-paper-2: var(--paper-2);
+    --color-ink: var(--ink);
+    --color-ink-soft: var(--ink-soft);
+    --color-rule: var(--rule);
+    --color-rule-strong: var(--rule-strong);
+    --color-stamp: var(--stamp);
+    --color-stamp-ink: var(--stamp-ink);
+    --color-stamp-soft: var(--stamp-soft);
+    --color-wax: var(--wax);
+    --color-airmail: var(--airmail);
+    --color-airmail-ink: var(--airmail-ink);
+    --color-airmail-soft: var(--airmail-soft);
+    --color-postmark: var(--postmark);
+    --color-kraft: var(--kraft);
+
+    --color-streak: var(--stamp);
+    --color-streak-soft: var(--stamp-soft);
+    --color-streak-foreground: var(--stamp-ink);
+    --color-freeze: var(--airmail-soft);
+    --color-freeze-foreground: var(--airmail);
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
+    --shadow-paper: var(--paper-shadow);
+    --shadow-lift: var(--lift-shadow);
+
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-
     --color-card: var(--card);
     --color-card-foreground: var(--card-foreground);
-
     --color-popover: var(--popover);
     --color-popover-foreground: var(--popover-foreground);
-
     --color-primary: var(--primary);
     --color-primary-foreground: var(--primary-foreground);
-
     --color-secondary: var(--secondary);
     --color-secondary-foreground: var(--secondary-foreground);
-
     --color-muted: var(--muted);
     --color-muted-foreground: var(--muted-foreground);
-
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
-
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
-
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
-
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
     --color-chart-3: var(--chart-3);
     --color-chart-4: var(--chart-4);
     --color-chart-5: var(--chart-5);
-
     --color-sidebar: var(--sidebar);
     --color-sidebar-foreground: var(--sidebar-foreground);
     --color-sidebar-primary: var(--sidebar-primary);
@@ -67,152 +94,117 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/*
- * Rao themes — each person picks one (Settings → Appearance). Default: blush.
- * ธีมของ เรา — แต่ละคนเลือกเองได้ ค่าเริ่มต้นคือ blush
- *   blush  = B · Soft blush (playful, rounded)
- *   paper  = A · Warm paper (calm, editorial)
- *   candle = C · Candlelight (dark, intimate) — also gets the `.dark` class
- * Extra tokens: --streak* (calendar/streak), --freeze* (free miss), --app-bg (page bg, may be a gradient).
- */
+/* ── Dusk (default) / ยามเย็น ───────────────────────────────── */
 :root,
 [data-theme='blush'] {
-    --app-font: 'Nunito', 'Mali', ui-sans-serif, system-ui, sans-serif;
-    --app-font-display: 'Nunito', 'Mali', ui-sans-serif, system-ui, sans-serif;
-    --app-bg: linear-gradient(180deg, #fff1ec 0%, #fbeaf6 55%, #efe9ff 100%);
-    --background: #fff6f3;
-    --foreground: #3d2b45;
-    --card: rgb(255 255 255 / 0.85);
-    --card-foreground: #3d2b45;
-    --popover: #ffffff;
-    --popover-foreground: #3d2b45;
-    --primary: #f06aa8;
-    --primary-foreground: #ffffff;
-    --secondary: #ffe4ec;
-    --secondary-foreground: #6b2f55;
-    --muted: #fbe7ef;
-    --muted-foreground: #8d6f92;
-    --accent: #ffeaf1;
-    --accent-foreground: #6b2f55;
-    --destructive: #d9455f;
-    --destructive-foreground: #d9455f;
-    --border: #f6d3e0;
-    --input: #f3c9d8;
-    --ring: #f06aa8;
-    --radius: 1.1rem;
-    --streak: #f06aa8;
-    --streak-soft: #ffd6e2;
-    --streak-foreground: #ffffff;
-    --freeze: #e3ecff;
-    --freeze-foreground: #6b7fc2;
-    --sidebar: rgb(255 255 255 / 0.6);
-    --sidebar-foreground: #3d2b45;
-    --sidebar-primary: #f06aa8;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #ffe4ec;
-    --sidebar-accent-foreground: #6b2f55;
-    --sidebar-border: #f6d3e0;
-    --sidebar-ring: #f06aa8;
-    --chart-1: #f06aa8;
-    --chart-2: #ff8a7a;
-    --chart-3: #c9b6ff;
-    --chart-4: #ffc3a0;
-    --chart-5: #8d6f92;
+    --ground: #f3e3e7;
+    --paper: #fffaf8;
+    --paper-2: #fbeef1;
+    --ink: #26305e;
+    --ink-soft: #5f5a7e;
+    --rule: #ebd0d7;
+    --rule-strong: #ddb7c1;
+    --stamp: #c92f3c;
+    --stamp-ink: #ffffff;
+    --stamp-soft: #f6d3d7;
+    --wax: #a51f2d;
+    --airmail: #2a5aae;
+    --airmail-ink: #ffffff;
+    --airmail-soft: #dbe5f6;
+    --postmark: #857aa1;
+    --kraft: #d6b08b;
+    --paper-shadow:
+        0 1px 0 rgb(38 48 94 / 0.05), 0 12px 24px -16px rgb(38 48 94 / 0.38);
+    --lift-shadow:
+        0 2px 0 rgb(38 48 94 / 0.05), 0 22px 40px -18px rgb(38 48 94 / 0.45);
+    --radius: 0.7rem;
 }
 
+/* ── Daytime / กลางวัน ─────────────────────────────────────── */
 [data-theme='paper'] {
-    --app-font: 'Noto Sans Thai', ui-sans-serif, system-ui, sans-serif;
-    --app-font-display: 'Fraunces', 'Noto Serif Thai', ui-serif, Georgia, serif;
-    --app-bg: #fbf6ee;
-    --background: #fbf6ee;
-    --foreground: #3b2a22;
-    --card: #ffffff;
-    --card-foreground: #3b2a22;
-    --popover: #ffffff;
-    --popover-foreground: #3b2a22;
-    --primary: #c0583b;
-    --primary-foreground: #ffffff;
-    --secondary: #f4e7d8;
-    --secondary-foreground: #5b3a2c;
-    --muted: #f4e7d8;
-    --muted-foreground: #8a7262;
-    --accent: #f6ece2;
-    --accent-foreground: #5b3a2c;
-    --destructive: #b3362b;
-    --destructive-foreground: #b3362b;
-    --border: #ecdfcf;
-    --input: #e3d3c0;
-    --ring: #c0583b;
-    --radius: 0.9rem;
-    --streak: #c0583b;
-    --streak-soft: #f1c9b6;
-    --streak-foreground: #ffffff;
-    --freeze: #e6eef2;
-    --freeze-foreground: #5b7a8a;
-    --sidebar: #f7efe4;
-    --sidebar-foreground: #3b2a22;
-    --sidebar-primary: #c0583b;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f1e3d2;
-    --sidebar-accent-foreground: #3b2a22;
-    --sidebar-border: #ecdfcf;
-    --sidebar-ring: #c0583b;
-    --chart-1: #c0583b;
-    --chart-2: #e98b6d;
-    --chart-3: #5b7a8a;
-    --chart-4: #d9a066;
-    --chart-5: #8a7262;
+    --ground: #eef2f8;
+    --paper: #ffffff;
+    --paper-2: #f2f5fa;
+    --ink: #1c2747;
+    --ink-soft: #55607d;
+    --rule: #dbe2ee;
+    --rule-strong: #c3cddf;
+    --stamp: #d22a34;
+    --stamp-ink: #ffffff;
+    --stamp-soft: #fbd9db;
+    --wax: #a51c26;
+    --airmail: #2251b5;
+    --airmail-ink: #ffffff;
+    --airmail-soft: #dce6fa;
+    --postmark: #6d7895;
+    --kraft: #c9a07a;
+    --paper-shadow:
+        0 1px 0 rgb(28 39 71 / 0.05), 0 12px 24px -16px rgb(28 39 71 / 0.3);
+    --lift-shadow:
+        0 2px 0 rgb(28 39 71 / 0.05), 0 22px 40px -18px rgb(28 39 71 / 0.38);
+    --radius: 0.55rem;
 }
 
+/* ── Night / กลางคืน ───────────────────────────────────────── */
 [data-theme='candle'] {
-    --app-font: 'IBM Plex Sans Thai', ui-sans-serif, system-ui, sans-serif;
-    --app-font-display:
-        'DM Serif Display', 'IBM Plex Sans Thai', ui-serif, Georgia, serif;
-    --app-bg: radial-gradient(
-            120% 70% at 50% 0%,
-            #3a2140 0%,
-            #1d1424 60%,
-            #150f1a 100%
-        )
-        fixed;
-    --background: #1d1424;
-    --foreground: #f3e6dc;
-    --card: rgb(255 255 255 / 0.05);
-    --card-foreground: #f3e6dc;
-    --popover: #2a1d31;
-    --popover-foreground: #f3e6dc;
-    --primary: #ffb36b;
-    --primary-foreground: #2a1a1f;
-    --secondary: #3a2a41;
-    --secondary-foreground: #f3e6dc;
-    --muted: #2c2033;
-    --muted-foreground: #b9a5b5;
-    --accent: #33253b;
-    --accent-foreground: #f3e6dc;
-    --destructive: #ff7a85;
-    --destructive-foreground: #ff7a85;
-    --border: rgb(255 255 255 / 0.1);
-    --input: rgb(255 255 255 / 0.14);
-    --ring: #ffb36b;
-    --radius: 0.9rem;
-    --streak: #ffb36b;
-    --streak-soft: rgb(255 179 107 / 0.25);
-    --streak-foreground: #2a1a1f;
-    --freeze: rgb(140 170 255 / 0.15);
-    --freeze-foreground: #a9b9ff;
-    --sidebar: #1a1220;
-    --sidebar-foreground: #f3e6dc;
-    --sidebar-primary: #ffb36b;
-    --sidebar-primary-foreground: #2a1a1f;
-    --sidebar-accent: #2c2033;
-    --sidebar-accent-foreground: #f3e6dc;
-    --sidebar-border: rgb(255 255 255 / 0.08);
-    --sidebar-ring: #ffb36b;
-    --chart-1: #ffb36b;
-    --chart-2: #c2457a;
-    --chart-3: #a9b9ff;
-    --chart-4: #ff9f5a;
-    --chart-5: #b9a5b5;
+    --ground: #121a2c;
+    --paper: #1c2540;
+    --paper-2: #24304f;
+    --ink: #f1eadf;
+    --ink-soft: #aab1c9;
+    --rule: #2e3a5c;
+    --rule-strong: #3d4a70;
+    --stamp: #ff6b70;
+    --stamp-ink: #2a0b0f;
+    --stamp-soft: rgb(255 107 112 / 0.18);
+    --wax: #e24c57;
+    --airmail: #8ab1ff;
+    --airmail-ink: #0e1a33;
+    --airmail-soft: rgb(138 177 255 / 0.16);
+    --postmark: #8d96b7;
+    --kraft: #b38d68;
+    --paper-shadow:
+        0 1px 0 rgb(0 0 0 / 0.25), 0 14px 28px -16px rgb(0 0 0 / 0.7);
+    --lift-shadow:
+        0 2px 0 rgb(0 0 0 / 0.25), 0 24px 44px -18px rgb(0 0 0 / 0.8);
+    --radius: 0.7rem;
+}
+
+/* shadcn tokens from the world's roles / โทเค็น shadcn จากบทบาทสี */
+:root,
+[data-theme] {
+    --background: var(--ground);
+    --foreground: var(--ink);
+    --card: var(--paper);
+    --card-foreground: var(--ink);
+    --popover: var(--paper);
+    --popover-foreground: var(--ink);
+    --primary: var(--stamp);
+    --primary-foreground: var(--stamp-ink);
+    --secondary: var(--paper-2);
+    --secondary-foreground: var(--ink);
+    --muted: var(--paper-2);
+    --muted-foreground: var(--ink-soft);
+    --accent: var(--paper-2);
+    --accent-foreground: var(--ink);
+    --destructive: var(--wax);
+    --destructive-foreground: var(--wax);
+    --border: var(--rule);
+    --input: var(--rule-strong);
+    --ring: var(--airmail);
+    --chart-1: var(--stamp);
+    --chart-2: var(--airmail);
+    --chart-3: var(--postmark);
+    --chart-4: var(--kraft);
+    --chart-5: var(--ink-soft);
+    --sidebar: var(--paper);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: var(--stamp);
+    --sidebar-primary-foreground: var(--stamp-ink);
+    --sidebar-accent: var(--paper-2);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: var(--rule);
+    --sidebar-ring: var(--airmail);
 }
 
 @layer base {
@@ -220,15 +212,207 @@
         @apply border-border;
     }
 
+    html {
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: transparent;
+        scrollbar-color: var(--rule-strong) transparent;
+        color-scheme: light;
+    }
+
+    html[data-theme='candle'] {
+        color-scheme: dark;
+    }
+
     body {
-        @apply text-foreground;
-        background: var(--app-bg);
-        min-height: 100svh;
+        @apply bg-background font-sans text-foreground;
+        min-height: 100dvh;
+        overscroll-behavior-y: none;
     }
 
     h1,
-    h2,
-    h3 {
-        font-family: var(--app-font-display);
+    h2 {
+        font-family: var(--font-hand);
+        font-weight: 400;
+        text-wrap: balance;
+    }
+
+    ::selection {
+        background: var(--stamp-soft);
+        color: var(--ink);
+    }
+
+    input,
+    textarea {
+        caret-color: var(--stamp);
+    }
+
+    /* iOS zooms into inputs under 16px. / iOS จะซูมถ้าตัวอักษรเล็กกว่า 16px */
+    input,
+    textarea,
+    select {
+        font-size: max(16px, 1em);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--airmail);
+        outline-offset: 2px;
+    }
+
+    a {
+        text-underline-offset: 0.2em;
+    }
+
+    .tabular,
+    time,
+    table {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@layer components {
+    /* A sheet of letter paper. / แผ่นกระดาษจดหมาย */
+    .paper {
+        background: var(--paper);
+        border-radius: var(--radius);
+        box-shadow: var(--paper-shadow);
+    }
+
+    /* Airmail stripe edge (red / blue diagonals). / ขอบลายจดหมายอากาศ */
+    .airmail-edge {
+        background: repeating-linear-gradient(
+            -45deg,
+            var(--stamp) 0 9px,
+            transparent 9px 15px,
+            var(--airmail) 15px 24px,
+            transparent 24px 30px
+        );
+    }
+
+    /* Postage-stamp perforation: holes show the ground behind. / ขอบฟันแสตมป์ */
+    .perforated {
+        --hole: 3px;
+        --gap: 9px;
+        padding: 5px;
+        background: radial-gradient(
+                circle,
+                transparent var(--hole),
+                var(--stamp-face, var(--paper)) calc(var(--hole) + 0.5px)
+            )
+            calc(var(--gap) / -2) calc(var(--gap) / -2) / var(--gap) var(--gap);
+        filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.08));
+    }
+
+    /* Ruled writing paper. / กระดาษมีเส้น */
+    .lined {
+        --line: 2rem;
+        line-height: var(--line);
+        background-image: linear-gradient(
+            transparent calc(var(--line) - 1px),
+            var(--rule) calc(var(--line) - 1px),
+            var(--rule) var(--line),
+            transparent var(--line)
+        );
+        background-size: 100% var(--line);
+        background-attachment: local;
+    }
+
+    .hand {
+        font-family: var(--font-hand);
+    }
+}
+
+/* ── Motion: one authored moment (seal + reveal); small answers elsewhere ── */
+@keyframes rao-seal {
+    0% {
+        transform: scale(1.7) rotate(-18deg);
+        opacity: 0;
+    }
+    55% {
+        transform: scale(0.9) rotate(-6deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(-8deg);
+        opacity: 1;
+    }
+}
+
+@keyframes rao-flap {
+    from {
+        transform: rotateX(0deg);
+    }
+    to {
+        transform: rotateX(180deg);
+    }
+}
+
+@keyframes rao-rise {
+    from {
+        transform: translateY(30%);
+        clip-path: inset(0 0 30% 0);
+    }
+    to {
+        transform: translateY(0);
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes rao-arrive {
+    from {
+        transform: translateY(14px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes rao-thunk {
+    0% {
+        transform: scale(1.25);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-seal {
+    animation: rao-seal 0.55s var(--ease-out-expo) both;
+}
+.animate-flap {
+    animation: rao-flap 0.6s var(--ease-out-expo) 0.35s both;
+    transform-origin: top;
+    backface-visibility: hidden;
+}
+.animate-rise {
+    animation: rao-rise 0.7s var(--ease-out-expo) 0.75s both;
+}
+.animate-arrive {
+    animation: rao-arrive 0.5s var(--ease-out-expo);
+}
+.animate-thunk {
+    animation: rao-thunk 0.35s var(--ease-out-expo);
+}
+
+/* Pressed feedback on every tappable thing. / ตอบสนองเมื่อกด */
+.press {
+    transition:
+        transform 0.15s var(--ease-out-expo),
+        box-shadow 0.2s var(--ease-out-expo),
+        background-color 0.2s,
+        color 0.2s;
+}
+.press:active {
+    transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.01ms !important;
     }
 }

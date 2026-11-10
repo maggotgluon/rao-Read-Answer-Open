@@ -2,6 +2,7 @@ import { useForm } from '@inertiajs/react';
 import { ImagePlus, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
+import { PostcardIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { compressImage } from '@/lib/compress-image';
@@ -64,14 +65,18 @@ export function MomentComposer({
     )?.[1];
 
     return (
-        <section className="flex flex-col gap-3 rounded-2xl border border-border p-4">
+        <section className="paper flex flex-col gap-3 p-4">
+            <h2 className="flex items-center gap-2 text-xl text-ink">
+                <PostcardIcon className="size-5 text-stamp" />{' '}
+                {t('moment.compose_title')}
+            </h2>
             <textarea
                 value={form.data.body}
                 onChange={(e) => form.setData('body', e.target.value)}
                 rows={3}
                 maxLength={2000}
                 placeholder={t('moment.placeholder')}
-                className="w-full resize-none rounded-xl border border-input bg-background px-3 py-2 text-base"
+                className="lined hand w-full resize-none bg-transparent px-1 text-xl text-ink outline-none placeholder:text-ink-soft/60"
             />
             <InputError message={form.errors.body} />
 
@@ -82,7 +87,7 @@ export function MomentComposer({
                             <img
                                 src={src}
                                 alt=""
-                                className="size-full rounded-lg object-cover"
+                                className="size-full rounded-[4px] object-cover shadow-paper"
                             />
                             <button
                                 type="button"
@@ -95,7 +100,7 @@ export function MomentComposer({
                                         ),
                                     )
                                 }
-                                className="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white"
+                                className="press absolute -top-1.5 -right-1.5 grid size-7 place-items-center rounded-full bg-ink text-paper shadow-paper"
                             >
                                 <X className="size-3" />
                             </button>
@@ -125,7 +130,11 @@ export function MomentComposer({
                             }
                             onClick={() => input.current?.click()}
                         >
-                            {preparing ? <Spinner /> : <ImagePlus />}
+                            {preparing ? (
+                                <Spinner />
+                            ) : (
+                                <ImagePlus strokeWidth={1.75} />
+                            )}
                             {preparing
                                 ? t('moment.preparing')
                                 : t('moment.add_photos')}

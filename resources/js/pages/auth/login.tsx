@@ -135,8 +135,8 @@ Login.layout = {
 /** Local dev only — the server sends no accounts outside APP_ENV=local. */
 function DemoLogins({ accounts }: { accounts: DemoAccount[] }) {
     return (
-        <div className="grid gap-2 rounded-xl border border-dashed border-amber-500/60 p-3">
-            <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+        <div className="grid gap-2 rounded-[calc(var(--radius)-2px)] border border-dashed border-kraft p-3">
+            <p className="text-xs font-medium text-ink-soft">
                 DEV · demo accounts (password: password)
             </p>
             {accounts.map((a) => (

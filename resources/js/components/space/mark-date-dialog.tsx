@@ -79,7 +79,7 @@ export function MarkDateDialog({ moment, spaceId, options }: Props) {
                             className={cn(
                                 'rounded-full border px-3 py-1 text-sm disabled:opacity-40',
                                 form.data.mode === m
-                                    ? 'border-primary bg-primary text-primary-foreground'
+                                    ? 'border-ink bg-ink text-paper'
                                     : 'border-border',
                             )}
                         >

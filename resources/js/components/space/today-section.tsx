@@ -1,4 +1,6 @@
 import { CustomPromptForm } from '@/components/space/custom-prompt-form';
+import { Fold } from '@/components/rao/fold';
+import { LettersIcon } from '@/components/rao/icons';
 import { DayCard } from '@/components/space/day-card';
 import { useT } from '@/lib/i18n';
 import type { DayItem } from '@/types/space';
@@ -27,7 +29,7 @@ export function TodaySection({
     );
 
     return (
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-4">
             {todays.length > 0 ? (
                 todays.map((d) => (
                     <DayCard
@@ -48,23 +50,22 @@ export function TodaySection({
             )}
 
             {relevant.length > 0 && (
-                <details className="open:[&>*+*]:mt-2">
-                    <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
-                        {t('today.earlier')} ({relevant.length})
-                    </summary>
-                    <div className="flex flex-col gap-2">
-                        {relevant.map((d) => (
-                            <DayCard
-                                key={d.id}
-                                day={d}
-                                spaceId={spaceId}
-                                partnerName={partnerName}
-                                readOnly={readOnly}
-                                compact
-                            />
-                        ))}
-                    </div>
-                </details>
+                <Fold
+                    title={t('today.earlier')}
+                    count={relevant.length}
+                    icon={<LettersIcon className="size-5" />}
+                >
+                    {relevant.map((d) => (
+                        <DayCard
+                            key={d.id}
+                            day={d}
+                            spaceId={spaceId}
+                            partnerName={partnerName}
+                            readOnly={readOnly}
+                            compact
+                        />
+                    ))}
+                </Fold>
             )}
         </section>
     );

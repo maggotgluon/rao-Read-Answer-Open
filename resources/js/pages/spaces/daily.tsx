@@ -2,6 +2,7 @@ import { ActivityFeed } from '@/components/space/activity-feed';
 import { DistanceCard } from '@/components/space/distance-card';
 import { EventLabel } from '@/components/space/events-panel';
 import { Memories } from '@/components/space/memories';
+import { AirmailIcon, PostmarkIcon } from '@/components/rao/icons';
 import { SpaceShell } from '@/components/space/space-shell';
 import { StreakPill } from '@/components/space/streak-pill';
 import { TodaySection } from '@/components/space/today-section';
@@ -41,14 +42,40 @@ export default function SpaceDaily({
 
     return (
         <SpaceShell space={space} tab="daily">
+            {space.partner && (
+                <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                    <StreakPill streak={streak} />
+                </div>
+            )}
+
             {todayEvents.length > 0 && (
-                <section className="flex flex-col gap-1 rounded-2xl border border-primary/30 bg-primary/10 p-4">
-                    <h2 className="text-sm font-medium">
-                        {t('daily.today_events')} 🎉
-                    </h2>
-                    {todayEvents.map((e, i) => (
-                        <EventLabel key={i} event={e} />
-                    ))}
+                <section className="flex items-start gap-3 rounded-[var(--radius)] border-[1.5px] border-dashed border-stamp/50 px-4 py-3">
+                    <PostmarkIcon className="mt-0.5 size-5 shrink-0 text-stamp" />
+                    <div className="flex flex-col gap-1">
+                        <h2 className="text-lg leading-tight text-stamp">
+                            {t('daily.today_events')}
+                        </h2>
+                        {todayEvents.map((e, i) => (
+                            <EventLabel key={i} event={e} />
+                        ))}
+                    </div>
+                </section>
+            )}
+
+            {space.partner ? (
+                <TodaySection
+                    days={days}
+                    spaceId={space.id}
+                    partnerName={space.partner.name}
+                    readOnly={frozen}
+                    canWritePrompts={space.features.custom_prompts}
+                />
+            ) : (
+                <section className="paper flex flex-col items-start gap-2 p-5">
+                    <AirmailIcon className="size-7 text-airmail" />
+                    <p className="hand text-xl text-ink">
+                        {t('today.waiting_partner')}
+                    </p>
                 </section>
             )}
 
@@ -62,23 +89,6 @@ export default function SpaceDaily({
             )}
 
             <Memories memories={memories} />
-
-            {space.partner ? (
-                <>
-                    <StreakPill streak={streak} />
-                    <TodaySection
-                        days={days}
-                        spaceId={space.id}
-                        partnerName={space.partner.name}
-                        readOnly={frozen}
-                        canWritePrompts={space.features.custom_prompts}
-                    />
-                </>
-            ) : (
-                <p className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                    {t('today.waiting_partner')}
-                </p>
-            )}
 
             <ActivityFeed items={activity} />
         </SpaceShell>

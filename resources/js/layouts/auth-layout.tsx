@@ -1,4 +1,3 @@
-import { LanguageSwitch } from '@/components/language-switch';
 import AuthLayoutTemplate from '@/layouts/auth/auth-simple-layout';
 import { useT } from '@/lib/i18n';
 
@@ -15,11 +14,8 @@ export default function AuthLayout({
 
     // Pages may pass translation keys as title/description (unknown keys show as-is).
     return (
-        <>
-            <LanguageSwitch className="absolute top-4 right-4" />
-            <AuthLayoutTemplate title={t(title)} description={t(description)}>
-                {children}
-            </AuthLayoutTemplate>
-        </>
+        <AuthLayoutTemplate title={t(title)} description={t(description)}>
+            {children}
+        </AuthLayoutTemplate>
     );
 }

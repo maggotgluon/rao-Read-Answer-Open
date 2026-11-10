@@ -80,7 +80,7 @@ class PromptController extends Controller
                     'up' => (int) $p->up,
                     'down' => (int) $p->down,
                 ]),
-            'filters' => $filters,
+            'filters' => (object) $filters,   // {} not [] when empty (else filters.sort is Array#sort)
             'stats' => [
                 'total' => (clone $library)->count(),
                 'active' => (clone $library)->where('active', true)->count(),

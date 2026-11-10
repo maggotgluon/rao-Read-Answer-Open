@@ -1,5 +1,6 @@
 import { router, useForm } from '@inertiajs/react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, X } from 'lucide-react';
+import { PostmarkIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,11 @@ type Props = {
     dateOptions?: SpaceEvent[];
 };
 
+/**
+ * A moment as a postcard: photo mounted like a print, caption in handwriting, a small
+ * stamp in the corner says who sent it (red = you, blue = partner).
+ * ช่วงเวลา = โปสการ์ด แสตมป์มุมบอกว่าใครส่ง (แดง = คุณ, น้ำเงิน = คู่ของคุณ)
+ */
 export function MomentCard({
     moment,
     spaceId,
@@ -31,7 +37,6 @@ export function MomentCard({
     const args = { space: spaceId, moment: moment.id };
     const isDraft = moment.status === 'draft';
     const comment = useForm({ body: '' });
-
     const when = moment.posted_at
         ? new Date(moment.posted_at).toLocaleString(
               locale === 'th' ? 'th-TH' : 'en-GB',
@@ -43,206 +48,302 @@ export function MomentCard({
               },
           )
         : null;
-
     const remove = () => {
         if (window.confirm(t('moment.delete_confirm'))) {
             router.delete(destroy.url(args), { preserveScroll: true });
         }
     };
+    const icon = { strokeWidth: 1.75 };
 
     return (
         <article
             className={cn(
-                'flex flex-col gap-3 rounded-2xl border p-4',
-                isDraft ? 'border-dashed border-amber-500/50' : 'border-border',
+                'paper flex flex-col gap-3 p-2.5',
+                isDraft &&
+                    'shadow-none outline-[1.5px] outline-kraft outline-dashed',
             )}
         >
-            <header className="flex items-center gap-2 text-sm">
-                <span className="font-medium">{moment.author}</span>
-                {when && <span className="text-muted-foreground">{when}</span>}
-                {moment.mine && !readOnly && (
-                    <button
-                        type="button"
-                        onClick={remove}
-                        aria-label={t('moment.delete')}
-                        className="ml-auto text-muted-foreground hover:text-destructive"
-                    >
-                        <Trash2 className="size-4" />
-                    </button>
-                )}
-            </header>
-
             {moment.photos.length > 0 && (
-                <div
-                    className={cn(
-                        'grid gap-1 overflow-hidden rounded-xl',
-                        moment.photos.length > 1 && 'grid-cols-2',
-                    )}
-                >
-                    {moment.photos.map((p) => (
-                        <img
-                            key={p.url}
-                            src={p.url}
-                            width={p.width}
-                            height={p.height}
-                            loading="lazy"
-                            alt=""
-                            className={cn(
-                                'w-full object-cover',
-                                moment.photos.length > 1
-                                    ? 'aspect-square'
-                                    : 'max-h-[70vh]',
-                            )}
-                        />
-                    ))}
+                <div className="relative">
+                    <div
+                        className={cn(
+                            'grid gap-1 overflow-hidden rounded-[4px]',
+                            moment.photos.length > 1 && 'grid-cols-2',
+                        )}
+                    >
+                        {moment.photos.map((p) => (
+                            <img
+                                key={p.url}
+                                src={p.url}
+                                width={p.width}
+                                height={p.height}
+                                loading="lazy"
+                                alt=""
+                                className={cn(
+                                    'w-full bg-paper-2 object-cover',
+                                    moment.photos.length > 1
+                                        ? 'aspect-square'
+                                        : 'max-h-[70dvh]',
+                                )}
+                            />
+                        ))}
+                    </div>
+                    <SenderStamp
+                        mine={moment.mine}
+                        name={moment.author}
+                        className="absolute top-2 right-2"
+                    />
                 </div>
             )}
 
-            {moment.body && (
-                <p className="whitespace-pre-line">{moment.body}</p>
-            )}
-
-            {!isDraft && (moment.date || !readOnly) && (
-                <div className="flex flex-wrap items-center gap-2">
-                    {moment.date && (
-                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                            ⭐ {moment.date.title}
+            <div className="flex flex-col gap-3 px-2 pb-1.5">
+                <header className="flex items-center gap-2 text-sm">
+                    {moment.photos.length === 0 && (
+                        <SenderStamp mine={moment.mine} name={moment.author} />
+                    )}
+                    <span
+                        className={cn(
+                            'font-medium',
+                            moment.mine ? 'text-stamp' : 'text-airmail',
+                        )}
+                    >
+                        {moment.author}
+                    </span>
+                    {when && <time className="text-ink-soft">{when}</time>}
+                    {isDraft && (
+                        <span className="rounded-full bg-kraft/25 px-2 py-0.5 text-xs text-ink">
+                            {t('moment.draft')}
                         </span>
                     )}
-                    {!readOnly && (
-                        <MarkDateDialog
-                            moment={moment}
-                            spaceId={spaceId}
-                            options={dateOptions}
-                        />
-                    )}
-                </div>
-            )}
-
-            {isDraft ? (
-                !readOnly && (
-                    <Button
-                        className="self-start"
-                        onClick={() =>
-                            router.post(
-                                publish.url(args),
-                                {},
-                                { preserveScroll: true },
-                            )
-                        }
-                    >
-                        {t('moment.publish')}
-                    </Button>
-                )
-            ) : (
-                <>
-                    <div className="flex flex-wrap gap-1">
-                        {emojis.map((e) => {
-                            const count = moment.reactions.filter(
-                                (r) => r.emoji === e,
-                            ).length;
-                            const mine = moment.reactions.some(
-                                (r) => r.emoji === e && r.mine,
-                            );
-
-                            return (
-                                <button
-                                    key={e}
-                                    type="button"
-                                    disabled={readOnly}
-                                    onClick={() =>
-                                        router.put(
-                                            react.url(args),
-                                            { emoji: e },
-                                            { preserveScroll: true },
-                                        )
-                                    }
-                                    className={cn(
-                                        'rounded-full border px-2 py-0.5 text-sm transition-colors',
-                                        mine
-                                            ? 'border-primary bg-primary/10'
-                                            : count
-                                              ? 'border-border'
-                                              : 'border-transparent opacity-60 hover:opacity-100',
-                                    )}
-                                >
-                                    {e}
-                                    {count > 0 && (
-                                        <span className="ml-1 text-xs">
-                                            {count}
-                                        </span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {moment.comments.length > 0 && (
-                        <ul className="grid gap-1.5 text-sm">
-                            {moment.comments.map((c) => (
-                                <li key={c.id} className="group flex gap-2">
-                                    <span className="font-medium">
-                                        {c.author}
-                                    </span>
-                                    <span className="flex-1 whitespace-pre-line">
-                                        {c.body}
-                                    </span>
-                                    {c.mine && !readOnly && (
-                                        <button
-                                            type="button"
-                                            aria-label={t('moment.delete')}
-                                            onClick={() =>
-                                                router.delete(
-                                                    destroyComment.url({
-                                                        ...args,
-                                                        comment: c.id,
-                                                    }),
-                                                    { preserveScroll: true },
-                                                )
-                                            }
-                                            className="text-muted-foreground opacity-0 group-hover:opacity-100"
-                                        >
-                                            <Trash2 className="size-3" />
-                                        </button>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-
-                    {!readOnly && (
-                        <form
-                            className="flex gap-2"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                comment.post(storeComment.url(args), {
-                                    preserveScroll: true,
-                                    onSuccess: () => comment.reset(),
-                                });
-                            }}
+                    {moment.mine && !readOnly && (
+                        <button
+                            type="button"
+                            onClick={remove}
+                            aria-label={t('moment.delete')}
+                            className="press ml-auto grid size-9 place-items-center rounded-full text-ink-soft hover:text-wax"
                         >
-                            <input
-                                value={comment.data.body}
-                                onChange={(e) =>
-                                    comment.setData('body', e.target.value)
-                                }
-                                maxLength={1000}
-                                required
-                                placeholder={t('moment.comment_placeholder')}
-                                className="h-9 flex-1 rounded-full border border-input bg-background px-3 text-sm"
-                            />
-                            <Button
-                                type="submit"
-                                size="sm"
-                                variant="secondary"
-                                disabled={comment.processing}
-                            >
-                                {t('moment.comment_send')}
-                            </Button>
-                        </form>
+                            <Trash2 className="size-4" {...icon} />
+                        </button>
                     )}
-                </>
-            )}
+                </header>
+
+                {moment.body && (
+                    <p
+                        className={cn(
+                            'hand text-xl leading-relaxed whitespace-pre-line text-ink',
+                            moment.photos.length === 0 && 'lined',
+                        )}
+                    >
+                        {moment.body}
+                    </p>
+                )}
+
+                {!isDraft && (moment.date || !readOnly) && (
+                    <div className="flex flex-wrap items-center gap-2">
+                        {moment.date && (
+                            <span className="flex items-center gap-1.5 rounded-full border border-dashed border-stamp/50 px-2.5 py-1 text-xs text-stamp">
+                                <PostmarkIcon className="size-3.5" />
+                                {moment.date.title}
+                            </span>
+                        )}
+                        {!readOnly && (
+                            <MarkDateDialog
+                                moment={moment}
+                                spaceId={spaceId}
+                                options={dateOptions}
+                            />
+                        )}
+                    </div>
+                )}
+
+                {isDraft ? (
+                    !readOnly && (
+                        <Button
+                            className="self-start"
+                            onClick={() =>
+                                router.post(
+                                    publish.url(args),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            }
+                        >
+                            {t('moment.publish')}
+                        </Button>
+                    )
+                ) : (
+                    <>
+                        <div className="-mx-1 flex flex-wrap gap-1">
+                            {emojis.map((e) => {
+                                const count = moment.reactions.filter(
+                                    (r) => r.emoji === e,
+                                ).length;
+                                const mine = moment.reactions.some(
+                                    (r) => r.emoji === e && r.mine,
+                                );
+
+                                return (
+                                    <button
+                                        key={e}
+                                        type="button"
+                                        disabled={readOnly}
+                                        aria-pressed={mine}
+                                        onClick={() =>
+                                            router.put(
+                                                react.url(args),
+                                                { emoji: e },
+                                                { preserveScroll: true },
+                                            )
+                                        }
+                                        className={cn(
+                                            'press flex h-9 min-w-9 items-center justify-center gap-1 rounded-full px-2 text-base',
+                                            mine
+                                                ? 'bg-stamp-soft'
+                                                : count
+                                                  ? 'bg-ink/[0.05]'
+                                                  : 'opacity-50 grayscale-[0.4] hover:opacity-100',
+                                        )}
+                                    >
+                                        <span
+                                            className={cn(
+                                                mine && 'animate-thunk',
+                                            )}
+                                        >
+                                            {e}
+                                        </span>
+                                        {count > 0 && (
+                                            <span className="text-xs text-ink">
+                                                {count}
+                                            </span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {moment.comments.length > 0 && (
+                            <ul className="flex flex-col gap-2 border-t border-dashed border-rule pt-3 text-sm">
+                                {moment.comments.map((c) => (
+                                    <li
+                                        key={c.id}
+                                        className="flex items-start gap-2"
+                                    >
+                                        <span
+                                            className={cn(
+                                                'font-medium',
+                                                c.mine
+                                                    ? 'text-stamp'
+                                                    : 'text-airmail',
+                                            )}
+                                        >
+                                            {c.author}
+                                        </span>
+                                        <span className="flex-1 whitespace-pre-line text-ink">
+                                            {c.body}
+                                        </span>
+                                        {c.mine && !readOnly && (
+                                            <button
+                                                type="button"
+                                                aria-label={t('moment.delete')}
+                                                onClick={() =>
+                                                    router.delete(
+                                                        destroyComment.url({
+                                                            ...args,
+                                                            comment: c.id,
+                                                        }),
+                                                        {
+                                                            preserveScroll: true,
+                                                        },
+                                                    )
+                                                }
+                                                className="press -my-1 grid size-7 place-items-center rounded-full text-ink-soft/70 hover:text-wax"
+                                            >
+                                                <X
+                                                    className="size-3.5"
+                                                    {...icon}
+                                                />
+                                            </button>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        {!readOnly && (
+                            <form
+                                className="flex items-center gap-2"
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    comment.post(storeComment.url(args), {
+                                        preserveScroll: true,
+                                        onSuccess: () => comment.reset(),
+                                    });
+                                }}
+                            >
+                                <input
+                                    value={comment.data.body}
+                                    onChange={(e) =>
+                                        comment.setData('body', e.target.value)
+                                    }
+                                    maxLength={1000}
+                                    required
+                                    aria-label={t('moment.comment_placeholder')}
+                                    placeholder={t(
+                                        'moment.comment_placeholder',
+                                    )}
+                                    className="h-10 flex-1 border-b border-rule bg-transparent px-1 text-ink outline-none placeholder:text-ink-soft/60 focus:border-airmail"
+                                />
+                                {comment.data.body.trim() && (
+                                    <Button
+                                        type="submit"
+                                        size="sm"
+                                        variant="ghost"
+                                        className="text-stamp"
+                                        disabled={comment.processing}
+                                    >
+                                        {t('moment.comment_send')}
+                                    </Button>
+                                )}
+                            </form>
+                        )}
+                    </>
+                )}
+            </div>
         </article>
+    );
+}
+
+/** Tiny perforated stamp with the sender's initial. / แสตมป์จิ๋วบอกผู้ส่ง */
+function SenderStamp({
+    mine,
+    name,
+    className,
+}: {
+    mine: boolean;
+    name: string;
+    className?: string;
+}) {
+    return (
+        <span
+            aria-hidden
+            className={cn('perforated block rotate-3 rounded-[2px]', className)}
+            style={{
+                ['--stamp-face' as string]: 'var(--paper)',
+                ['--hole' as string]: '1.5px',
+                ['--gap' as string]: '5px',
+                padding: '3px',
+            }}
+        >
+            <span
+                className={cn(
+                    'hand grid h-8 w-7 place-items-center rounded-[1px] text-sm',
+                    mine
+                        ? 'bg-stamp text-stamp-ink'
+                        : 'bg-airmail text-airmail-ink',
+                )}
+            >
+                {name.trim().charAt(0).toUpperCase()}
+            </span>
+        </span>
     );
 }

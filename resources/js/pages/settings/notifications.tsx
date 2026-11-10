@@ -115,7 +115,7 @@ export default function Notifications({
                 />
 
                 {!configured && (
-                    <p className="rounded-xl bg-muted p-3 text-sm">
+                    <p className="rounded-[calc(var(--radius)-2px)] border border-dashed border-postmark/60 p-3 text-sm">
                         {t('notify.not_configured')}
                     </p>
                 )}
@@ -123,9 +123,12 @@ export default function Notifications({
                 {state === 'needs-install' ? (
                     <InstallGuide />
                 ) : (
-                    <section className="flex flex-wrap items-center gap-3 rounded-2xl border border-border p-4">
+                    <section className="flex flex-wrap items-center gap-3 rounded-[var(--radius)] bg-paper-2 p-4">
                         {state === 'on' ? (
-                            <BellRing className="size-5 text-primary" />
+                            <BellRing
+                                className="size-5 text-stamp"
+                                strokeWidth={1.75}
+                            />
                         ) : (
                             <BellOff className="size-5 text-muted-foreground" />
                         )}

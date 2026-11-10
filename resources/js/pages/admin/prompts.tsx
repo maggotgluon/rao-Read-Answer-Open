@@ -174,7 +174,7 @@ export default function AdminPrompts({
             <p className="text-xs text-muted-foreground">
                 {t('admin.showing', { count: prompts.total })}
             </p>
-            <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+            <ul className="paper flex flex-col divide-y divide-rule">
                 {prompts.data.map((p) =>
                     editing === p.id ? (
                         <li key={p.id} className="p-3">
@@ -291,7 +291,7 @@ export default function AdminPrompts({
                             className={cn(
                                 'rounded-lg px-3 py-1 text-sm',
                                 l.active
-                                    ? 'bg-primary text-primary-foreground'
+                                    ? 'bg-ink text-paper'
                                     : 'hover:bg-muted',
                             )}
                         >
@@ -366,7 +366,7 @@ function PromptForm({
                 if (prompt) form.patch(update.url(prompt.id), opts);
                 else form.post(store.url(), opts);
             }}
-            className="grid gap-3 rounded-2xl border border-dashed border-border bg-background p-4"
+            className="grid gap-3 rounded-[var(--radius)] border-[1.5px] border-dashed border-rule-strong bg-paper p-4"
         >
             <div className="flex flex-wrap gap-2">
                 <select
@@ -424,7 +424,7 @@ function PromptForm({
                 rows={2}
                 maxLength={300}
                 placeholder="ภาษาไทย"
-                className="rounded-xl border border-input bg-background px-3 py-2"
+                className="rounded-[calc(var(--radius)-2px)] border border-input bg-paper px-3 py-2 text-ink"
             />
             <textarea
                 value={form.data.text_en}
@@ -432,7 +432,7 @@ function PromptForm({
                 rows={2}
                 maxLength={300}
                 placeholder="English"
-                className="rounded-xl border border-input bg-background px-3 py-2"
+                className="rounded-[calc(var(--radius)-2px)] border border-input bg-paper px-3 py-2 text-ink"
             />
             {(form.errors.text_th || form.errors.text_en) && (
                 <p className="text-sm text-destructive">

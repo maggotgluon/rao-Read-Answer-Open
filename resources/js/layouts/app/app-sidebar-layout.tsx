@@ -1,23 +1,18 @@
-import { AppContent } from '@/components/app-content';
-import { AppShell } from '@/components/app-shell';
-import { AppSidebar } from '@/components/app-sidebar';
-import { AppSidebarHeader } from '@/components/app-sidebar-header';
+import { TopBar } from '@/components/rao/top-bar';
 import { useAutoLocation } from '@/hooks/use-auto-location';
 import type { AppLayoutProps } from '@/types';
 
-export default function AppSidebarLayout({
-    children,
-    breadcrumbs = [],
-}: AppLayoutProps) {
+/**
+ * Signed-in frame for every page: top bar + content. Phone-first (no sidebar).
+ * กรอบของทุกหน้าหลังล็อกอิน: แถบบน + เนื้อหา (ออกแบบสำหรับมือถือก่อน)
+ */
+export default function AppSidebarLayout({ children }: AppLayoutProps) {
     useAutoLocation();
 
     return (
-        <AppShell variant="sidebar">
-            <AppSidebar />
-            <AppContent variant="sidebar" className="min-w-0 overflow-x-clip">
-                <AppSidebarHeader breadcrumbs={breadcrumbs} />
-                {children}
-            </AppContent>
-        </AppShell>
+        <div className="min-h-dvh">
+            <TopBar />
+            <main className="min-w-0">{children}</main>
+        </div>
     );
 }

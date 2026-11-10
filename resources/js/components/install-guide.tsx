@@ -6,7 +6,7 @@ export function InstallGuide() {
     const { t } = useT();
 
     return (
-        <div className="flex flex-col gap-2 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+        <div className="flex flex-col gap-2 rounded-[var(--radius)] bg-airmail-soft p-4 text-sm text-ink">
             <p className="font-medium">{t('notify.install.title')}</p>
             <ol className="grid gap-1.5">
                 <li className="flex items-center gap-2">

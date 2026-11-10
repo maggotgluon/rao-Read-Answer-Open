@@ -41,14 +41,6 @@ export default function SpaceOverview({
     const { t } = useT();
     const [picked, setPicked] = useState<string | null>(null);
     const frozen = space.status === 'frozen';
-    const todayEvents = upcoming.filter((e) => e.in_days === 0);
-    const todayStatus = calendar.days.find((d) => d.is_today)?.status;
-    const todayMark =
-        todayStatus === 'complete'
-            ? '🔥'
-            : todayStatus === 'partial'
-              ? '½'
-              : '○';
 
     const pick = (date: string) => {
         setPicked(date);
@@ -58,22 +50,6 @@ export default function SpaceOverview({
     return (
         <SpaceShell space={space} tab="overview">
             {invite && <InviteCard invite={invite} spaceId={space.id} />}
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-                <Stat
-                    label={t('overview.today')}
-                    value={todayMark}
-                    hint={todayEvents.map((e) => e.title).join(', ')}
-                />
-                <Stat
-                    label={t('overview.week')}
-                    value={`${calendar.stats.week_complete}/${calendar.stats.week_elapsed}`}
-                />
-                <Stat
-                    label={t('overview.month')}
-                    value={`${calendar.stats.month_complete}/${calendar.stats.month_elapsed}`}
-                />
-            </div>
 
             {location && (
                 <DistanceCard
@@ -88,13 +64,26 @@ export default function SpaceOverview({
                 spaceId={space.id}
                 onPick={pick}
             />
+
+            <p className="-mt-2 text-sm text-ink-soft">
+                {t('overview.summary', {
+                    wdone: calendar.stats.week_complete,
+                    wall: calendar.stats.week_elapsed,
+                    mdone: calendar.stats.month_complete,
+                    mall: calendar.stats.month_elapsed,
+                })}
+            </p>
+
             <UpcomingEvents upcoming={upcoming} />
-            <ManageEvents
-                spaceId={space.id}
-                events={events}
-                readOnly={frozen}
-            />
-            {!frozen && <SpaceSettings space={space} />}
+
+            <div className="flex flex-col">
+                <ManageEvents
+                    spaceId={space.id}
+                    events={events}
+                    readOnly={frozen}
+                />
+                {!frozen && <SpaceSettings space={space} />}
+            </div>
 
             <DaySheet
                 date={picked}
@@ -104,28 +93,5 @@ export default function SpaceOverview({
                 onClose={() => setPicked(null)}
             />
         </SpaceShell>
-    );
-}
-
-function Stat({
-    label,
-    value,
-    hint,
-}: {
-    label: string;
-    value: string;
-    hint?: string;
-}) {
-    return (
-        <div
-            className="flex flex-col gap-0.5 rounded-2xl bg-primary/5 p-3"
-            title={hint}
-        >
-            <span className="text-xs text-muted-foreground">{label}</span>
-            <span className="text-lg font-semibold">{value}</span>
-            {hint && (
-                <span className="truncate text-xs text-primary">{hint}</span>
-            )}
-        </div>
     );
 }

@@ -77,7 +77,7 @@ export default function AdminUsers({ users, filters }: Props) {
                 {t('admin.users.privacy')}
             </p>
 
-            <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+            <div className="paper overflow-x-auto">
                 <table className="w-full text-sm">
                     <thead className="text-left text-xs text-muted-foreground">
                         <tr className="border-b border-border">
@@ -203,7 +203,7 @@ export default function AdminUsers({ users, filters }: Props) {
                             className={cn(
                                 'rounded-lg px-3 py-1 text-sm',
                                 l.active
-                                    ? 'bg-primary text-primary-foreground'
+                                    ? 'bg-ink text-paper'
                                     : 'hover:bg-muted',
                             )}
                         >

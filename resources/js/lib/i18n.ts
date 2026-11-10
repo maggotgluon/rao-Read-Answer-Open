@@ -16,7 +16,11 @@ export function translate(
 ): string {
     let text = dict[key] ?? key;
 
-    for (const [name, value] of Object.entries(replace)) {
+    // Longest names first, so :week_total is never eaten by :week. / ชื่อยาวก่อน
+    const entries = Object.entries(replace).sort(
+        ([a], [b]) => b.length - a.length,
+    );
+    for (const [name, value] of entries) {
         text = text.replaceAll(`:${name}`, String(value));
     }
 

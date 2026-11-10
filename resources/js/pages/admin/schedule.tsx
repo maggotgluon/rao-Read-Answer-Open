@@ -56,7 +56,7 @@ export default function AdminSchedule({
                     {t('admin.schedule.prompts_help')}
                 </p>
                 <ScheduleForm audiences={audiences} />
-                <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+                <ul className="paper flex flex-col divide-y divide-rule">
                     {scheduled.length === 0 && (
                         <li className="p-4 text-sm text-muted-foreground">
                             {t('admin.schedule.none')}
@@ -111,7 +111,7 @@ export default function AdminSchedule({
                     {t('admin.schedule.days_help')}
                 </p>
                 <DayForm />
-                <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+                <ul className="paper flex flex-col divide-y divide-rule">
                     {specialDays.length === 0 && (
                         <li className="p-4 text-sm text-muted-foreground">
                             {t('admin.schedule.none')}
@@ -196,7 +196,7 @@ function ScheduleForm({ audiences }: { audiences: string[] }) {
                     onSuccess: () => form.reset(),
                 });
             }}
-            className="grid gap-2 rounded-2xl border border-dashed border-border bg-background p-4"
+            className="grid gap-2 rounded-[var(--radius)] border-[1.5px] border-dashed border-rule-strong bg-paper p-4"
         >
             <div className="flex flex-wrap gap-2">
                 <Input
@@ -236,7 +236,7 @@ function ScheduleForm({ audiences }: { audiences: string[] }) {
                 rows={2}
                 maxLength={300}
                 placeholder="ภาษาไทย"
-                className="rounded-xl border border-input bg-background px-3 py-2"
+                className="rounded-[calc(var(--radius)-2px)] border border-input bg-paper px-3 py-2 text-ink"
             />
             <textarea
                 value={form.data.text_en}
@@ -244,7 +244,7 @@ function ScheduleForm({ audiences }: { audiences: string[] }) {
                 rows={2}
                 maxLength={300}
                 placeholder="English"
-                className="rounded-xl border border-input bg-background px-3 py-2"
+                className="rounded-[calc(var(--radius)-2px)] border border-input bg-paper px-3 py-2 text-ink"
             />
             <InputError
                 message={
@@ -284,7 +284,7 @@ function DayForm() {
                     onSuccess: () => form.reset(),
                 });
             }}
-            className="flex flex-wrap items-center gap-2 rounded-2xl border border-dashed border-border bg-background p-4"
+            className="flex flex-wrap items-center gap-2 rounded-[var(--radius)] border-[1.5px] border-dashed border-rule-strong bg-paper p-4"
         >
             <Input
                 type="date"

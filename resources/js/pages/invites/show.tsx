@@ -1,6 +1,5 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Heart } from 'lucide-react';
-import { LanguageSwitch } from '@/components/language-switch';
+import { Link, router, usePage } from '@inertiajs/react';
+import { LetterPage } from '@/components/rao/letter-page';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import { login, register } from '@/routes';
@@ -13,6 +12,7 @@ type Props = {
     space_url: string | null;
 };
 
+/** An invitation letter. / จดหมายเชิญ */
 export default function InviteShow({
     code,
     inviter,
@@ -26,51 +26,36 @@ export default function InviteShow({
         : t('invite.title_generic');
 
     return (
-        <>
-            <Head title={title} />
-            <div className="flex min-h-svh flex-col items-center justify-center gap-8 p-6">
-                <LanguageSwitch className="absolute top-4 right-4" />
-                <span className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Heart className="size-8" />
-                </span>
+        <LetterPage head={title} title={title} description={t('invite.body')}>
+            {problem && problem !== 'already_member' && (
+                <p className="rounded-[calc(var(--radius)-2px)] border border-dashed border-postmark/60 p-4 text-sm text-ink">
+                    {t(`invite.problem.${problem}`)}
+                </p>
+            )}
 
-                <div className="max-w-sm space-y-2 text-center">
-                    <h1 className="text-2xl font-semibold">{title}</h1>
-                    <p className="text-muted-foreground">{t('invite.body')}</p>
-                </div>
-
-                <div className="flex w-full max-w-xs flex-col gap-3">
-                    {problem && problem !== 'already_member' && (
-                        <p className="rounded-xl bg-muted p-4 text-center text-sm">
-                            {t(`invite.problem.${problem}`)}
-                        </p>
-                    )}
-
-                    {space_url ? (
+            <div className="flex flex-col gap-2">
+                {space_url ? (
+                    <Button asChild size="lg">
+                        <Link href={space_url}>{t('invite.open')}</Link>
+                    </Button>
+                ) : !problem && auth.user ? (
+                    <Button
+                        size="lg"
+                        onClick={() => router.post(accept.url(code))}
+                    >
+                        {t('invite.accept')}
+                    </Button>
+                ) : !problem ? (
+                    <>
                         <Button asChild size="lg">
-                            <Link href={space_url}>{t('invite.open')}</Link>
+                            <Link href={register()}>{t('invite.signup')}</Link>
                         </Button>
-                    ) : !problem && auth.user ? (
-                        <Button
-                            size="lg"
-                            onClick={() => router.post(accept.url(code))}
-                        >
-                            {t('invite.accept')}
+                        <Button asChild variant="ghost">
+                            <Link href={login()}>{t('invite.login')}</Link>
                         </Button>
-                    ) : !problem ? (
-                        <>
-                            <Button asChild size="lg">
-                                <Link href={register()}>
-                                    {t('invite.signup')}
-                                </Link>
-                            </Button>
-                            <Button asChild variant="ghost">
-                                <Link href={login()}>{t('invite.login')}</Link>
-                            </Button>
-                        </>
-                    ) : null}
-                </div>
+                    </>
+                ) : null}
             </div>
-        </>
+        </LetterPage>
     );
 }

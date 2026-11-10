@@ -45,8 +45,8 @@ export function AdminShell({
     return (
         <>
             <Head title={`${title} · Admin`} />
-            <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 p-4 md:p-8">
-                <nav className="flex gap-1 overflow-x-auto rounded-full bg-muted p-1">
+            <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 pt-5 pb-[calc(env(safe-area-inset-bottom)+2rem)] md:px-8">
+                <nav className="-mx-4 flex [scrollbar-width:none] gap-1 overflow-x-auto px-4 md:mx-0 md:px-0">
                     {tabs.map((x) => (
                         <Link
                             key={x.key}
@@ -59,13 +59,13 @@ export function AdminShell({
                                     : 'text-muted-foreground hover:text-foreground',
                             )}
                         >
-                            <x.icon className="size-4" />
+                            <x.icon className="size-4" strokeWidth={1.75} />
                             {t(`admin.tab.${x.key}`)}
                         </Link>
                     ))}
                 </nav>
                 <header className="flex flex-wrap items-end gap-3">
-                    <h1 className="flex-1 text-2xl font-semibold">{title}</h1>
+                    <h1 className="flex-1 text-3xl text-ink">{title}</h1>
                     {actions}
                 </header>
                 {children}
@@ -84,9 +84,11 @@ export function StatCard({
     hint?: string;
 }) {
     return (
-        <div className="flex flex-col gap-0.5 rounded-2xl border border-border bg-card p-4">
-            <span className="text-xs text-muted-foreground">{label}</span>
-            <span className="text-2xl font-semibold">{value}</span>
+        <div className="flex flex-col gap-0.5 border-t-2 border-ink/80 pt-2">
+            <span className="text-xs text-ink-soft">{label}</span>
+            <span className="tabular text-2xl font-semibold text-ink">
+                {value}
+            </span>
             {hint && (
                 <span className="text-xs text-muted-foreground">{hint}</span>
             )}

@@ -14,6 +14,8 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useT } from '@/lib/i18n';
+import { Fold } from '@/components/rao/fold';
+import { LettersIcon, PostmarkIcon } from '@/components/rao/icons';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/spaces/events';
 import type { EventOccurrence, SpaceEvent } from '@/types/space';
@@ -44,11 +46,11 @@ export function EventLabel({
 
     return (
         <span className="flex items-center gap-2">
-            <Icon className="size-4 shrink-0 text-amber-500" />
+            <Icon className="size-4 shrink-0 text-airmail" strokeWidth={1.75} />
             <span className="flex-1">
                 {event.title}
                 {(event.memories ?? 0) > 0 && (
-                    <span className="ml-1 text-xs">🎞️</span>
+                    <LettersIcon className="ml-1 inline size-3.5 text-kraft" />
                 )}
                 {event.years > 0 && (
                     <span className="ml-1 text-xs text-muted-foreground">
@@ -69,8 +71,8 @@ export function EventLabel({
                     className={cn(
                         'text-xs',
                         event.in_days === 0
-                            ? 'font-medium text-primary'
-                            : 'text-muted-foreground',
+                            ? 'font-medium text-stamp'
+                            : 'text-ink-soft',
                     )}
                 >
                     {new Date(event.date + 'T00:00:00').toLocaleDateString(
@@ -86,22 +88,85 @@ export function EventLabel({
 }
 
 export function UpcomingEvents({ upcoming }: { upcoming: EventOccurrence[] }) {
-    const { t } = useT();
+    const { t, locale } = useT();
+    const loc = locale === 'th' ? 'th-TH' : 'en-GB';
 
     return (
-        <section className="flex flex-col gap-2 rounded-2xl border border-border p-4">
-            <h2 className="font-medium">{t('event.upcoming')}</h2>
+        <section className="flex flex-col gap-3">
+            <h2 className="text-2xl text-ink">{t('event.upcoming')}</h2>
             {upcoming.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                    {t('event.none')}
-                </p>
+                <p className="text-sm text-ink-soft">{t('event.none')}</p>
             ) : (
-                <ul className="grid gap-2 text-sm">
-                    {upcoming.map((e, i) => (
-                        <li key={`${e.event_id}-${e.date}-${i}`}>
-                            <EventLabel event={e} showWhen />
-                        </li>
-                    ))}
+                <ul className="flex flex-col">
+                    {upcoming.map((e, i) => {
+                        const d = new Date(e.date + 'T00:00:00');
+                        const soon = e.in_days === 0;
+
+                        return (
+                            <li
+                                key={`${e.event_id}-${e.date}-${i}`}
+                                className="flex items-center gap-4 border-b border-dashed border-rule py-3 last:border-0"
+                            >
+                                {/* postmark with the date / ตราประทับวันที่ */}
+                                <span
+                                    className={cn(
+                                        'grid size-14 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed text-center leading-none',
+                                        soon
+                                            ? 'border-stamp text-stamp'
+                                            : 'border-postmark/70 text-ink',
+                                    )}
+                                >
+                                    <span>
+                                        <span className="hand block text-xl">
+                                            {d.getDate()}
+                                        </span>
+                                        <span className="block text-[10px] text-ink-soft">
+                                            {d.toLocaleDateString(loc, {
+                                                month: 'short',
+                                            })}
+                                        </span>
+                                    </span>
+                                </span>
+                                <span className="flex flex-1 flex-col gap-0.5">
+                                    <span className="text-ink">{e.title}</span>
+                                    <span
+                                        className={cn(
+                                            'text-sm',
+                                            soon
+                                                ? 'font-medium text-stamp'
+                                                : 'text-ink-soft',
+                                        )}
+                                    >
+                                        {e.in_days === 0
+                                            ? t('event.today')
+                                            : e.in_days === 1
+                                              ? t('event.tomorrow')
+                                              : t('event.in_days', {
+                                                    count: e.in_days ?? 0,
+                                                })}
+                                        {e.years > 0 && (
+                                            <>
+                                                {' '}
+                                                ·{' '}
+                                                {t(
+                                                    e.kind === 'birthday'
+                                                        ? 'event.turns'
+                                                        : 'event.years',
+                                                    { count: e.years },
+                                                )}
+                                            </>
+                                        )}
+                                    </span>
+                                </span>
+                                {(e.memories ?? 0) > 0 && (
+                                    <LettersIcon
+                                        className="size-5 text-kraft"
+                                        aria-label={t('memories.title')}
+                                    />
+                                )}
+                            </li>
+                        );
+                    })}
                 </ul>
             )}
         </section>
@@ -128,13 +193,11 @@ export function ManageEvents({
     const [editing, setEditing] = useState<number | 'new' | null>(null);
 
     return (
-        <details className="rounded-2xl border border-border p-4 open:[&>*+*]:mt-3">
-            <summary className="cursor-pointer list-none font-medium">
-                {t('event.manage')}{' '}
-                <span className="text-sm text-muted-foreground">
-                    ({events.length})
-                </span>
-            </summary>
+        <Fold
+            title={t('event.manage')}
+            count={events.length}
+            icon={<PostmarkIcon className="size-5" />}
+        >
             <ul className="grid gap-2 text-sm">
                 {events.map((e) =>
                     editing === e.id ? (
@@ -166,7 +229,7 @@ export function ManageEvents({
                                 {e.repeats_yearly && ' ↻'}
                             </span>
                             {e.moments > 0 && (
-                                <span className="text-xs text-primary">
+                                <span className="text-xs text-stamp">
                                     {t('event.moments_count', {
                                         count: e.moments,
                                     })}
@@ -219,7 +282,7 @@ export function ManageEvents({
                         <Plus /> {t('event.add')}
                     </Button>
                 ))}
-        </details>
+        </Fold>
     );
 }
 
@@ -253,7 +316,7 @@ function EventForm({
     return (
         <form
             onSubmit={submit}
-            className="grid gap-3 rounded-xl bg-muted/50 p-3"
+            className="grid gap-3 rounded-[var(--radius)] bg-paper p-4 shadow-paper"
         >
             <div className="flex gap-1">
                 {(['special', 'other'] as const).map((k) => (
@@ -264,7 +327,7 @@ function EventForm({
                         className={cn(
                             'rounded-full border px-3 py-1 text-xs',
                             form.data.kind === k
-                                ? 'border-primary bg-primary text-primary-foreground'
+                                ? 'border-ink bg-ink text-paper'
                                 : 'border-border bg-background',
                         )}
                     >

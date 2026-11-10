@@ -1,6 +1,7 @@
 import { MomentCard } from '@/components/space/moment-card';
 import { MomentComposer } from '@/components/space/moment-composer';
 import { SpaceShell } from '@/components/space/space-shell';
+import { PostcardIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
 import type { MomentItem, SpaceDetail, SpaceEvent } from '@/types/space';
 
@@ -43,8 +44,8 @@ export default function SpaceMoments({
             )}
 
             {drafts.length > 0 && (
-                <section className="flex flex-col gap-2">
-                    <h2 className="text-sm font-medium text-muted-foreground">
+                <section className="flex flex-col gap-3">
+                    <h2 className="text-xl text-ink-soft">
                         {t('moment.drafts')}
                     </h2>
                     {drafts.map(card)}
@@ -52,11 +53,14 @@ export default function SpaceMoments({
             )}
 
             {moments.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                    {t('moment.feed_empty')}
-                </p>
+                <section className="flex flex-col items-center gap-3 px-6 py-10 text-center">
+                    <PostcardIcon className="size-12 -rotate-6 text-kraft" />
+                    <p className="hand text-xl text-ink">
+                        {t('moment.feed_empty')}
+                    </p>
+                </section>
             ) : (
-                <section className="flex flex-col gap-3">
+                <section className="columns-1 gap-4 sm:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid">
                     {moments.map(card)}
                 </section>
             )}

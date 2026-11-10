@@ -35,7 +35,8 @@ class SpaceController extends Controller
         $spaces = $user->spaces()->with('members:id,name')->latest('space_members.created_at')->get();
 
         if ($spaces->count() === 1 && ! $request->boolean('all')) {
-            return redirect()->route('spaces.show', $spaces->first());
+            // Today's letter is the heart of the app. / เปิดหน้าจดหมายวันนี้ก่อน
+            return redirect()->route('spaces.daily', $spaces->first());
         }
 
         return Inertia::render('spaces/index', [

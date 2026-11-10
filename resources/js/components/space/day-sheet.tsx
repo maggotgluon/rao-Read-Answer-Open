@@ -76,7 +76,7 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                                             body={p.partner.body}
                                         />
                                     ) : p.partner_answered ? (
-                                        <p className="flex items-start gap-2 rounded-xl bg-muted p-3 text-muted-foreground">
+                                        <p className="flex items-start gap-2 rounded-[calc(var(--radius)-2px)] bg-airmail-soft p-3 text-ink-soft">
                                             <Lock className="mt-0.5 size-3.5 shrink-0" />
                                             {p.open
                                                 ? t('today.partner_waiting', {
@@ -113,8 +113,8 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                         )}
 
                         {day.bonus && (
-                            <section className="flex flex-col gap-1 rounded-xl bg-primary/10 p-3 text-sm">
-                                <span className="text-xs font-medium text-primary">
+                            <section className="flex flex-col gap-1 rounded-[calc(var(--radius)-2px)] border border-kraft/60 p-3 text-sm">
+                                <span className="text-xs font-medium text-kraft">
                                     ✨ {t('today.bonus')}
                                 </span>
                                 <p className="font-medium">{day.bonus.text}</p>
@@ -141,7 +141,7 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                                 {day.moments.map((m) => (
                                     <div
                                         key={m.id}
-                                        className="flex flex-col gap-1 rounded-xl border border-border p-3 text-sm"
+                                        className="paper flex flex-col gap-1.5 p-3 text-sm"
                                     >
                                         <span className="text-xs font-medium text-muted-foreground">
                                             {m.author}
@@ -185,7 +185,7 @@ function Answer({
     empty?: string;
 }) {
     return (
-        <div className="rounded-xl bg-primary/5 p-3">
+        <div className="rounded-[calc(var(--radius)-2px)] bg-paper-2 p-3">
             <span className="text-xs font-medium text-muted-foreground">
                 {label}
             </span>

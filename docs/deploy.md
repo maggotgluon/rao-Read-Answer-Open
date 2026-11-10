@@ -4,19 +4,31 @@ How it works / หลักการ:
 `git push` to `main` → GitHub Actions runs tests → builds (`vendor/` + `public/build/`)
 → force-pushes the finished app to branch **`deploy`** → Plesk Git pulls `deploy`.
 
+Repo: `https://github.com/maggotgluon/rao-Read-Answer-Open.git` (private).
+
+This host **cannot run artisan** (no SSH). So the database is installed from a SQL file once,
+and everything after that runs through secret maintenance URLs (`/_ops/*`).
+โฮสต์นี้รัน artisan ไม่ได้ ติดตั้งฐานข้อมูลครั้งแรกด้วยไฟล์ SQL แล้วงานที่เหลือใช้ลิงก์ลับ `/_ops/*`
+
 > ⚠️ Not yet verified on the real server — update this file with what actually
 > worked on the first deploy. / ยังไม่ได้ทดสอบกับเซิร์ฟเวอร์จริง
 
 ## One-time setup / ตั้งค่าครั้งแรก
 
 1. **Subdomain** `rao.mag.codes` → PHP **8.3+** (Laravel 13), HTTPS (Let's Encrypt).
-2. **Database:** create MySQL DB + user in Plesk.
-3. **Plesk → Git:** add the GitHub repo (private → use Plesk's SSH deploy key,
-   add it to GitHub repo → Settings → Deploy keys, read-only).
+2. **Database:** create a MySQL/MariaDB database + user in Plesk (collation `utf8mb4_unicode_ci`).
+3. **Install the tables (once):** Plesk → Databases → **phpMyAdmin** → select the empty database →
+   **Import** → file `database/sql/rao-install-<version>.sql` (from this repo) → Go.
+   It creates every table, records the migrations as done, and loads the question library.
+   No users, no secrets inside. Works on MySQL 5.7+/8.x and MariaDB 10.3+.
+   นำเข้าไฟล์ SQL ครั้งเดียวในฐานข้อมูลว่าง ผ่าน phpMyAdmin → Import
+4. **Plesk → Git:** add the GitHub repo (private → copy Plesk's SSH deploy key into
+   GitHub repo → Settings → Deploy keys, read-only).
     - Branch: **`deploy`**
     - Deployment mode: automatic (or manual), path e.g. `/rao`
-4. **Document root** of the subdomain → `/rao/public`.
-5. **`.env`** — upload once via File Manager to `/rao/.env` (never in git):
+    - Leave "Additional deployment actions" empty (they need artisan).
+5. **Document root** of the subdomain → `/rao/public`.
+6. **`.env`** — upload once via File Manager to `/rao/.env` (never in git):
     ```env
     APP_NAME=Rao
     APP_ENV=production
@@ -33,39 +45,60 @@ How it works / หลักการ:
     QUEUE_CONNECTION=database
     CACHE_STORE=database
     MAIL_MAILER=smtp
-    MAIL_HOST=...       # Plesk mail; set SPF/DKIM/DMARC for the domain
+    MAIL_HOST=...       # Google Workspace / Brevo SMTP; set SPF/DKIM/DMARC
     MAIL_PORT=587
     MAIL_USERNAME=...
     MAIL_PASSWORD="..."
     MAIL_FROM_ADDRESS=hello@mag.codes
-    ```
-6. **Plesk Git → "Additional deployment actions"** (path to PHP depends on host,
-   usually `/opt/plesk/php/8.4/bin/php`):
-    ```bash
-    /opt/plesk/php/8.4/bin/php artisan migrate --force
-    /opt/plesk/php/8.4/bin/php artisan db:seed --class=PromptLibrarySeeder --force   # idempotent / รันซ้ำได้
-    /opt/plesk/php/8.4/bin/php artisan optimize
+    RAO_OPS_TOKEN=      # 48 random chars: php -r "echo bin2hex(random_bytes(24));"
+    LEGAL_CONTACT_EMAIL=...
+    LEGAL_EFFECTIVE_DATE=...
     ```
 7. **Push keys (once):** generate on your Mac with `php artisan push:vapid` and paste
    `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` into the server `.env`. Never change them later
    (every phone would have to re-enable notifications). / สร้างครั้งเดียว ห้ามเปลี่ยนภายหลัง
-8. **Location:** city names come from OpenStreetMap Nominatim (outbound HTTPS from the host
-   must be allowed). Without it distances still work, just no city name.
-9. **Admin (once, after you register):** add a one-off deploy action
-   `php artisan rao:admin you@example.com`, deploy, then remove it.
-10. **Scheduled task** (Plesk → Scheduled Tasks), every minute:
-    ```bash
-    cd /var/www/vhosts/<domain>/rao && /opt/plesk/php/8.4/bin/php artisan schedule:run
-    ```
-    Drives the queue (push sending), `push:daily` (morning/evening/date pushes, every 5 min),
-    `prompts:assign`, `spaces:purge`, and later backups.
+8. **Check it:** open `https://rao.mag.codes/_ops/status?token=<RAO_OPS_TOKEN>` →
+   shows app version, PHP, database version and `pending  none`.
+9. **Scheduled task** (Plesk → Scheduled Tasks → Add): type **Fetch a URL**, every minute
+   (`* * * * *`), URL `https://rao.mag.codes/_ops/schedule?token=<RAO_OPS_TOKEN>`.
+   Drives the queue (push sending), `push:daily` (morning/evening/date pushes),
+   `prompts:assign`, `spaces:purge`, `accounts:purge`. Tasks run inside the web request
+   (no `exec`), and the queue step is kept to 20 s per run.
+   (If Plesk offers **Run a PHP script**, `rao/artisan` with argument `schedule:run` works too.)
+   ตั้ง Scheduled Task แบบ Fetch a URL ทุกนาที
+10. **Admin (once, after you register):** open
+    `https://rao.mag.codes/_ops/admin?email=you@example.com&token=<RAO_OPS_TOKEN>`
+    (`&revoke=1` removes it).
+11. **Location:** city names come from OpenStreetMap Nominatim (outbound HTTPS from the host
+    must be allowed). Without it distances still work, just no city name.
 
 ## Every deploy / ทุกครั้งที่ deploy
 
-`git push origin main` → wait for the green check in GitHub Actions → Plesk pulls
-(automatic) or click **Pull updates** + **Deploy**.
+1. `git push origin main` → wait for the green check in GitHub Actions.
+2. Plesk pulls (automatic) or click **Pull updates** + **Deploy**.
+3. Open `https://rao.mag.codes/_ops/migrate?token=<RAO_OPS_TOKEN>`: runs new migrations and
+   adds new library prompts (admin edits are kept). Safe to open again; shows what ran.
+   เปิดลิงก์ migrate หลัง deploy ทุกครั้ง เปิดซ้ำได้ไม่เป็นไร
+
+The token is the only lock on `/_ops/*`: keep it out of chat/screenshots, and change it in
+`.env` if it leaks. Without a token (or with a short one) every `/_ops` URL returns 404, and
+5 wrong tries lock the IP out for 10 minutes.
+โทเค็นคือกุญแจเดียว อย่าแชร์ ถ้าหลุดให้เปลี่ยนใน .env
+
+## Rebuilding the install SQL / สร้างไฟล์ SQL ใหม่
+
+Only needed for a fresh install of a newer version (existing servers use `/_ops/migrate`).
+On a Mac with a throwaway local MySQL (`explicit_defaults_for_timestamp=ON`):
+
+```bash
+mysql -e "CREATE DATABASE rao_install CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+DB_CONNECTION=mysql DB_DATABASE=rao_install … php artisan migrate --force
+DB_CONNECTION=mysql DB_DATABASE=rao_install … php artisan db:seed --class=PromptLibrarySeeder --force
+python3 tools/sql/make_install_sql.py --port <port> --database rao_install
+```
 
 ## Rollback / ย้อนกลับ
 
 Re-run an older successful "test-and-deploy" workflow run (Actions → run →
-Re-run jobs), or revert the commit on `main` and push.
+Re-run jobs), or revert the commit on `main` and push. Migrations are not rolled back
+automatically; restore the database from a Plesk backup if a migration must be undone.

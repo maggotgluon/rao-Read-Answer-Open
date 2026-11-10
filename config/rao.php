@@ -2,6 +2,13 @@
 
 return [
     /*
+     * Token for the /_ops/* maintenance URLs (hosts without artisan). Empty = URLs are off.
+     * Make one with: php -r "echo bin2hex(random_bytes(24));"
+     * โทเค็นสำหรับลิงก์ /_ops/* ถ้าว่าง ลิงก์จะปิด
+     */
+    'ops_token' => env('RAO_OPS_TOKEN'),
+
+    /*
      * Dev tools: skip email verification for new sign-ups + one-click demo logins.
      * Only works when APP_ENV=local, even if this flag is set elsewhere.
      * เครื่องมือสำหรับ dev: ข้ามการยืนยันอีเมล + ปุ่มล็อกอินบัญชีเดโม

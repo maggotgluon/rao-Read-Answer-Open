@@ -1,4 +1,3 @@
-import { Link } from '@inertiajs/react';
 import { Lock } from '@/components/rao/ui-icons';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Asset } from '@/components/rao/asset';
+import { InkLink } from '@/components/rao/ink-transition';
 import { useT } from '@/lib/i18n';
 import { daily } from '@/routes/spaces';
 import type { DayDetail } from '@/types/space';
@@ -101,9 +101,9 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                                         size="sm"
                                         className="self-start"
                                     >
-                                        <Link href={daily.url(spaceId)}>
+                                        <InkLink href={daily.url(spaceId)}>
                                             {t('day.open_daily')}
-                                        </Link>
+                                        </InkLink>
                                     </Button>
                                 )}
                             </section>

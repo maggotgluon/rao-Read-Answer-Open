@@ -2,6 +2,7 @@ import { router, useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Asset } from '@/components/rao/asset';
+import { StampText } from '@/components/rao/stamp-text';
 import { AirmailIcon, EnvelopeIcon, SealIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -283,6 +284,8 @@ function Sheet({
     sealed?: boolean;
     children?: React.ReactNode;
 }) {
+    const { t } = useT();
+
     return (
         <div
             className={cn(
@@ -303,10 +306,18 @@ function Sheet({
             </p>
             {children && <div className="mt-2">{children}</div>}
             {tone === 'you' && (
+                <StampText
+                    seed={`sealed-${who}`}
+                    className="absolute right-3 bottom-2 text-[10px] text-stamp/80"
+                >
+                    {t('letter.sealed_stamp')}
+                </StampText>
+            )}
+            {tone === 'you' && (
                 <span
                     aria-hidden
                     className={cn(
-                        'absolute -top-2 right-3 grid size-10 -rotate-8 place-items-center rounded-full bg-stamp text-stamp-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.18)]',
+                        'absolute -top-2 right-3 grid size-10 -rotate-8 place-items-center rounded-full bg-stamp [background-image:var(--seal-image)] bg-cover text-stamp-ink shadow-[inset_0_-2px_0_rgb(0_0_0/0.18)]',
                         sealed && 'animate-seal',
                     )}
                 >

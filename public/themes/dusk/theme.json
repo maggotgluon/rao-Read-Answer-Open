@@ -30,15 +30,21 @@
         "kraft": "#d6b08b",
         "paper-shadow": "0 1px 0 rgb(38 48 94 / 0.05), 0 12px 24px -16px rgb(38 48 94 / 0.38)",
         "lift-shadow": "0 2px 0 rgb(38 48 94 / 0.05), 0 22px 40px -18px rgb(38 48 94 / 0.45)",
-        "radius": "0.7rem"
+        "radius": "0.7rem",
+        "ground-size": "384px",
+        "paper-size": "256px",
+        "button-size": "128px",
+        "grunge-size": "240px",
+        "ink-frames": "25"
     },
     "images": {
-        "_comment": "Optional images instead of flat colours, paths relative to this theme folder (e.g. \"textures/desk.jpg\"). Keys: ground, paper, button, seal, airmail-edge. / ใช้รูปแทนสีได้",
-        "ground": null,
-        "paper": null,
-        "button": null,
-        "seal": null,
-        "airmail-edge": null
+        "_comment": "Optional images instead of flat colours, paths relative to this theme folder. Keys: ground (desk), paper (letter sheets), button (main buttons), seal (wax seal), airmail-edge (stripe), grunge (worn-ink mask for stamps & stamp text). Tile sizes are tokens: ground-size, paper-size, button-size, grunge-size (use \"cover\" for a single photo). The ink transition sprite is textures/ink.png (ink-frames frames in one row). / ใช้รูปแทนสีได้ ขนาดลายต่อเป็น token",
+        "ground": "textures/desk.png",
+        "paper": "textures/paper-grain.png",
+        "button": "buttons/primary.png",
+        "seal": "buttons/seal.png",
+        "airmail-edge": null,
+        "grunge": "textures/grunge.png"
     },
     "mono": ["icons", "moods", "faces", "reactions", "dates", "decor"]
 }

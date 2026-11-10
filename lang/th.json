@@ -584,5 +584,6 @@
     "admin.themes.help": "แต่ละธีมคือโฟลเดอร์ใน public/themes แก้ไขหรือเพิ่มไฟล์ได้ที่นั่น เปิด-ปิด หรือกำหนดเป็นพรีเมียมได้ที่นี่ ธีมเริ่มต้นเปิดเสมอ",
     "admin.themes.extends": "สืบทอดจาก :parent",
     "admin.themes.default": "ค่าเริ่มต้น เปิดเสมอ",
-    "admin.schedule.icon": "ภาพ"
+    "admin.schedule.icon": "ภาพ",
+    "letter.sealed_stamp": "ปิดผนึก"
 }

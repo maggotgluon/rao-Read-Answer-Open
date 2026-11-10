@@ -1,0 +1,460 @@
+<!doctype html>
+<!--
+  Rao texture generator / ตัวสร้างพื้นผิวของธีม
+  Open this file in Chrome to preview; tools/theme-textures/README.md explains how the PNGs
+  in public/themes/dusk/{textures,buttons} were made. Every texture is seeded, so the output
+  is the same every run. A designer can replace any PNG by hand instead.
+  เปิดไฟล์นี้ใน Chrome เพื่อดูตัวอย่าง ทุกภาพสุ่มแบบมี seed ผลลัพธ์จึงเหมือนเดิมทุกครั้ง
+-->
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Rao textures</title>
+        <style>
+            body {
+                font: 14px system-ui;
+                background: #f3e3e7;
+                color: #26305e;
+                margin: 24px;
+            }
+            figure {
+                display: inline-block;
+                margin: 0 16px 24px 0;
+                vertical-align: top;
+            }
+            canvas {
+                display: block;
+                max-width: 420px;
+                background: repeating-conic-gradient(#ddd 0 25%, #fff 0 50%) 0
+                    0 / 16px 16px;
+            }
+            figcaption {
+                margin-top: 6px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Rao textures</h1>
+        <div id="out"></div>
+        <script>
+            // ── seeded helpers / ตัวช่วยสุ่มแบบมี seed ─────────────────────────────
+            function rng(seed) {
+                let s = seed >>> 0;
+                return () => {
+                    s += 0x6d2b79f5;
+                    let t = s;
+                    t = Math.imul(t ^ (t >>> 15), t | 1);
+                    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+
+            /** Tileable value noise on a `period`-cell lattice. / noise ที่ต่อขอบกันได้ */
+            function tileNoise(rand, period) {
+                const g = Array.from({ length: period * period }, () => rand());
+                const at = (x, y) =>
+                    g[
+                        (((y % period) + period) % period) * period +
+                            (((x % period) + period) % period)
+                    ];
+                const fade = (t) => t * t * (3 - 2 * t);
+                return (u, v) => {
+                    // u, v in [0,1)
+                    const x = u * period,
+                        y = v * period;
+                    const x0 = Math.floor(x),
+                        y0 = Math.floor(y);
+                    const fx = fade(x - x0),
+                        fy = fade(y - y0);
+                    const a = at(x0, y0),
+                        b = at(x0 + 1, y0),
+                        c = at(x0, y0 + 1),
+                        d = at(x0 + 1, y0 + 1);
+                    return (
+                        a +
+                        (b - a) * fx +
+                        (c - a) * fy +
+                        (a - b - c + d) * fx * fy
+                    );
+                };
+            }
+
+            function fbm(rand, periods) {
+                const layers = periods.map((p) => tileNoise(rand, p));
+                return (u, v) => {
+                    let sum = 0,
+                        amp = 1,
+                        tot = 0;
+                    for (const n of layers) {
+                        sum += n(u, v) * amp;
+                        tot += amp;
+                        amp *= 0.5;
+                    }
+                    return sum / tot;
+                };
+            }
+
+            function canvas(w, h) {
+                const c = document.createElement('canvas');
+                c.width = w;
+                c.height = h;
+                return c;
+            }
+
+            /** Draw `fn` 9 times (wrapped) so shapes crossing an edge come back on the other side. */
+            function wrapped(ctx, w, h, fn) {
+                for (const dx of [-w, 0, w])
+                    for (const dy of [-h, 0, h]) {
+                        ctx.save();
+                        ctx.translate(dx, dy);
+                        fn();
+                        ctx.restore();
+                    }
+            }
+
+            // ── 1. grunge.png: alpha mask for stamp text (Method 4) / หน้ากากรอยหมึกซีด ──
+            function grunge(size = 512) {
+                const rand = rng(7);
+                const c = canvas(size, size),
+                    ctx = c.getContext('2d');
+                const img = ctx.createImageData(size, size);
+                const worn = fbm(rand, [8, 16, 32]);
+                const fine = tileNoise(rand, 96);
+                for (let y = 0; y < size; y++)
+                    for (let x = 0; x < size; x++) {
+                        const u = x / size,
+                            v = y / size;
+                        // mostly opaque; worn patches fade but never vanish, so text stays readable
+                        // ส่วนใหญ่ทึบ รอยซีดจางแต่ไม่หายหมด ตัวหนังสือยังอ่านออก
+                        let a = 1;
+                        const w = worn(u, v);
+                        if (w < 0.36)
+                            a = 0.4 + 0.6 * Math.max(0, (w - 0.28) / 0.08);
+                        const f = fine(u, v);
+                        if (f < 0.2) a *= 0.3 + 0.7 * (f / 0.2);
+                        a = Math.round(a * 8) / 8; // fewer levels = smaller file / ลดขนาดไฟล์
+                        const i = (y * size + x) * 4;
+                        img.data[i] = img.data[i + 1] = img.data[i + 2] = 0;
+                        img.data[i + 3] = Math.round(a * 255);
+                    }
+                ctx.putImageData(img, 0, 0);
+                // speckle holes and scratches / จุดและรอยขีด
+                ctx.globalCompositeOperation = 'destination-out';
+                for (let k = 0; k < 650; k++) {
+                    const x = rand() * size,
+                        y = rand() * size,
+                        r = 0.5 + rand() ** 3 * 2.4;
+                    wrapped(ctx, size, size, () => {
+                        ctx.beginPath();
+                        ctx.arc(x, y, r, 0, 7);
+                        ctx.fill();
+                    });
+                }
+                ctx.lineCap = 'round';
+                for (let k = 0; k < 18; k++) {
+                    const x = rand() * size,
+                        y = rand() * size,
+                        a = rand() * Math.PI,
+                        l = 20 + rand() * 70;
+                    ctx.lineWidth = 0.5 + rand() * 1;
+                    ctx.globalAlpha = 0.5 + rand() * 0.5;
+                    wrapped(ctx, size, size, () => {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.quadraticCurveTo(
+                            x + (Math.cos(a) * l) / 2 + rand() * 8,
+                            y + (Math.sin(a) * l) / 2,
+                            x + Math.cos(a) * l,
+                            y + Math.sin(a) * l,
+                        );
+                        ctx.stroke();
+                    });
+                }
+                return c;
+            }
+
+            // ── 2. paper-grain.png: fibres over letter paper / เส้นใยกระดาษ ──────────
+            function paperGrain(size = 256) {
+                const rand = rng(11);
+                const c = canvas(size, size),
+                    ctx = c.getContext('2d');
+                const img = ctx.createImageData(size, size);
+                const n = fbm(rand, [8, 16, 64]);
+                for (let y = 0; y < size; y++)
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4,
+                            v = n(x / size, y / size) - 0.5;
+                        const dark = v < 0;
+                        img.data[i] = dark ? 70 : 255;
+                        img.data[i + 1] = dark ? 45 : 255;
+                        img.data[i + 2] = dark ? 40 : 250;
+                        img.data[i + 3] =
+                            Math.round(Math.min(255, Math.abs(v) * 34) / 2) * 2;
+                    }
+                ctx.putImageData(img, 0, 0);
+                ctx.lineCap = 'round';
+                for (let k = 0; k < 140; k++) {
+                    const x = rand() * size,
+                        y = rand() * size,
+                        a = rand() * Math.PI * 2,
+                        l = 3 + rand() * 14;
+                    const dark = rand() < 0.6;
+                    ctx.strokeStyle = dark
+                        ? `rgba(80,50,40,${0.05 + rand() * 0.07})`
+                        : `rgba(255,255,255,${0.12 + rand() * 0.15})`;
+                    ctx.lineWidth = 0.4 + rand() * 0.6;
+                    wrapped(ctx, size, size, () => {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.quadraticCurveTo(
+                            x + (Math.cos(a + 0.6) * l) / 2,
+                            y + (Math.sin(a + 0.6) * l) / 2,
+                            x + Math.cos(a) * l,
+                            y + Math.sin(a) * l,
+                        );
+                        ctx.stroke();
+                    });
+                }
+                return c;
+            }
+
+            // ── 3. desk.png: soft mottled desk/ground / พื้นโต๊ะ ─────────────────────
+            function desk(size = 384) {
+                const rand = rng(23);
+                const c = canvas(size, size),
+                    ctx = c.getContext('2d');
+                const img = ctx.createImageData(size, size);
+                const n = fbm(rand, [3, 6, 12, 48]);
+                for (let y = 0; y < size; y++)
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4,
+                            v = n(x / size, y / size) - 0.5;
+                        const dark = v < 0;
+                        img.data[i] = dark ? 60 : 255;
+                        img.data[i + 1] = dark ? 30 : 250;
+                        img.data[i + 2] = dark ? 50 : 250;
+                        img.data[i + 3] =
+                            Math.round(Math.min(255, Math.abs(v) * 38) / 2) * 2;
+                    }
+                ctx.putImageData(img, 0, 0);
+                return c;
+            }
+
+            // ── 4. buttons/primary.png: wax/ink grain for main buttons / ผิวปุ่มหลัก ──
+            function buttonGrain(size = 128) {
+                const rand = rng(31);
+                const c = canvas(size, size),
+                    ctx = c.getContext('2d');
+                const img = ctx.createImageData(size, size);
+                const n = fbm(rand, [4, 16, 32]);
+                for (let y = 0; y < size; y++)
+                    for (let x = 0; x < size; x++) {
+                        const i = (y * size + x) * 4,
+                            v =
+                                n(x / size, y / size) -
+                                0.5 +
+                                (rand() - 0.5) * 0.15;
+                        const dark = v < 0;
+                        img.data[i] =
+                            img.data[i + 1] =
+                            img.data[i + 2] =
+                                dark ? 0 : 255;
+                        img.data[i + 3] =
+                            Math.round(Math.min(255, Math.abs(v) * 60) / 4) * 4;
+                    }
+                ctx.putImageData(img, 0, 0);
+                return c;
+            }
+
+            // ── 5. buttons/seal.png: wax seal surface (round) / ผิวตราครั่ง ──────────
+            function seal(size = 192) {
+                const rand = rng(41);
+                const c = canvas(size, size),
+                    ctx = c.getContext('2d');
+                const r = size / 2;
+                // pooled wax ridges: concentric wobbly rings / วงคลื่นครั่ง
+                for (let k = 0; k < 7; k++) {
+                    const rr = r * (0.98 - k * 0.055);
+                    ctx.beginPath();
+                    for (let a = 0; a <= 64; a++) {
+                        const t = (a / 64) * Math.PI * 2;
+                        const w =
+                            rr *
+                            (1 +
+                                0.035 * Math.sin(t * 5 + k) +
+                                0.02 * Math.sin(t * 11 + k * 3));
+                        ctx.lineTo(r + Math.cos(t) * w, r + Math.sin(t) * w);
+                    }
+                    ctx.closePath();
+                    ctx.lineWidth = k === 0 ? 5 : 2.5;
+                    ctx.strokeStyle =
+                        k % 2 ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.10)';
+                    ctx.stroke();
+                }
+                // inner pressed disc + top-left gloss / แผ่นกดตรงกลางและเงาสะท้อน
+                let g = ctx.createRadialGradient(
+                    r,
+                    r,
+                    r * 0.45,
+                    r,
+                    r,
+                    r * 0.62,
+                );
+                g.addColorStop(0, 'rgba(0,0,0,0.12)');
+                g.addColorStop(0.7, 'rgba(0,0,0,0.0)');
+                g.addColorStop(1, 'rgba(255,255,255,0.12)');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(r, r, r * 0.62, 0, 7);
+                ctx.fill();
+                g = ctx.createRadialGradient(
+                    r * 0.62,
+                    r * 0.55,
+                    2,
+                    r * 0.7,
+                    r * 0.65,
+                    r * 0.9,
+                );
+                g.addColorStop(0, 'rgba(255,255,255,0.35)');
+                g.addColorStop(0.35, 'rgba(255,255,255,0.08)');
+                g.addColorStop(1, 'rgba(0,0,0,0.18)');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(r, r, r, 0, 7);
+                ctx.fill();
+                // tiny bubbles / ฟองเล็ก
+                for (let k = 0; k < 40; k++) {
+                    const a = rand() * 7,
+                        d = Math.sqrt(rand()) * r * 0.95;
+                    ctx.fillStyle = `rgba(${rand() < 0.5 ? '0,0,0' : '255,255,255'},${0.08 + rand() * 0.1})`;
+                    ctx.beginPath();
+                    ctx.arc(
+                        r + Math.cos(a) * d,
+                        r + Math.sin(a) * d,
+                        0.6 + rand() * 1.6,
+                        0,
+                        7,
+                    );
+                    ctx.fill();
+                }
+                return c;
+            }
+
+            // ── 6. ink.png: 25-frame ink bleed sprite (CodyHouse technique) / หมึกซึม 25 เฟรม ──
+            function inkSprite(frames = 25, side = 360) {
+                const rand = rng(53);
+                const c = canvas(frames * side, side),
+                    ctx = c.getContext('2d');
+                const harm = Array.from({ length: 7 }, (_, i) => ({
+                    k: i + 2,
+                    p: rand() * 7,
+                    a: 0.16 / (i + 1) ** 0.7,
+                }));
+                const arms = Array.from({ length: 9 }, () => ({
+                    t: rand() * Math.PI * 2,
+                    w: 0.08 + rand() * 0.12,
+                    s: 0.25 + rand() * 0.45,
+                }));
+                const drops = Array.from({ length: 46 }, () => {
+                    const a = rand() * Math.PI * 2,
+                        d = 0.25 + rand() * 0.6;
+                    return {
+                        x: 0.5 + Math.cos(a) * d * 0.75,
+                        y: 0.5 + Math.sin(a) * d * 0.75,
+                        t0: 0.15 + rand() * 0.6,
+                        r: 0.012 + rand() ** 2 * 0.06,
+                    };
+                });
+                const ease = (t) => t ** 1.8; // slow start, floods at the end / เริ่มช้าแล้วท่วมตอนท้าย
+                for (let f = 0; f < frames; f++) {
+                    const t = f / (frames - 1),
+                        e = ease(t);
+                    const ox = f * side,
+                        R = side * (0.03 + e * 1.0);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.rect(ox, 0, side, side);
+                    ctx.clip();
+                    ctx.fillStyle = '#000';
+                    ctx.filter = 'blur(1.2px)';
+                    if (f === frames - 1) {
+                        ctx.fillRect(ox, 0, side, side);
+                    } else {
+                        ctx.beginPath();
+                        for (let s = 0; s <= 180; s++) {
+                            const th = (s / 180) * Math.PI * 2;
+                            let m = 1;
+                            for (const h of harm)
+                                m += h.a * Math.sin(th * h.k + h.p + t * 1.5);
+                            for (const a of arms) {
+                                const d = Math.atan2(
+                                    Math.sin(th - a.t),
+                                    Math.cos(th - a.t),
+                                );
+                                m +=
+                                    a.s *
+                                    Math.exp(-(d * d) / (2 * a.w * a.w)) *
+                                    Math.min(1, t * 2.2);
+                            }
+                            ctx.lineTo(
+                                ox + side / 2 + Math.cos(th) * R * m,
+                                side / 2 + Math.sin(th) * R * m,
+                            );
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        for (const d of drops) {
+                            if (t < d.t0) continue;
+                            const g = Math.min(1, (t - d.t0) / 0.35);
+                            ctx.beginPath();
+                            ctx.arc(
+                                ox + d.x * side,
+                                d.y * side,
+                                side * d.r * (0.4 + g * 1.2 + e * 2),
+                                0,
+                                7,
+                            );
+                            ctx.fill();
+                        }
+                    }
+                    ctx.restore();
+                }
+                return c;
+            }
+
+            const OUT = {
+                'textures/grunge.png': grunge(),
+                'textures/paper-grain.png': paperGrain(),
+                'textures/desk.png': desk(),
+                // alternative sprite; the active one is textures/ink.png / สไปรต์สำรอง ตัวที่ใช้จริงคือ ink.png
+                'textures/ink_.png': inkSprite(),
+                'buttons/primary.png': buttonGrain(),
+                'buttons/seal.png': seal(),
+            };
+            const box = document.getElementById('out');
+            for (const [name, cv] of Object.entries(OUT)) {
+                const fig = document.createElement('figure');
+                const shown =
+                    cv.width > 2000
+                        ? (() => {
+                              const p = canvas(1800, 72);
+                              p.getContext('2d').drawImage(cv, 0, 0, 1800, 72);
+                              return p;
+                          })()
+                        : cv;
+                fig.append(shown);
+                const cap = document.createElement('figcaption');
+                cap.textContent = `${name} · ${cv.width}×${cv.height}`;
+                fig.append(cap);
+                box.append(fig);
+            }
+            // For tooling: data URLs keyed by path. / สำหรับสคริปต์ดึงไฟล์ออก
+            window.RAO_TEXTURES = Object.fromEntries(
+                Object.entries(OUT).map(([k, cv]) => [
+                    k,
+                    cv.toDataURL('image/png'),
+                ]),
+            );
+        </script>
+    </body>
+</html>

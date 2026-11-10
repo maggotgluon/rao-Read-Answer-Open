@@ -111,3 +111,11 @@ test('dates carry a picture; special days can pick one from the theme', function
     $occ = app(SpaceCalendar::class)->occurrences($space, Carbon::now()->startOfDay(), Carbon::now()->addDays(3));
     expect($occ->firstWhere('kind', 'site')['icon'])->toBe('dates.balloons');
 });
+
+test('dusk ships textures: grunge mask, paper, desk, button, seal as CSS vars; night inherits them', function () {
+    $css = Themes::css('night');
+    expect($css)->toContain('--grunge-image: url(')->toContain('/themes/dusk/textures/grunge.png')
+        ->toContain('--paper-image: url(')->toContain('--seal-image: url(')
+        ->toContain('--grunge-size: 240px')->toContain('--ink-frames: 25')
+        ->and(Themes::get('dusk')['assets'])->toHaveKeys(['textures.grunge', 'buttons.seal']);
+});

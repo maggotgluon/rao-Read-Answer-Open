@@ -143,7 +143,7 @@ export function MomentCard({
                     <div className="flex flex-wrap items-center gap-2">
                         {moment.date && (
                             <span className="flex items-center gap-1.5 rounded-full border border-dashed border-stamp/50 px-2.5 py-1 text-xs text-stamp">
-                                <PostmarkIcon className="size-3.5" />
+                                <PostmarkIcon className="inked size-3.5" />
                                 {moment.date.title}
                             </span>
                         )}
@@ -330,7 +330,10 @@ function SenderStamp({
     return (
         <span
             aria-hidden
-            className={cn('perforated block rotate-3 rounded-[2px]', className)}
+            className={cn(
+                'perforated inked block rotate-3 rounded-[2px]',
+                className,
+            )}
             style={{
                 ['--stamp-face' as string]: 'var(--paper)',
                 ['--hole' as string]: '1.5px',

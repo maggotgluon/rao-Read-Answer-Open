@@ -1,7 +1,9 @@
-import { Form, Head, Link, usePage } from '@inertiajs/react';
+import { Form, Head, usePage } from '@inertiajs/react';
 import { Plus } from '@/components/rao/ui-icons';
 import InputError from '@/components/input-error';
 import { Asset } from '@/components/rao/asset';
+import { InkLink } from '@/components/rao/ink-transition';
+import { StampText } from '@/components/rao/stamp-text';
 import { AirmailIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,7 +47,7 @@ export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
 
                             return (
                                 <li key={s.id}>
-                                    <Link
+                                    <InkLink
                                         href={s.url}
                                         prefetch
                                         className={cn(
@@ -76,16 +78,19 @@ export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
                                                     </span>
                                                 )}
                                                 {s.status === 'frozen' && (
-                                                    <span className="text-sm text-postmark">
+                                                    <StampText
+                                                        seed={`frozen-${s.id}`}
+                                                        className="mt-1 self-start text-xs text-postmark"
+                                                    >
                                                         {t(
                                                             'spaces.frozen_badge',
                                                         )}
-                                                    </span>
+                                                    </StampText>
                                                 )}
                                             </div>
                                             <span
                                                 aria-hidden
-                                                className="perforated rotate-6 rounded-[2px]"
+                                                className="perforated inked rotate-6 rounded-[2px]"
                                                 style={{
                                                     ['--stamp-face' as string]:
                                                         'var(--paper-2)',
@@ -111,7 +116,7 @@ export default function SpacesIndex({ spaces }: { spaces: SpaceSummary[] }) {
                                                 </span>
                                             </span>
                                         </div>
-                                    </Link>
+                                    </InkLink>
                                 </li>
                             );
                         })}

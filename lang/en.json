@@ -584,5 +584,6 @@
     "admin.themes.help": "Each theme is a folder in public/themes. Add or edit files there; switch themes on/off here, or mark them premium. The default theme is always on.",
     "admin.themes.extends": "extends :parent",
     "admin.themes.default": "Default, always on",
-    "admin.schedule.icon": "Picture"
+    "admin.schedule.icon": "Picture",
+    "letter.sealed_stamp": "Sealed"
 }

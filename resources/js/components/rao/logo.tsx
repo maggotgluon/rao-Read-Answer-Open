@@ -29,7 +29,9 @@ export function Wordmark({ className }: { className?: string }) {
                 className="h-8 -rotate-6 drop-shadow-[0_1px_1px_rgb(0_0_0/0.12)]"
                 title=""
             />
-            <span className="hand text-2xl leading-none text-ink">เรา</span>
+            <span className="hand inked text-2xl leading-none text-ink [--gx:37px] [--gy:91px]">
+                เรา
+            </span>
         </span>
     );
 }

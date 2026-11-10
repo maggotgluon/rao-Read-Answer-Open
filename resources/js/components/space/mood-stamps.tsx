@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
+import { grungeAt } from '@/lib/organic';
 import { cn } from '@/lib/utils';
 import { mood as moodRoute } from '@/routes/spaces';
 import type { Moods } from '@/types/space';
@@ -67,12 +68,13 @@ export function MoodStamps({
                             disabled={readOnly}
                             onClick={() => set(key)}
                             className={cn(
-                                'press perforated shrink-0 disabled:opacity-50',
+                                'press perforated inked shrink-0 disabled:opacity-50',
                                 on
                                     ? '-rotate-3'
                                     : 'opacity-85 hover:opacity-100',
                             )}
                             style={{
+                                ...grungeAt(`mood-${key}`),
                                 ['--stamp-face' as string]: face,
                                 ['--hole' as string]: '1.5px',
                                 ['--gap' as string]: '5px',

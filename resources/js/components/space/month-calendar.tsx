@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
+import { organic, seeded } from '@/lib/organic';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/spaces';
 import type { CalendarMonth, DayStatus } from '@/types/space';
@@ -14,7 +15,9 @@ type Props = {
 /**
  * The month as a sheet of stamps. Both wrote = a red stamp cancelled by a postmark;
  * one wrote = a pale stamp; free miss = a blue "rest" stamp; missed = an empty space.
- * เดือนเป็นแผ่นแสตมป์: เขียนทั้งคู่ = แสตมป์แดงมีตราประทับ
+ * Each stamp is stuck on by hand: its own tilt, nudge and worn ink, seeded by the date
+ * so it never jumps around between visits.
+ * เดือนเป็นแผ่นแสตมป์: เขียนทั้งคู่ = แสตมป์แดงมีตราประทับ แต่ละดวงเอียงไม่เท่ากัน (คงที่ตามวันที่)
  */
 export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
     const { t, locale } = useT();
@@ -82,6 +85,7 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
                     {calendar.days.map((d) => (
                         <DayStamp
                             key={d.date}
+                            date={d.date}
                             day={Number(d.date.slice(8))}
                             status={d.status}
                             events={d.events}
@@ -137,6 +141,7 @@ const FACE: Partial<Record<DayStatus, string>> = {
 };
 
 function DayStamp({
+    date,
     day,
     status,
     events,
@@ -145,6 +150,7 @@ function DayStamp({
     label,
     statusLabel,
 }: {
+    date: string;
     day: number;
     status: DayStatus;
     events: string[];
@@ -154,6 +160,12 @@ function DayStamp({
     statusLabel: string;
 }) {
     const face = FACE[status];
+    // stuck-on-by-hand look; today stays straighter so it reads at a glance
+    // ดูเหมือนติดด้วยมือ วันนี้เอียงน้อยกว่าเพื่อให้อ่านง่าย
+    const look = organic(date, {
+        tilt: status === 'today' ? 2 : face ? 6 : 3,
+        shift: face ? 1.6 : 0.8,
+    });
     const clickable = status !== 'future' && status !== 'before';
     const dots = (
         <span className="absolute inset-x-0 bottom-1 flex justify-center gap-0.5">
@@ -175,8 +187,9 @@ function DayStamp({
         >
             {face ? (
                 <span
-                    className="perforated absolute inset-0"
+                    className="perforated inked absolute inset-0"
                     style={{
+                        ...look,
                         ['--stamp-face' as string]: face,
                         ['--hole' as string]: '1.5px',
                         ['--gap' as string]: '5px',
@@ -193,13 +206,19 @@ function DayStamp({
                         )}
                     >
                         {day}
-                        {status === 'complete' && <Postmark />}
+                        {status === 'complete' && <Postmark seed={date} />}
                     </span>
                 </span>
             ) : (
                 <span
+                    style={
+                        status === 'missed' || status === 'today'
+                            ? look
+                            : undefined
+                    }
                     className={cn(
                         'absolute inset-0 grid place-items-center rounded-[3px] text-sm',
+                        (status === 'missed' || status === 'today') && 'inked',
                         status === 'missed' &&
                             'border border-dashed border-postmark/60 text-ink-soft',
                         status === 'today' &&
@@ -216,13 +235,26 @@ function DayStamp({
     );
 }
 
-/** Wavy cancellation lines over a completed day. / เส้นตราประทับบนวันที่เขียนครบ */
-function Postmark() {
+/**
+ * Wavy cancellation lines over a completed day; each lands at its own angle and spot.
+ * เส้นตราประทับบนวันที่เขียนครบ แต่ละวันประทับคนละมุม
+ */
+function Postmark({ seed }: { seed: string }) {
+    const r = seeded(`pm-${seed}`);
+    const rot = Math.round(r() * 70 - 35);
+    const top = Math.round(r() * 30 - 22);
+    const right = Math.round(r() * 30 - 22);
+
     return (
         <svg
             aria-hidden
             viewBox="0 0 30 30"
-            className="pointer-events-none absolute -top-1 -right-1 size-[70%] opacity-55"
+            className="pointer-events-none absolute size-[74%] opacity-60"
+            style={{
+                top: `${top}%`,
+                right: `${right}%`,
+                transform: `rotate(${rot}deg)`,
+            }}
         >
             <circle
                 cx="15"

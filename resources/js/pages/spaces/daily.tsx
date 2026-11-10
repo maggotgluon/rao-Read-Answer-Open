@@ -58,7 +58,7 @@ export default function SpaceDaily({
 
             {todayEvents.length > 0 && (
                 <section className="flex items-start gap-3 rounded-[var(--radius)] border-[1.5px] border-dashed border-stamp/50 px-4 py-3">
-                    <PostmarkIcon className="mt-0.5 size-5 shrink-0 text-stamp" />
+                    <PostmarkIcon className="inked mt-0.5 size-5 shrink-0 text-stamp" />
                     <div className="flex flex-col gap-1">
                         <h2 className="text-lg leading-tight text-stamp">
                             {t('daily.today_events')}

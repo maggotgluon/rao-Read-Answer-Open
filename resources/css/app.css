@@ -95,13 +95,15 @@
 }
 
 /* Theme colours come from public/themes/<id>/theme.json (injected as :root vars in
-   app.blade.php). Images default to none. / สีของธีมมาจากโฟลเดอร์ธีม */
-:root {
+   app.blade.php). Images default to none; :where() keeps these weaker than the theme's
+   :root, whatever order the stylesheets load in. / ค่าเริ่มต้นอ่อนกว่าค่าของธีมเสมอ */
+:where(:root) {
     --ground-image: none;
     --paper-image: none;
     --button-image: none;
     --seal-image: none;
     --airmail-edge-image: none;
+    --grunge-image: none;
 }
 
 /* shadcn tokens from the world's roles / โทเค็น shadcn จากบทบาทสี */
@@ -161,7 +163,8 @@
         @apply bg-background font-sans text-foreground;
         /* optional desk texture from the theme / พื้นโต๊ะเป็นรูปได้ */
         background-image: var(--ground-image);
-        background-size: cover;
+        background-size: var(--ground-size, cover);
+        background-repeat: repeat;
         background-attachment: fixed;
         min-height: 100dvh;
         overscroll-behavior-y: none;
@@ -211,7 +214,7 @@
     /* A sheet of letter paper. / แผ่นกระดาษจดหมาย */
     .paper {
         background:
-            var(--paper-image) center / cover,
+            var(--paper-image) 0 0 / var(--paper-size, cover) repeat,
             var(--paper);
         border-radius: var(--radius);
         box-shadow: var(--paper-shadow);
@@ -260,6 +263,34 @@
 
     .hand {
         font-family: var(--font-hand);
+    }
+
+    /*
+     * Worn rubber-stamp ink (texture-on-text "Method 4": a PNG with transparency as
+     * mask-image). Works on text, stamps, icons. --gx/--gy shift the texture per item.
+     * หมึกตรายางซีด: ใช้ PNG โปร่งใสเป็น mask ให้ตัวหนังสือ/แสตมป์ดูประทับจริง
+     */
+    .inked {
+        -webkit-mask-image: var(--grunge-image);
+        mask-image: var(--grunge-image);
+        -webkit-mask-size: var(--grunge-size, 240px);
+        mask-size: var(--grunge-size, 240px);
+        -webkit-mask-position: var(--gx, 0) var(--gy, 0);
+        mask-position: var(--gx, 0) var(--gy, 0);
+        mask-mode: alpha;
+    }
+
+    /* A rubber-stamped label: border + tilt + worn ink. / ป้ายตรายาง */
+    .stamp-text {
+        display: inline-block;
+        padding: 0.12em 0.5em 0.08em;
+        border: 2px solid currentColor;
+        border-radius: 6px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        line-height: 1.2;
+        transform: rotate(var(--tilt, -4deg));
     }
 }
 
@@ -335,6 +366,52 @@
 }
 .animate-thunk {
     animation: rao-thunk 0.35s var(--ease-out-expo);
+}
+
+/* ── Ink transition: a PNG sprite stepped frame by frame (CodyHouse technique). The
+   sprite is a mask, so the ink takes the theme colour. / เปลี่ยนหน้าด้วยหมึกซึม ── */
+.ink-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+}
+.ink-layer[data-state='cover'],
+.ink-layer[data-state='covered'],
+.ink-layer[data-state='reveal'] {
+    visibility: visible;
+    pointer-events: auto;
+}
+.ink-layer > .ink-frames {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(var(--fw) * var(--frames));
+    height: var(--fh);
+    background: var(--ink-colour, var(--ink));
+    -webkit-mask: var(--sprite) 0 0 / 100% 100% no-repeat;
+    mask: var(--sprite) 0 0 / 100% 100% no-repeat;
+    transform: translate(calc(var(--fw) * -0.5), -50%);
+}
+.ink-layer[data-state='cover'] > .ink-frames {
+    animation: rao-ink var(--ink-ms, 700ms) var(--ink-steps, steps(24)) forwards;
+}
+.ink-layer[data-state='covered'] > .ink-frames {
+    transform: translate(calc(var(--fw) * (0.5 - var(--frames))), -50%);
+}
+.ink-layer[data-state='reveal'] > .ink-frames {
+    animation: rao-ink var(--ink-ms, 700ms) var(--ink-steps, steps(24)) reverse
+        forwards;
+}
+@keyframes rao-ink {
+    from {
+        transform: translate(calc(var(--fw) * -0.5), -50%);
+    }
+    to {
+        transform: translate(calc(var(--fw) * (0.5 - var(--frames))), -50%);
+    }
 }
 
 /* Pressed feedback on every tappable thing. / ตอบสนองเมื่อกด */

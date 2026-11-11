@@ -151,6 +151,8 @@ class Themes
             'id' => $t['id'],
             'name' => $t['name'][$locale] ?? $t['name']['en'] ?? $t['id'],
             'description' => $t['description'][$locale] ?? $t['description']['en'] ?? '',
+            // Attribution some picture licences require (e.g. CC BY). / เครดิตที่สัญญาอนุญาตกำหนด
+            'credit' => $t['credit'][$locale] ?? $t['credit']['en'] ?? null,
             'dark' => $t['dark'],
             'status_bar' => $t['status_bar'],
             'vars' => self::cssVars($id),
@@ -185,6 +187,7 @@ class Themes
             'extends' => $parentId,
             'name' => $own['name'] ?? ['en' => $id],
             'description' => $own['description'] ?? [],
+            'credit' => $own['credit'] ?? [],
             'dark' => (bool) ($own['dark'] ?? $parent['dark']),
             'status_bar' => $own['status_bar'] ?? $parent['status_bar'] ?? ($own['tokens']['ground'] ?? null),
             'tokens' => array_merge($parent['tokens'], $own['tokens'] ?? []),

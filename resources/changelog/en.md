@@ -2,6 +2,11 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.11.0] - 2026-11-11
+
+- New theme: Doodle, a sketchbook with hand-drawn icons (Drawicons by weareheroes, CC BY 4.0)
+- The theme picker shows the credit for themes that need one
+
 ## [0.10.0] - 2026-11-10
 
 - Every page now ends with the app version (links here) and links to all legal documents

@@ -5,6 +5,7 @@ export type ClientTheme = {
     id: string;
     name: string;
     description: string;
+    credit?: string | null;
     dark: boolean;
     status_bar: string;
     vars: Record<string, string>;

@@ -71,6 +71,11 @@ export default function Appearance({ themes }: { themes: ClientTheme[] }) {
                                 <span className="px-1.5 pb-1 text-xs text-ink-soft">
                                     {th.description}
                                 </span>
+                                {th.credit && (
+                                    <span className="px-1.5 pb-1 text-[11px] text-postmark">
+                                        {th.credit}
+                                    </span>
+                                )}
                             </button>
                         );
                     })}

@@ -68,7 +68,7 @@ test('people pick from available themes; admin can switch one off or make it pre
     expect(Themes::availableFor($u->fresh()))->toContain('night');
 
     $page = $this->actingAs($u->fresh())->get(route('appearance.edit'))->viewData('page');
-    expect(collect($page['props']['themes'])->pluck('id')->all())->toBe(['dusk', 'daytime', 'night']);
+    expect(collect($page['props']['themes'])->pluck('id')->all())->toBe(['dusk', 'daytime', 'doodle', 'night']);
 });
 
 test('switched-off themes feature: the page is gone, not greyed out', function () {
@@ -118,4 +118,18 @@ test('dusk ships textures: grunge mask, paper, desk, button, seal as CSS vars; n
         ->toContain('--paper-image: url(')->toContain('--seal-image: url(')
         ->toContain('--grunge-size: 240px')->toContain('--ink-frames: 25')
         ->and(Themes::get('dusk')['assets'])->toHaveKeys(['textures.grunge', 'buttons.seal']);
+});
+
+test('doodle theme: hand-drawn pictures override dusk, the rest falls back, credit is shown', function () {
+    $t = Themes::get('doodle');
+    expect($t['assets']['moods.tired']['url'])->toContain('/themes/doodle/moods/tired.svg')
+        ->and($t['assets']['moods.tired']['mono'])->toBeTrue()
+        ->and($t['assets']['icons.seal']['url'])->toContain('/themes/dusk/')   // not in the set
+        ->and(Themes::forClient('doodle', 'en')['credit'])->toContain('CC BY')
+        ->and(Themes::forClient('dusk', 'en')['credit'])->toBeNull();
+
+    // cleaned for masks: no white inner fills or classes left / ไม่มีพื้นสีขาวเหลือ
+    foreach (glob(public_path('themes/doodle/*/*.svg')) as $f) {
+        expect(file_get_contents($f))->not->toContain('#ffffff')->not->toContain('class=');
+    }
 });

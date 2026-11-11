@@ -1,0 +1,39 @@
+{
+    "id": "doodle",
+    "extends": "dusk",
+    "name": {
+        "th": "ขีดเขียน",
+        "en": "Doodle"
+    },
+    "description": {
+        "th": "สมุดสเก็ตช์ ไอคอนวาดมือ ปากกาลูกลื่นกับปากกาเมจิก",
+        "en": "Sketchbook with hand-drawn icons, ballpoint and marker"
+    },
+    "credit": {
+        "th": "ไอคอน: Drawicons โดย weareheroes (CC BY 4.0)",
+        "en": "Icons: Drawicons by weareheroes (CC BY 4.0)"
+    },
+    "dark": false,
+    "status_bar": "#f1ede3",
+    "tokens": {
+        "ground": "#f1ede3",
+        "paper": "#fffdf7",
+        "paper-2": "#f8f3e6",
+        "ink": "#262626",
+        "ink-soft": "#67625a",
+        "rule": "#e7dfcb",
+        "rule-strong": "#d4c8aa",
+        "stamp": "#e5483a",
+        "stamp-ink": "#ffffff",
+        "stamp-soft": "#fde0da",
+        "wax": "#c43828",
+        "airmail": "#2c59d0",
+        "airmail-ink": "#ffffff",
+        "airmail-soft": "#e0e8fb",
+        "postmark": "#8b8578",
+        "kraft": "#e2b84f",
+        "paper-shadow": "0 1px 0 rgb(38 38 38 / 0.06), 2px 3px 0 rgb(38 38 38 / 0.08)",
+        "lift-shadow": "0 2px 0 rgb(38 38 38 / 0.06), 3px 5px 0 rgb(38 38 38 / 0.12)",
+        "radius": "0.4rem"
+    }
+}

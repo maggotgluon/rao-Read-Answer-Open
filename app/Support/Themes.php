@@ -43,7 +43,10 @@ class Themes
         // Re-scan only when something in public/themes changed. / สแกนใหม่เมื่อไฟล์เปลี่ยน
         $sig = self::signature();
 
-        return self::$cache = Cache::rememberForever("themes:{$sig}", function () {
+        // The cache holds root-relative paths; the current host is added per request, so
+        // www/bare-domain/IP visitors all get same-origin URLs (CSS masks refuse cross-origin).
+        // แคชเก็บพาธแบบไม่มีโดเมน แล้วเติมโดเมนของคำขอปัจจุบันทีหลัง
+        return self::$cache = self::withHost(Cache::rememberForever("themes:{$sig}", function () {
             $raw = [];
             foreach (glob(self::root().'/*/theme.json') ?: [] as $file) {
                 $json = json_decode((string) file_get_contents($file), true);
@@ -60,7 +63,25 @@ class Themes
             uksort($out, fn ($a, $b) => ($a === self::DEFAULT ? -1 : 0) - ($b === self::DEFAULT ? -1 : 0) ?: strcmp($a, $b));
 
             return $out;
-        });
+        }));
+    }
+
+    /**
+     * @param  array<string, array<string, mixed>>  $themes
+     * @return array<string, array<string, mixed>>
+     */
+    private static function withHost(array $themes): array
+    {
+        foreach ($themes as &$t) {
+            foreach ($t['assets'] as &$a) {
+                $a['url'] = url($a['url']);
+            }
+            foreach ($t['images'] as &$img) {
+                $img = $img ? url($img) : null;
+            }
+        }
+
+        return $themes;
     }
 
     public static function flush(): void
@@ -230,8 +251,8 @@ class Themes
         $file = self::root()."/{$id}/".ltrim($path, '/');
         $v = is_file($file) ? substr(md5((string) filemtime($file)), 0, 8) : '0';
 
-        // Absolute: CSS masks resolve url() against the stylesheet's address. / ใช้ URL เต็ม
-        return url("/themes/{$id}/".ltrim($path, '/'))."?v={$v}";
+        // Root-relative here; withHost() makes it absolute for the current request.
+        return "/themes/{$id}/".ltrim($path, '/')."?v={$v}";
     }
 
     private static function signature(): string

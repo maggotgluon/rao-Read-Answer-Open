@@ -2,6 +2,11 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.12.0] - 2026-11-11
+
+- New home page for visitors: what Rao is, how it works in 5 steps, what's inside, privacy, installing on your phone, and common questions
+- Fix: theme pictures could disappear when the site was opened from a different address (e.g. with or without www)
+
 ## [0.11.0] - 2026-11-11
 
 - New theme: Doodle, a sketchbook with hand-drawn icons (Drawicons by weareheroes, CC BY 4.0)

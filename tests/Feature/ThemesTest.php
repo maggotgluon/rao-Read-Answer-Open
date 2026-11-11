@@ -133,3 +133,10 @@ test('doodle theme: hand-drawn pictures override dusk, the rest falls back, cred
         expect(file_get_contents($f))->not->toContain('#ffffff')->not->toContain('class=');
     }
 });
+
+test('theme picture URLs follow the visitor\'s host, even when cached under another host', function () {
+    $this->get('http://localhost/')->assertOk();
+    Themes::flush();
+    $props = $this->get('http://127.0.0.1/')->viewData('page')['props'];
+    expect($props['themeAssets']['icons.seal']['url'])->toStartWith('http://127.0.0.1/themes/dusk/icons/seal.svg?v=');
+});

@@ -28,6 +28,7 @@ export type SpaceFeatures = {
     memories: boolean;
     places: boolean;
     achievements: boolean;
+    sharing: boolean;
 };
 
 export type LocationInfo = {

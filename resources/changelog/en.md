@@ -2,6 +2,12 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.18.0] - 2026-11-13
+
+- Share as a picture: turn your own postcards and your stamps into a card for Instagram, Facebook, LINE… (post 4:5 or story 9:16)
+- Cards use your theme's colours, paper and logo; pick a photo or none; first names are hidden unless you switch them on
+- Made on your phone and shared through its share menu (or saved as an image): nothing is uploaded
+
 ## [0.17.0] - 2026-11-13
 
 - New stamp sheet "Our stamps" on the Calendar: milestone stamps for days in a row, letters together, postcards, days together, each anniversary year, and firsts (first letters, postcard, place)

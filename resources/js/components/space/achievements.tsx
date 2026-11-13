@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import { Asset } from '@/components/rao/asset';
+import { Asset, type ThemeAsset } from '@/components/rao/asset';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -14,6 +14,7 @@ import { organic } from '@/lib/organic';
 import { cn } from '@/lib/utils';
 import { seen } from '@/routes/spaces/achievements';
 import type { AchievementInfo, AchievementSheet } from '@/types/space';
+import { ShareCardDialog } from './share-card-dialog';
 
 /** "7 days in a row", "First postcard"… / ชื่อแสตมป์ */
 export function useAchievementLabel() {
@@ -77,8 +78,21 @@ function Stamp({
  * a dashed outline with progress (never "missed" or "lost").
  * แผ่นแสตมป์: ที่ได้แล้ว และขั้นถัดไปพร้อมความคืบหน้า (ไม่มีคำว่าพลาด)
  */
-export function AchievementPanel({ sheet }: { sheet: AchievementSheet }) {
+export function AchievementPanel({
+    sheet,
+    canShare = false,
+    names = null,
+}: {
+    sheet: AchievementSheet;
+    /** sharing feature on: tap a stamp to share it / แตะแสตมป์เพื่อแชร์ */
+    canShare?: boolean;
+    /** "Mag & Ann", shown only if the person switches names on */
+    names?: string | null;
+}) {
     const { t, locale } = useT();
+    const assets = usePage().props.themeAssets as
+        | Record<string, ThemeAsset>
+        | undefined;
     const label = useAchievementLabel();
     const [all, setAll] = useState(false);
     const shown = all ? sheet.earned : sheet.earned.slice(0, 8);
@@ -111,13 +125,43 @@ export function AchievementPanel({ sheet }: { sheet: AchievementSheet }) {
                             className="flex flex-col items-center gap-1.5 text-center"
                             title={day(a.earned_at)}
                         >
-                            <Stamp a={a} />
+                            {canShare ? (
+                                <ShareCardDialog
+                                    fileName={`rao-stamp-${a.key}`}
+                                    build={(o) => ({
+                                        kind: 'stamp',
+                                        label: label(a),
+                                        number: a.n,
+                                        icon: assets?.[
+                                            `achievements.${a.group}`
+                                        ],
+                                        meta: day(a.earned_at),
+                                        names: o.names ? names : null,
+                                    })}
+                                    trigger={
+                                        <button
+                                            type="button"
+                                            aria-label={`${t('share.title')}: ${label(a)}`}
+                                            className="press rounded-sm"
+                                        >
+                                            <Stamp a={a} />
+                                        </button>
+                                    }
+                                />
+                            ) : (
+                                <Stamp a={a} />
+                            )}
                             <span className="text-[11px] leading-tight text-ink">
                                 {label(a)}
                             </span>
                         </li>
                     ))}
                 </ul>
+            )}
+            {canShare && sheet.earned.length > 0 && (
+                <p className="-mt-1 text-xs text-ink-soft">
+                    {t('share.tap_stamp')}
+                </p>
             )}
             {sheet.earned.length > 8 && (
                 <button

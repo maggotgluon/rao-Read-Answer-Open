@@ -1,4 +1,4 @@
-import { router } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { DaySheet } from '@/components/space/day-sheet';
 import { DistanceCard } from '@/components/space/distance-card';
@@ -50,6 +50,7 @@ export default function SpaceOverview({
     places,
     achievements,
 }: Props) {
+    const auth = usePage().props.auth as { user?: { name: string } };
     const { t } = useT();
     const [picked, setPicked] = useState<string | null>(null);
     const frozen = space.status === 'frozen';
@@ -92,7 +93,16 @@ export default function SpaceOverview({
                 partnerName={space.partner?.name}
             />
 
-            {achievements && <AchievementPanel sheet={achievements} />}
+            {achievements && (
+                <AchievementPanel
+                    sheet={achievements}
+                    canShare={space.features.sharing}
+                    names={[auth.user?.name, space.partner?.name]
+                        .filter(Boolean)
+                        .map((n) => n!.split(' ')[0])
+                        .join(' & ')}
+                />
+            )}
 
             {story && (
                 <TogetherApart

@@ -13,6 +13,7 @@ import { destroy, publish } from '@/routes/spaces/moments';
 import { update as react } from '@/routes/spaces/reactions';
 import type { MomentItem, Place, SpaceEvent } from '@/types/space';
 import { MarkDateDialog } from './mark-date-dialog';
+import { ShareCardDialog } from './share-card-dialog';
 import { MarkPlaceDialog } from './mark-place-dialog';
 
 type Props = {
@@ -22,6 +23,8 @@ type Props = {
     readOnly: boolean;
     dateOptions?: SpaceEvent[];
     placeOptions?: Place[];
+    /** sharing feature on (own posted postcards only) / เปิดฟีเจอร์แชร์ */
+    canShare?: boolean;
 };
 
 /**
@@ -36,6 +39,7 @@ export function MomentCard({
     readOnly,
     dateOptions = [],
     placeOptions,
+    canShare = false,
 }: Props) {
     const { t, locale } = useT();
     const args = { space: spaceId, moment: moment.id };
@@ -119,12 +123,67 @@ export function MomentCard({
                             {t('moment.draft')}
                         </span>
                     )}
+                    {/* Only my own posted postcards; the partner's needs their OK (later).
+                        เฉพาะโปสการ์ดของฉันที่โพสต์แล้ว */}
+                    {canShare && moment.mine && !isDraft && (
+                        <ShareCardDialog
+                            fileName={`rao-postcard-${moment.id}`}
+                            photos={moment.photos.map((p) => p.url)}
+                            build={(o) => ({
+                                kind: 'postcard',
+                                text: moment.body,
+                                photo:
+                                    o.photo === null
+                                        ? null
+                                        : (moment.photos[o.photo]?.url ?? null),
+                                meta:
+                                    [
+                                        moment.posted_at &&
+                                            new Date(
+                                                moment.posted_at,
+                                            ).toLocaleDateString(
+                                                locale === 'th'
+                                                    ? 'th-TH'
+                                                    : 'en-GB',
+                                                {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric',
+                                                },
+                                            ),
+                                        moment.place?.name,
+                                    ]
+                                        .filter(Boolean)
+                                        .join(' · ') || null,
+                                names: o.names
+                                    ? t('share.from', {
+                                          name: moment.author.split(' ')[0],
+                                      })
+                                    : null,
+                            })}
+                            trigger={
+                                <button
+                                    type="button"
+                                    aria-label={t('share.title')}
+                                    className="press ml-auto grid size-9 place-items-center rounded-full text-ink-soft hover:text-ink"
+                                >
+                                    <Asset
+                                        name="icons.share"
+                                        className="size-4"
+                                    />
+                                </button>
+                            }
+                        />
+                    )}
                     {moment.mine && !readOnly && (
                         <button
                             type="button"
                             onClick={remove}
                             aria-label={t('moment.delete')}
-                            className="press ml-auto grid size-9 place-items-center rounded-full text-ink-soft hover:text-wax"
+                            className={cn(
+                                'press grid size-9 place-items-center rounded-full text-ink-soft hover:text-wax',
+                                !(canShare && !isDraft) && 'ml-auto',
+                            )}
                         >
                             <Trash2 className="size-4" {...icon} />
                         </button>

@@ -25,6 +25,7 @@ class Features
         'memories' => 'space',        // "On this day" / วันนี้ในความทรงจำ
         'places' => 'space',          // our places / สถานที่ของเรา
         'achievements' => 'space',    // milestone stamps / แสตมป์ความสำเร็จ
+        'sharing' => 'space',         // share as a picture / แชร์เป็นรูป
         'themes' => 'user',           // choose a theme / เลือกธีม
         'poly' => 'user',             // more than one active space / มีได้หลาย space
     ];

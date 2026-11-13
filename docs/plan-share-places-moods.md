@@ -2,7 +2,7 @@
 
 # แผน: แชร์ออกโซเชียล สถานที่ บันทึกใกล้/ไกล ประวัติอารมณ์
 
-Status: approved; phases 1–4 done. / อนุมัติแล้ว เสร็จเฟส 1–4
+Status: approved; phases 1–4 + 5a done. / อนุมัติแล้ว เสร็จเฟส 1–4 และ 5a
 
 Decisions (Mag, 2026-11-12) / สิ่งที่ตัดสินใจแล้ว:
 
@@ -82,9 +82,9 @@ one away (fits "never shame"). No "lost" or "missed" badges.
   Shown as a stamp sheet; a new one gets a small celebration + push (setting).
   Pictures: `achievements/<key>.svg` in the theme folder (dusk first; others fall back).
 
-## Phase 5: Sharing / แชร์ออกโซเชียล (large)
+## Phase 5: Sharing / แชร์ออกโซเชียล (large): 5a ✅ done (0.18.0)
 
-5a. Picture card (no server involvement):
+5a. Picture card (no server involvement), decided: cards follow the person's theme; owner picks a photo or none:
 
 - Made on the phone (canvas): 1080×1350 (feed) and 1080×1920 (story).
 - Postcard card: photo + caption + date + small "เรา" mark. Achievement card: badge + number.
@@ -92,7 +92,7 @@ one away (fits "never shame"). No "lost" or "missed" badges.
 - Phone share sheet (Web Share API with the image); "Save image" where sharing files isn't
   supported (some Android/desktop browsers).
 
-5b. Public link (optional, per item):
+5b. Public link (optional, per item), decided: owner picks expiry 7 days / 30 days / never:
 
 - `share_links` (random token, owner, item, card image, created_at, revoked_at, views).
 - `/p/<token>` shows ONLY the card image + caption, never the original photo, comments or the

@@ -49,6 +49,11 @@ class AccountData
             ],
             'spaces' => $user->spaces()->get()->map(fn ($s) => [
                 'name' => $s->name, 'joined_at' => $s->pivot->joined_at,
+                // shared space data about the two of you / ข้อมูลร่วมของพื้นที่
+                'long_distance_changes' => $s->modeChanges()->orderBy('changed_at')->get()
+                    ->map(fn ($c) => ['long_distance' => $c->long_distance, 'at' => $c->changed_at?->toIso8601String()])->values(),
+                'distance_km_by_day' => $s->distanceDays()->orderBy('date')->get()
+                    ->mapWithKeys(fn ($d) => [$d->date->toDateString() => $d->km]),
             ])->values(),
             'letters' => Answer::where('user_id', $user->id)->with('dailyPrompt.prompt')->orderBy('created_at')->get()
                 ->map(fn (Answer $a) => [

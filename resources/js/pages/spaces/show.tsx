@@ -5,6 +5,7 @@ import { DistanceCard } from '@/components/space/distance-card';
 import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
 import { InviteCard } from '@/components/space/invite-card';
 import { MonthCalendar, MoodMonth } from '@/components/space/month-calendar';
+import { TogetherApart } from '@/components/space/together-apart';
 import { SpaceSettings } from '@/components/space/space-settings';
 import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
@@ -14,6 +15,7 @@ import type {
     EventOccurrence,
     Invite,
     LocationInfo,
+    SpaceStory,
     SpaceDetail,
     SpaceEvent,
 } from '@/types/space';
@@ -26,6 +28,7 @@ type Props = {
     events: SpaceEvent[];
     day?: DayDetail | null;
     location: LocationInfo | null;
+    story: SpaceStory | null;
 };
 
 /** Tab 1 — Overview / ภาพรวม */
@@ -37,6 +40,7 @@ export default function SpaceOverview({
     events,
     day,
     location,
+    story,
 }: Props) {
     const { t } = useT();
     const [picked, setPicked] = useState<string | null>(null);
@@ -79,6 +83,15 @@ export default function SpaceOverview({
                 summary={calendar.mood_summary}
                 partnerName={space.partner?.name}
             />
+
+            {story && (
+                <TogetherApart
+                    story={story}
+                    calendar={calendar}
+                    spaceId={space.id}
+                    readOnly={frozen}
+                />
+            )}
 
             <UpcomingEvents upcoming={upcoming} />
 

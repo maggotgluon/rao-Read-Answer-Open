@@ -52,6 +52,7 @@ class SpaceCalendar
 
         $events = $this->occurrences($space, $start, $end)->groupBy('date');
         $moods = $viewer ? $this->moods($space, $viewer, $start, $end) : collect();
+        $km = Features::on('location', $space) ? app(SpaceStory::class)->distances($space, $start, $end) : [];
 
         $missesPerWeek = [];
         $days = [];
@@ -87,6 +88,7 @@ class SpaceCalendar
                 'moments' => $momentDays[$key] ?? 0,
                 'events' => ($events[$key] ?? collect())->pluck('title')->values()->all(),
                 'moods' => $moods[$key] ?? ['mine' => null, 'partner' => null],
+                'km' => $km[$key] ?? null,
             ];
         }
 

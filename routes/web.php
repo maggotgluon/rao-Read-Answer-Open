@@ -91,6 +91,7 @@ Route::middleware(['auth', 'verified', 'consent'])->group(function () {
             Route::delete('today/{dailyPrompt}/replies/{reply}', [LetterReplyController::class, 'destroy'])->name('replies.destroy');
             Route::put('mood', [MoodController::class, 'update'])->middleware('throttle:30,1')->name('mood');
             Route::put('long-distance', [SpaceController::class, 'longDistance'])->name('long-distance');
+            Route::delete('distance', [SpaceController::class, 'forgetDistance'])->name('distance.forget');
             Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
 
             Route::post('events', [SpaceEventController::class, 'store'])->name('events.store');

@@ -139,6 +139,8 @@ export type CalendarMonth = {
         moments: number;
         events: string[];
         moods: DayMoods;
+        /** km apart that day, null = not recorded / ระยะห่างของวันนั้น */
+        km: number | null;
     }[];
     mood_summary: { mine: MoodSummary; partner: MoodSummary };
     stats: {
@@ -203,4 +205,20 @@ export type ActivityItem = {
     mine: boolean;
     title?: string;
     at: string;
+};
+
+export type StoryPeriod = {
+    mode: 'together' | 'apart';
+    from: string;
+    /** null = still going / ยังอยู่ในช่วงนี้ */
+    to: string | null;
+    days: number;
+};
+
+export type SpaceStory = {
+    since: string | null;
+    periods: StoryPeriod[];
+    together_days: number;
+    apart_days: number;
+    has_distance: boolean;
 };

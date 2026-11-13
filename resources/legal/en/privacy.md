@@ -62,9 +62,11 @@ When you upload a photo, our server resizes it and saves it as a new JPEG file. 
 
 This feature is off by default. Each member decides for themselves and can switch it off at any time. **Switching it off deletes your location data straight away.**
 
-When it's on, the app rounds your coordinates to a grid of about 5 km and updates them at most every 30 minutes, only when you open the app. Your exact spot is never stored. We keep only your latest rounded location, never a history. To find your city name, we send the rounded coordinates to OpenStreetMap's Nominatim service (a third party) , from our server, so Nominatim sees our server, not your device. We also keep your timezone.
+When it's on, the app rounds your coordinates to a grid of about 5 km and updates them at most every 30 minutes, only when you open the app. Your exact spot is never stored. We keep only your latest rounded location, never a history of places. To find your city name, we send the rounded coordinates to OpenStreetMap's Nominatim service (a third party) , from our server, so Nominatim sees our server, not your device. We also keep your timezone.
 
 Your partner or space members see only your **distance, city and local time**, and only when both of you share your location.
+
+**Daily distance (together/apart timeline):** on days when both of you share a location from the last 24 hours, the space keeps one number for that day: how many kilometres apart you were, rounded to 10 km. No places or coordinates are kept with it. It belongs to the space, both members see it, and either member can delete the whole distance history at any time (Calendar → Together & apart). It is also deleted with the space. The space also remembers when long-distance mode was switched on or off.
 
 **Lawful basis:** your consent (s.19).
 

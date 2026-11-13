@@ -2,7 +2,7 @@
 
 # แผน: แชร์ออกโซเชียล สถานที่ บันทึกใกล้/ไกล ประวัติอารมณ์
 
-Status: approved; phase 1 done. / อนุมัติแล้ว เสร็จเฟส 1
+Status: approved; phases 1–2 done. / อนุมัติแล้ว เสร็จเฟส 1–2
 
 Decisions (Mag, 2026-11-12) / สิ่งที่ตัดสินใจแล้ว:
 
@@ -29,7 +29,7 @@ Data already exists (`moods`, one per person per day). Only UI + one query.
 - Partner sees your past moods (they already see today's). Hidden when the mood feature is off.
 - Tests: month query is space-scoped; outsider 404.
 
-## Phase 2: Together / apart log / บันทึกช่วงอยู่ใกล้–ไกล (medium)
+## Phase 2: Together / apart log / บันทึกช่วงอยู่ใกล้–ไกล (medium) ✅ done (0.15.0)
 
 New tables:
 

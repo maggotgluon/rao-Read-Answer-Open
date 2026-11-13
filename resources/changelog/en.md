@@ -2,6 +2,11 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.15.0] - 2026-11-13
+
+- New "Together & apart" card on the Calendar: how long you've been near or far, every period since, totals, and a chart of how far apart you were each day (saved only on days you both share your location, in km, rounded to 10)
+- Either of you can delete the distance history at any time
+
 ## [0.14.0] - 2026-11-12
 
 - Past moods now show: a small mood stamp for each of you on every calendar day, both moods in the day's details, and a "Moods this month" summary

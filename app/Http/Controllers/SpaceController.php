@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Location;
+use App\Services\SpaceStory;
 use App\Services\SpaceActivity;
 use App\Services\SpaceCalendar;
 use App\Support\Features;
@@ -95,6 +96,7 @@ class SpaceController extends Controller
                 : null),
             'invite' => fn () => $this->inviteFor($space, $user),
             'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
+            'story' => fn () => Features::on('location', $space) ? app(SpaceStory::class)->timeline($space) : null,
         ]);
     }
 
@@ -182,9 +184,18 @@ class SpaceController extends Controller
         abort_unless(Features::on('location', $space), 404);
         $on = $request->validate(['on' => ['required', 'boolean']])['on'];
 
-        $space->forceFill(['long_distance' => $on])->save();
+        $space->setLongDistance($on, $request->user());
         Analytics::track($request->user(), $on ? 'long_distance_on' : 'long_distance_off', [], $space);
         $this->toast($on ? 'ld.on_flash' : 'ld.off_flash');
+
+        return back();
+    }
+
+    /** Delete the whole daily-distance history of this space. / ลบประวัติระยะห่างทั้งหมด */
+    public function forgetDistance(Request $request, Space $space): RedirectResponse
+    {
+        $space->distanceDays()->delete();
+        $this->toast('story.forgot_flash');
 
         return back();
     }

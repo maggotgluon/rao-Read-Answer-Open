@@ -85,6 +85,39 @@ class Space extends Model
     }
 
     /** @return HasMany<Moment, $this> */
+    protected static function booted(): void
+    {
+        // Every timeline starts with the mode the space was created in. / เริ่มบันทึกโหมดตั้งแต่สร้าง
+        static::created(fn (Space $s) => $s->modeChanges()->create([
+            'long_distance' => (bool) $s->long_distance, 'changed_at' => now(),
+        ]));
+    }
+
+    /** @return HasMany<SpaceModeChange, $this> */
+    public function modeChanges(): HasMany
+    {
+        return $this->hasMany(SpaceModeChange::class);
+    }
+
+    /** @return HasMany<SpaceDistanceDay, $this> */
+    public function distanceDays(): HasMany
+    {
+        return $this->hasMany(SpaceDistanceDay::class);
+    }
+
+    /**
+     * Switch long-distance mode and log it (no row when nothing changes).
+     * เปลี่ยนโหมดไกลกันและบันทึกไว้
+     */
+    public function setLongDistance(bool $on, ?User $by = null): void
+    {
+        if ((bool) $this->long_distance === $on && $this->modeChanges()->exists()) {
+            return;
+        }
+        $this->forceFill(['long_distance' => $on])->save();
+        $this->modeChanges()->create(['long_distance' => $on, 'changed_by' => $by?->id, 'changed_at' => now()]);
+    }
+
     public function moments(): HasMany
     {
         return $this->hasMany(Moment::class);

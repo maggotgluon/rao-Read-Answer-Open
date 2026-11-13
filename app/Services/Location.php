@@ -49,6 +49,8 @@ class Location
             'loc_at' => now(),
         ])->save();
 
+        app(SpaceStory::class)->recordFor($user);   // today's distance, if both share / ระยะห่างวันนี้
+
         return true;
     }
 

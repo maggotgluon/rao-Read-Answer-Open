@@ -1,0 +1,35 @@
+{
+    "id": "night",
+    "extends": "dusk",
+    "name": {
+        "th": "กลางคืน",
+        "en": "Night"
+    },
+    "description": {
+        "th": "โต๊ะสีน้ำเงินหมึก สำหรับเขียนก่อนนอน",
+        "en": "Ink-blue desk for writing in bed"
+    },
+    "dark": true,
+    "status_bar": "#121a2c",
+    "tokens": {
+        "ground": "#121a2c",
+        "paper": "#1c2540",
+        "paper-2": "#24304f",
+        "ink": "#f1eadf",
+        "ink-soft": "#aab1c9",
+        "rule": "#2e3a5c",
+        "rule-strong": "#3d4a70",
+        "stamp": "#ff6b70",
+        "stamp-ink": "#2a0b0f",
+        "stamp-soft": "rgb(255 107 112 / 0.18)",
+        "wax": "#e24c57",
+        "airmail": "#8ab1ff",
+        "airmail-ink": "#0e1a33",
+        "airmail-soft": "rgb(138 177 255 / 0.16)",
+        "postmark": "#8d96b7",
+        "kraft": "#b38d68",
+        "paper-shadow": "0 1px 0 rgb(0 0 0 / 0.25), 0 14px 28px -16px rgb(0 0 0 / 0.7)",
+        "lift-shadow": "0 2px 0 rgb(0 0 0 / 0.25), 0 24px 44px -18px rgb(0 0 0 / 0.8)",
+        "radius": "0.7rem"
+    }
+}

@@ -1,0 +1,1 @@
+import{o as e,r as t}from"./wayfinder-DyjNqArI.js";import{n}from"./organic-DTYGG_-u.js";var r=e();function i({children:e,seed:i=`stamp`,className:a}){let o=n(i,{tilt:7,shift:0});return(0,r.jsx)(`span`,{className:t(`stamp-text inked`,a),style:{...o,transform:void 0},children:e})}export{i as t};

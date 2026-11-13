@@ -1,0 +1,77 @@
+import { Link, usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
+import { useCurrentUrl } from '@/hooks/use-current-url';
+import { useT } from '@/lib/i18n';
+import { cn, toUrl } from '@/lib/utils';
+import { edit as editAppearance } from '@/routes/appearance';
+import { edit as editNotifications } from '@/routes/notifications';
+import { edit as editPrivacy } from '@/routes/privacy';
+import { edit } from '@/routes/profile';
+import { edit as editSecurity } from '@/routes/security';
+import { index as sharedLinks } from '@/routes/shared-links';
+
+/**
+ * Settings: one column, sections as scrollable tabs on phones.
+ * ตั้งค่า: คอลัมน์เดียว แท็บเลื่อนได้บนมือถือ
+ */
+export default function SettingsLayout({ children }: PropsWithChildren) {
+    const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { t } = useT();
+    const nav = useRef<HTMLElement>(null);
+    // Keep the current tab visible on narrow phones. / ให้เห็นแท็บปัจจุบันบนจอแคบ
+    useEffect(() => {
+        nav.current
+            ?.querySelector('[aria-current="page"]')
+            ?.scrollIntoView({ inline: 'center', block: 'nearest' });
+    }, []);
+    const items = [
+        { title: t('settings.profile'), href: edit() },
+        { title: t('settings.notifications'), href: editNotifications() },
+        { title: t('settings.security'), href: editSecurity() },
+        { title: t('settings.shared_links'), href: sharedLinks() },
+        { title: t('settings.privacy'), href: editPrivacy() },
+    ];
+    // Switched-off features are hidden, not greyed out. / ฟีเจอร์ที่ปิดจะซ่อนเมนู
+    if (usePage().props.features?.themes !== false) {
+        items.splice(2, 0, {
+            title: t('settings.appearance'),
+            href: editAppearance(),
+        });
+    }
+
+    return (
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+2rem)]">
+            <h1 className="text-3xl text-ink">{t('nav.settings')}</h1>
+            <nav
+                ref={nav}
+                aria-label={t('nav.settings')}
+                className="-mx-4 flex [scrollbar-width:none] gap-1 overflow-x-auto px-4"
+            >
+                {items.map((item) => {
+                    const active = isCurrentOrParentUrl(item.href);
+
+                    return (
+                        <Link
+                            key={toUrl(item.href)}
+                            href={item.href}
+                            prefetch
+                            aria-current={active ? 'page' : undefined}
+                            className={cn(
+                                'press shrink-0 rounded-full px-4 py-2 text-sm',
+                                active
+                                    ? 'bg-paper font-medium text-ink shadow-paper'
+                                    : 'text-ink-soft hover:text-ink',
+                            )}
+                        >
+                            {item.title}
+                        </Link>
+                    );
+                })}
+            </nav>
+            <section className="paper flex flex-col gap-10 p-5 sm:p-6">
+                {children}
+            </section>
+        </div>
+    );
+}

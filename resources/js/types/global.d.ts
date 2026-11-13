@@ -1,0 +1,29 @@
+import type { Locale } from '@/lib/i18n';
+import type { Auth } from '@/types/auth';
+import type { SpaceNavItem } from '@/types/space';
+
+declare module 'react' {
+    interface InputHTMLAttributes<T> {
+        passwordrules?: string;
+    }
+}
+
+declare module '@inertiajs/core' {
+    export interface InertiaConfig {
+        sharedPageProps: {
+            name: string;
+            auth: Auth;
+            sidebarOpen: boolean;
+            locale: Locale;
+            translations: Record<string, string>;
+            spaces: SpaceNavItem[];
+            /** theme folder id (public/themes/<id>) */
+            theme: string;
+            themeAssets: Record<string, { url: string; mono: boolean }>;
+            isAdmin: boolean;
+            features: { themes: boolean; poly: boolean; location: boolean };
+            vapidPublicKey: string | null;
+            [key: string]: unknown;
+        };
+    }
+}

@@ -93,6 +93,12 @@ class Space extends Model
         ]));
     }
 
+    /** @return HasMany<ShareRequest, $this> */
+    public function shareRequests(): HasMany
+    {
+        return $this->hasMany(ShareRequest::class);
+    }
+
     /** @return HasMany<Achievement, $this> */
     public function achievements(): HasMany
     {

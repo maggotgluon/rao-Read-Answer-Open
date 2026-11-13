@@ -44,8 +44,8 @@
         <meta property="og:image" content="{{ $seo['image'] }}">
         <meta property="og:image:secure_url" content="{{ $seo['image'] }}">
         <meta property="og:image:type" content="image/png">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
+        <meta property="og:image:width" content="{{ $seo['image_w'] }}">
+        <meta property="og:image:height" content="{{ $seo['image_h'] }}">
         <meta property="og:image:alt" content="{{ $seo['image_alt'] }}">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="{{ $seo['og_title'] }}">

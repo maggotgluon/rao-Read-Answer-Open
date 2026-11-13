@@ -35,7 +35,6 @@ export default function SpaceMoments({
             readOnly={frozen}
             dateOptions={dateOptions}
             placeOptions={space.features.places ? placeOptions : undefined}
-            canShare={space.features.sharing}
         />
     );
 

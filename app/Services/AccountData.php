@@ -10,6 +10,8 @@ use App\Models\MomentReaction;
 use App\Models\CityVisit;
 use App\Models\Mood;
 use App\Models\Place;
+use App\Models\ShareLink;
+use App\Models\ShareRequest;
 use App\Models\Prompt;
 use App\Models\SpaceEvent;
 use App\Models\SurveyResponse;
@@ -82,6 +84,12 @@ class AccountData
                 ->map(fn ($c) => ['body' => $c->body, 'at' => $c->created_at?->toIso8601String()])->values(),
             'reactions' => MomentReaction::where('user_id', $user->id)->get()
                 ->map(fn ($r) => ['emoji' => $r->emoji, 'at' => $r->created_at?->toIso8601String()])->values(),
+            'share_links' => ShareLink::where('user_id', $user->id)->orderBy('created_at')->get()
+                ->map(fn ($l) => ['space' => $space($l->space_id), 'kind' => $l->item_type, 'url' => $l->url(), 'created_at' => $l->created_at?->toIso8601String(),
+                    'expires_at' => $l->expires_at?->toIso8601String(), 'turned_off_at' => $l->revoked_at?->toIso8601String(), 'views' => $l->views])->values(),
+            'share_requests' => ShareRequest::where('requester_id', $user->id)->orWhere('owner_id', $user->id)->orderBy('created_at')->get()
+                ->map(fn ($r) => ['space' => $space($r->space_id), 'kind' => $r->item_type, 'asked_by_me' => $r->requester_id === $user->id,
+                    'status' => $r->status, 'asked_at' => $r->created_at?->toIso8601String(), 'decided_at' => $r->decided_at?->toIso8601String()])->values(),
             'places_added' => Place::where('created_by', $user->id)->orderBy('created_at')->get()
                 ->map(fn ($p) => ['space' => $space($p->space_id), 'name' => $p->name, 'kind' => $p->kind, 'city' => $p->city, 'note' => $p->note, 'date' => $p->date?->toDateString()])->values(),
             'city_history' => CityVisit::where('user_id', $user->id)->orderBy('from_date')->get()

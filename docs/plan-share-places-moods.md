@@ -2,7 +2,7 @@
 
 # แผน: แชร์ออกโซเชียล สถานที่ บันทึกใกล้/ไกล ประวัติอารมณ์
 
-Status: approved; phases 1–4 + 5a done. / อนุมัติแล้ว เสร็จเฟส 1–4 และ 5a
+Status: all 5 phases done (0.14.0–0.19.0). / เสร็จครบทั้ง 5 เฟส
 
 Decisions (Mag, 2026-11-12) / สิ่งที่ตัดสินใจแล้ว:
 
@@ -82,7 +82,7 @@ one away (fits "never shame"). No "lost" or "missed" badges.
   Shown as a stamp sheet; a new one gets a small celebration + push (setting).
   Pictures: `achievements/<key>.svg` in the theme folder (dusk first; others fall back).
 
-## Phase 5: Sharing / แชร์ออกโซเชียล (large): 5a ✅ done (0.18.0)
+## Phase 5: Sharing / แชร์ออกโซเชียล (large) ✅ done: 5a (0.18.0), 5b + 5c (0.19.0)
 
 5a. Picture card (no server involvement), decided: cards follow the person's theme; owner picks a photo or none:
 
@@ -102,7 +102,7 @@ one away (fits "never shame"). No "lost" or "missed" badges.
 
 5c. Partner's OK (letter pair, partner's postcard):
 
-- "Ask to share" → partner gets a push → Allow / Not now. Allow is for one item, one time.
+- "Ask to share" → partner gets a push → Allow / Not now. Shipped: Allow covers that one item for 7 days (cards + links); after Not now the ask is hidden for 24 h.
 - Without OK the share button for that item isn't shown (hide, don't grey out).
 
 Legal: terms + privacy (public links make content public by the owner's choice; we don't

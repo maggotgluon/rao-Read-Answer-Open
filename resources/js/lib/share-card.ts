@@ -31,7 +31,15 @@ export type StampSpec = {
     names: string | null;
 };
 
-export type CardSpec = PostcardSpec | StampSpec;
+/** A letter pair: the day's question and both letters. / จดหมายคู่ของวันหนึ่ง */
+export type LettersSpec = {
+    kind: 'letters';
+    question: string;
+    letters: { who: string | null; body: string; tone: 'you' | 'partner' }[];
+    meta: string | null;
+};
+
+export type CardSpec = PostcardSpec | StampSpec | LettersSpec;
 
 type Theme = {
     ground: string;
@@ -43,6 +51,8 @@ type Theme = {
     stamp: string;
     stampInk: string;
     airmail: string;
+    stampSoft: string;
+    airmailSoft: string;
     groundImage: string | null;
     paperImage: string | null;
     hand: string;
@@ -79,6 +89,8 @@ function readTheme(): Theme {
         stamp: v('stamp', '#c92f3c'),
         stampInk: v('stamp-ink', '#ffffff'),
         airmail: v('airmail', '#2a5aae'),
+        stampSoft: v('stamp-soft', '#f6d3d7'),
+        airmailSoft: v('airmail-soft', '#dbe5f6'),
         groundImage: img('ground'),
         paperImage: img('paper'),
         hand: v('font-hand', "'Itim', sans-serif"),
@@ -216,9 +228,16 @@ export async function drawCard(
     // โหลดฟอนต์ให้ครบทุกตัวอักษรที่จะวาด
     const words = [
         'เรา · Rao',
-        spec.kind === 'postcard' ? (spec.text ?? '') : spec.label,
+        spec.kind === 'postcard'
+            ? (spec.text ?? '')
+            : spec.kind === 'stamp'
+              ? spec.label
+              : [
+                    spec.question,
+                    ...spec.letters.map((l) => `${l.who ?? ''} ${l.body}`),
+                ].join(' '),
         spec.meta ?? '',
-        spec.names ?? '',
+        spec.kind === 'letters' ? '' : (spec.names ?? ''),
         spec.kind === 'stamp' ? String(spec.number ?? '') : '',
     ].join(' ');
     await Promise.all([
@@ -264,8 +283,10 @@ export async function drawCard(
     };
     if (spec.kind === 'postcard') {
         await drawPostcard(g, t, spec, inner);
-    } else {
+    } else if (spec.kind === 'stamp') {
         await drawStamp(g, t, spec, inner);
+    } else {
+        drawLetters(g, t, spec, inner);
     }
     g.restore();
 
@@ -355,6 +376,63 @@ async function drawPostcard(
         if (!line) continue;
         g.fillText(wrap(g, line, box.w, 1)[0], box.x, fy);
         fy += 56;
+    }
+}
+
+function drawLetters(
+    g: CanvasRenderingContext2D,
+    t: Theme,
+    s: LettersSpec,
+    box: Box,
+) {
+    g.textBaseline = 'top';
+    g.fillStyle = t.inkSoft;
+    g.font = `40px ${t.sans}`;
+    const q = wrap(g, s.question, box.w, 3);
+    let y = box.y;
+    for (const line of q) {
+        g.fillText(line, box.x, y);
+        y += 54;
+    }
+    y += 30;
+    const footH = s.meta ? 60 : 0;
+    const gap = 36;
+    const each = (box.y + box.h - footH - y - gap) / 2;
+    s.letters.forEach((l, i) => {
+        const top = y + i * (each + gap);
+        roundRect(g, box.x, top, box.w, each, 18);
+        g.fillStyle = l.tone === 'you' ? t.stampSoft : t.airmailSoft;
+        g.fill();
+        let ty = top + 32;
+        if (l.who) {
+            g.font = `600 32px ${t.sans}`;
+            g.fillStyle = l.tone === 'you' ? t.stamp : t.airmail;
+            g.fillText(l.who, box.x + 36, ty);
+            ty += 52;
+        }
+        let size = 50;
+        let lines: string[] = [];
+        // Shrink until it fits, then cut with "…". / ย่อจนพอดี แล้วตัดด้วย …
+        for (; size >= 34; size -= 4) {
+            g.font = `${size}px ${t.hand}`;
+            lines = wrap(g, l.body, box.w - 72, 99);
+            if (lines.length * size * 1.35 <= top + each - 28 - ty) break;
+        }
+        const max = Math.max(
+            1,
+            Math.floor((top + each - 28 - ty) / (size * 1.35)),
+        );
+        lines = wrap(g, l.body, box.w - 72, max);
+        g.fillStyle = t.ink;
+        for (const line of lines) {
+            g.fillText(line, box.x + 36, ty);
+            ty += size * 1.35;
+        }
+    });
+    if (s.meta) {
+        g.font = `34px ${t.sans}`;
+        g.fillStyle = t.inkSoft;
+        g.fillText(s.meta, box.x, box.y + box.h - footH + 16);
     }
 }
 

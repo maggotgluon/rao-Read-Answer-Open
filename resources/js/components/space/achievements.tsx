@@ -80,10 +80,12 @@ function Stamp({
  */
 export function AchievementPanel({
     sheet,
+    spaceId,
     canShare = false,
     names = null,
 }: {
     sheet: AchievementSheet;
+    spaceId: string;
     /** sharing feature on: tap a stamp to share it / แตะแสตมป์เพื่อแชร์ */
     canShare?: boolean;
     /** "Mag & Ann", shown only if the person switches names on */
@@ -127,6 +129,11 @@ export function AchievementPanel({
                         >
                             {canShare ? (
                                 <ShareCardDialog
+                                    link={{
+                                        spaceId,
+                                        type: 'achievement',
+                                        id: a.id,
+                                    }}
                                     fileName={`rao-stamp-${a.key}`}
                                     build={(o) => ({
                                         kind: 'stamp',

@@ -40,6 +40,7 @@ class Seo
         $image = 'default';
         $type = 'website';
         $schema = [];
+        $cardImage = null;
 
         switch ($component) {
             case 'welcome':
@@ -61,6 +62,12 @@ class Seo
             case 'auth/login':
                 $title = __('auth.login')." - {$app}";
                 $description = __('seo.login');
+                break;
+            case 'share/show':
+                // The card picture is the preview; nothing else about the space. / ใช้รูปการ์ดเป็นภาพตัวอย่าง
+                $title = __('share.page_title');
+                $description = __('seo.share');
+                $cardImage = (string) ($props['image'] ?? '');
                 break;
             case 'invites/show':
                 // Never the inviter's name: previews are cached by chat apps. / ไม่ใส่ชื่อผู้เชิญ
@@ -84,8 +91,10 @@ class Seo
             'locale_alt' => $locale === 'th' ? 'en_US' : 'th_TH',
             'type' => $type,
             'site' => $app,
-            'image' => self::image($image),
-            'image_alt' => __($image === 'invite' ? 'seo.invite_alt' : 'seo.image_alt'),
+            'image' => ($cardImage ?? null) ?: self::image($image),
+            'image_w' => $cardImage ? (int) ($props['width'] ?? 1080) : 1200,
+            'image_h' => $cardImage ? (int) ($props['height'] ?? 1350) : 630,
+            'image_alt' => $cardImage ? __('share.card_alt') : __($image === 'invite' ? 'seo.invite_alt' : 'seo.image_alt'),
             'schema' => $schema,
         ];
     }

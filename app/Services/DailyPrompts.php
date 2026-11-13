@@ -224,6 +224,8 @@ class DailyPrompts
             'can_edit' => $open && ! $theirs,
             'bonus' => $daily->slot === DailyPrompt::BONUS,
             // Only my own rating, never the partner's. / เฉพาะคะแนนของฉัน
+            // Sharing a letter pair needs the partner's OK. / แชร์จดหมายคู่ต้องได้รับอนุญาต
+            'share' => $mine && $theirs ? app(Shareables::class)->state($daily->space, $daily, $viewer) : null,
             'my_rating' => (int) ($daily->ratings->firstWhere('user_id', $viewer->id)?->value ?? 0),
             // Replies only exist once both letters are open. / ตอบกลับได้เมื่อเปิดทั้งคู่แล้ว
             'replies' => $mine && $theirs ? $daily->replies->map(fn ($r) => [

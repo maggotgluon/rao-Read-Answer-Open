@@ -57,7 +57,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /** Push types a user can switch off. / ประเภทแจ้งเตือนที่ปิดได้ */
-    public const NOTIFY_TYPES = ['morning', 'evening', 'partner_answered', 'nudges', 'replies', 'partner_moment', 'moment_activity', 'dates', 'achievements'];
+    public const NOTIFY_TYPES = ['morning', 'evening', 'partner_answered', 'nudges', 'replies', 'partner_moment', 'moment_activity', 'dates', 'achievements', 'share_asks'];
 
     /** Days between asking to delete and deleting. / จำนวนวันก่อนลบจริง */
     public const DELETE_GRACE_DAYS = 7;

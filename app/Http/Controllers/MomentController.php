@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Moment;
+use App\Models\ShareLink;
 use App\Models\Space;
 use App\Services\Achievements;
 use App\Services\Analytics;
@@ -92,6 +93,7 @@ class MomentController extends Controller
         abort_unless($moment->user_id === $request->user()->id, 403);
 
         $paths = $moment->media()->pluck('path');
+        ShareLink::revokeFor('moment', $moment->id);   // public links stop at once / ลิงก์หยุดทันที
         $moment->delete();
         $paths->each(fn ($p) => $photos->delete($p));
 

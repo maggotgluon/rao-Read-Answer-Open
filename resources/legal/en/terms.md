@@ -40,7 +40,9 @@ Everything you write or post (answers, moments, photos, comments, etc.) stays yo
 
 So that we can run the service, you give us a non-exclusive, royalty-free permission to use that content **only as far as needed** to store it, process it technically (for example, resizing photos), back it up, show it to the members of your space, and create your data export. This permission ends when the content is deleted (copies in backups expire on the rotation described in the Privacy Policy).
 
-We will not publish your content, use it for advertising, or use it to train artificial intelligence (AI).
+We will not publish your content, use it for advertising, or use it to train artificial intelligence (AI). The only exception is a **share link you make yourself**: we then show that one card picture to anyone with the link, until it expires or you turn it off.
+
+When you share a card outside Rao, you are the one publishing it, and you're responsible for it. Your partner's postcard or your shared letters need their OK in the app first; please respect a "Not now".
 
 You confirm that you have the right to post what you post — for example, if other people appear in your photos, you should have their permission.
 

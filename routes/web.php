@@ -18,6 +18,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MomentCommentController;
 use App\Http\Controllers\MomentController;
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\ShareController;
 use App\Http\Controllers\MomentDateController;
 use App\Http\Controllers\MomentMediaController;
 use App\Http\Controllers\MomentReactionController;
@@ -48,6 +49,10 @@ Route::get('legal/{doc}', [LegalController::class, 'show'])
 if (DevTools::enabled()) {
     Route::post('dev/login', DevLoginController::class)->middleware('guest')->name('dev.login');
 }
+
+// Public card links: the picture only, anyone with the link. / ลิงก์การ์ดสาธารณะ เห็นแค่รูป
+Route::get('p/{token}', [ShareController::class, 'show'])->where('token', '[a-z0-9]{32}')->middleware('throttle:60,1')->name('share.show');
+Route::get('p/{token}/card.png', [ShareController::class, 'image'])->where('token', '[a-z0-9]{32}')->middleware('throttle:120,1')->name('share.image');
 
 // Invite links work for guests too (they sign up, then come back).
 Route::get('join/{code}', [InviteController::class, 'show'])->name('invites.show');
@@ -100,6 +105,9 @@ Route::middleware(['auth', 'verified', 'consent'])->group(function () {
             Route::post('places/here', [PlaceController::class, 'here'])->middleware('throttle:10,1')->name('places.here');
             Route::put('moments/{moment}/place', [PlaceController::class, 'moment'])->name('moments.place');
             Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
+            Route::post('share/ask', [ShareController::class, 'ask'])->middleware('throttle:20,1')->name('share.ask');
+            Route::put('share/requests/{shareRequest}', [ShareController::class, 'decide'])->name('share.decide');
+            Route::post('share/links', [ShareController::class, 'store'])->middleware('throttle:10,1')->name('share.links.store');
 
             Route::post('events', [SpaceEventController::class, 'store'])->name('events.store');
             Route::patch('events/{event}', [SpaceEventController::class, 'update'])->name('events.update');

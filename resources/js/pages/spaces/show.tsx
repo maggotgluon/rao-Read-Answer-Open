@@ -6,12 +6,14 @@ import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
 import { InviteCard } from '@/components/space/invite-card';
 import { MonthCalendar, MoodMonth } from '@/components/space/month-calendar';
 import { AchievementPanel } from '@/components/space/achievements';
+import { ShareRequests } from '@/components/space/share-requests';
 import { PlacesPanel } from '@/components/space/places-panel';
 import { TogetherApart } from '@/components/space/together-apart';
 import { SpaceSettings } from '@/components/space/space-settings';
 import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
 import type {
+    ShareRequestItem,
     AchievementSheet,
     CalendarMonth,
     DayDetail,
@@ -35,6 +37,7 @@ type Props = {
     story: SpaceStory | null;
     places: PlacesData | null;
     achievements: AchievementSheet | null;
+    shareRequests: ShareRequestItem[];
 };
 
 /** Tab 1 — Overview / ภาพรวม */
@@ -49,6 +52,7 @@ export default function SpaceOverview({
     story,
     places,
     achievements,
+    shareRequests,
 }: Props) {
     const auth = usePage().props.auth as { user?: { name: string } };
     const { t } = useT();
@@ -93,9 +97,12 @@ export default function SpaceOverview({
                 partnerName={space.partner?.name}
             />
 
+            <ShareRequests items={shareRequests ?? []} spaceId={space.id} />
+
             {achievements && (
                 <AchievementPanel
                     sheet={achievements}
+                    spaceId={space.id}
                     canShare={space.features.sharing}
                     names={[auth.user?.name, space.partner?.name]
                         .filter(Boolean)

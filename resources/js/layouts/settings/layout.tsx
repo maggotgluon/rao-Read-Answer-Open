@@ -9,6 +9,7 @@ import { edit as editNotifications } from '@/routes/notifications';
 import { edit as editPrivacy } from '@/routes/privacy';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { index as sharedLinks } from '@/routes/shared-links';
 
 /**
  * Settings: one column, sections as scrollable tabs on phones.
@@ -28,6 +29,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
         { title: t('settings.profile'), href: edit() },
         { title: t('settings.notifications'), href: editNotifications() },
         { title: t('settings.security'), href: editSecurity() },
+        { title: t('settings.shared_links'), href: sharedLinks() },
         { title: t('settings.privacy'), href: editPrivacy() },
     ];
     // Switched-off features are hidden, not greyed out. / ฟีเจอร์ที่ปิดจะซ่อนเมนู

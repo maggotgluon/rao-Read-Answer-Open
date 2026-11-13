@@ -17,6 +17,7 @@ This policy is written under Thailand's Personal Data Protection Act B.E. 2562 (
 - What you write or post in your space is visible only to the members of that space. Nobody else — including our admin — can see it.
 - We don't sell your data, we don't show ads, and we don't use third-party trackers.
 - Usage analytics and location sharing are **off by default**. They are turned on only if you choose to, and you can turn them off at any time.
+- Nothing becomes public unless **you** make a share link. A link shows one card picture only, and you can turn it off at any time.
 - You can download your data or delete your account yourself in Settings.
 
 ## 1. Who we are
@@ -129,6 +130,13 @@ The admin tools **never show** anyone's answers, moments, photos, comments, mood
 
 **Lawful basis:** legitimate interest (s.24(5)).
 
+### 2.12 Sharing cards (optional)
+
+- **Picture cards** are drawn on your own phone. Saving or sharing one through your phone's share menu sends nothing to us; where it goes after that is up to you and the app you share to.
+- **Public links:** if you choose "Make a link", we store that one card picture and a random link to it. Anyone with the link can see the picture, and nothing else: no names unless you put them on the card, no space, no comments, no other content. The page is marked so search engines don't list it. We count how many times it was opened (no visitor details). The link stops when it expires (7 days, 30 days, or when you turn it off), when you turn it off in Settings → Shared links, or when the postcard, the space or your account is deleted. When a link stops, the picture is deleted at once (and within a day for expired links).
+- **Your partner's content:** sharing your partner's postcard or your letters from a day needs their OK first. They get a notification and choose Allow (that one item, for 7 days) or Not now. They can also see and turn off any link made from their content.
+- **Lawful basis:** your consent, given each time you make a card or link (s.19); for a partner's content, also their consent.
+
 ## 3. What we don't do
 
 - We don't sell or rent your data.
@@ -163,6 +171,7 @@ Some providers may store or process data outside Thailand — for example browse
 | Question ratings         | Deleted together with your account                                                                               |
 | Push subscription        | Until you turn off notifications or delete your account                                                          |
 | Push delivery log        | 90 days                                                                                                          |
+| Share link pictures      | Until the link expires or is turned off (then deleted within a day); the link record itself for 90 days after    |
 | Server and error logs    | 90 days                                                                                                          |
 
 We may keep some data longer only where the law requires it, or to establish or defend legal claims. Aggregated statistics that can no longer identify anyone are not personal data and may be kept.

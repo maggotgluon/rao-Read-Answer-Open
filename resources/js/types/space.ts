@@ -73,6 +73,7 @@ export type DayItem = {
     my_rating: -1 | 0 | 1;
     replies: LetterReply[];
     nudged: boolean;
+    share: ShareState | null;
 };
 
 export type LetterReply = {
@@ -103,6 +104,7 @@ export type MomentItem = {
     posted_at: string | null;
     date: { id: number; kind: string; title: string } | null;
     place: { id: number; name: string; kind: PlaceKind } | null;
+    share: ShareState | null;
     photos: { url: string; width: number; height: number }[];
     reactions: { emoji: string; mine: boolean }[];
     comments: {
@@ -274,6 +276,7 @@ export type AchievementInfo = {
     group: AchievementGroup;
     /** the milestone number (null for "first" stamps) / ตัวเลขของแสตมป์ */
     n: number | null;
+    id: number;
     earned_at: string;
     new: boolean;
 };
@@ -281,4 +284,15 @@ export type AchievementInfo = {
 export type AchievementSheet = {
     earned: AchievementInfo[];
     next: { key: string; group: AchievementGroup; n: number; have: number }[];
+};
+
+/** own / allowed = can share; ask / pending / not_now = partner's OK needed. */
+export type ShareState = 'own' | 'allowed' | 'ask' | 'pending' | 'not_now';
+
+export type ShareRequestItem = {
+    id: number;
+    kind: 'moment' | 'letter';
+    by: string | null;
+    preview: string | null;
+    at: string | null;
 };

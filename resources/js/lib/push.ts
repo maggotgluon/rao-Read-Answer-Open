@@ -19,7 +19,7 @@ export const isStandalone = (): boolean =>
     window.matchMedia('(display-mode: standalone)').matches ||
     (navigator as Navigator & { standalone?: boolean }).standalone === true;
 
-const xsrf = (): string =>
+export const xsrf = (): string =>
     decodeURIComponent(
         document.cookie
             .split('; ')

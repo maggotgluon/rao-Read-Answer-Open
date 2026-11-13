@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Settings\LocationController;
+use App\Http\Controllers\Settings\SharedLinksController;
 use App\Http\Controllers\Settings\NotificationController;
 use App\Http\Controllers\Settings\PrivacyController;
 use App\Http\Controllers\Settings\ProfileController;
@@ -40,6 +41,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('settings/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
     Route::put('settings/location', [LocationController::class, 'toggle'])->name('location.toggle');
     Route::put('settings/location/history', [LocationController::class, 'history'])->name('location.history');
+    Route::get('settings/shared-links', [SharedLinksController::class, 'index'])->name('shared-links.index');
+    Route::delete('settings/shared-links/{link}', [SharedLinksController::class, 'destroy'])->name('shared-links.destroy');
     Route::post('location', [LocationController::class, 'update'])->middleware('throttle:20,1')->name('location.update');
     Route::post('settings/push-test', [PushSubscriptionController::class, 'test'])->middleware('throttle:5,1')->name('push.test');
 });

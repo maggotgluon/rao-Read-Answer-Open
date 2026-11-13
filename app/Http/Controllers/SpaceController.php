@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\MomentReaction;
 use App\Models\Mood;
+use App\Models\ShareRequest;
 use App\Models\Space;
 use App\Models\SpaceEvent;
 use App\Models\SpaceInvite;
@@ -13,6 +14,7 @@ use App\Models\User;
 use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Achievements;
+use App\Services\Shareables;
 use App\Services\Location;
 use App\Services\SpacePlaces;
 use App\Services\SpaceStory;
@@ -23,6 +25,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -100,6 +103,7 @@ class SpaceController extends Controller
             'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
             'story' => fn () => Features::on('location', $space) ? app(SpaceStory::class)->timeline($space) : null,
             'achievements' => fn () => Features::on('achievements', $space) ? app(Achievements::class)->sheet($space, $user) : null,
+            'shareRequests' => fn () => $this->shareRequestsFor($space, $user),
             'places' => fn () => Features::on('places', $space) ? [
                 'items' => app(SpacePlaces::class)->list($space),
                 'visits' => app(SpacePlaces::class)->visits($space, $user),
@@ -268,9 +272,42 @@ class SpaceController extends Controller
             'newAchievements' => Features::on('achievements', $space)
                 ? $space->achievements()->orderBy('earned_at')->get()
                     ->reject(fn ($a) => $a->seenBy($user))
-                    ->map(fn ($a) => Achievements::describe($a->key))->values()->all()
+                    ->map(fn ($a) => [...Achievements::describe($a->key), 'id' => $a->id])->values()->all()
                 : [],
         ];
+    }
+
+    /**
+     * "May I share this?" waiting for MY answer, with a short preview of what it is.
+     * คำขอแชร์ที่รอฉันตอบ พร้อมตัวอย่างสั้น ๆ
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function shareRequestsFor(Space $space, User $user): array
+    {
+        if (! app(Shareables::class)->enabled($space)) {
+            return [];
+        }
+
+        return $space->shareRequests()->where(['owner_id' => $user->id, 'status' => ShareRequest::PENDING])
+            ->with('requester:id,name')->latest('id')->limit(10)->get()
+            ->map(function (ShareRequest $r) use ($space) {
+                $item = app(Shareables::class)->find($space, $r->item_type, $r->item_id);
+                if (! $item) {
+                    return null;
+                }
+                $preview = $item instanceof Moment
+                    ? Str::limit((string) $item->body, 120)
+                    : $item->prompt?->textFor(app()->getLocale());
+
+                return [
+                    'id' => $r->id,
+                    'kind' => $r->item_type,
+                    'by' => $r->requester?->name,
+                    'preview' => $preview,
+                    'at' => $r->created_at?->toIso8601String(),
+                ];
+            })->filter()->values()->all();
     }
 
     /** The viewer saw their new stamps. / ดูแสตมป์ใหม่แล้ว */
@@ -357,6 +394,8 @@ class SpaceController extends Controller
                 'title' => $m->event->kind === SpaceEvent::ANNIVERSARY ? __('event.anniversary') : $m->event->title,
             ] : null,
             'place' => $m->place ? ['id' => $m->place->id, 'name' => $m->place->name, 'kind' => $m->place->kind] : null,
+            // own / allowed / ask / pending / not_now, null = sharing off or a draft
+            'share' => $m->status === Moment::STATUS_POSTED ? app(Shareables::class)->state($space, $m, $user) : null,
             'photos' => $m->media->map(fn ($media) => [
                 'url' => route('spaces.media.show', [$space, $m, $media]),
                 'width' => $media->width,

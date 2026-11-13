@@ -13,7 +13,7 @@ import { destroy, publish } from '@/routes/spaces/moments';
 import { update as react } from '@/routes/spaces/reactions';
 import type { MomentItem, Place, SpaceEvent } from '@/types/space';
 import { MarkDateDialog } from './mark-date-dialog';
-import { ShareCardDialog } from './share-card-dialog';
+import { ShareAction } from './share-action';
 import { MarkPlaceDialog } from './mark-place-dialog';
 
 type Props = {
@@ -23,8 +23,6 @@ type Props = {
     readOnly: boolean;
     dateOptions?: SpaceEvent[];
     placeOptions?: Place[];
-    /** sharing feature on (own posted postcards only) / เปิดฟีเจอร์แชร์ */
-    canShare?: boolean;
 };
 
 /**
@@ -39,7 +37,6 @@ export function MomentCard({
     readOnly,
     dateOptions = [],
     placeOptions,
-    canShare = false,
 }: Props) {
     const { t, locale } = useT();
     const args = { space: spaceId, moment: moment.id };
@@ -123,10 +120,16 @@ export function MomentCard({
                             {t('moment.draft')}
                         </span>
                     )}
-                    {/* Only my own posted postcards; the partner's needs their OK (later).
-                        เฉพาะโปสการ์ดของฉันที่โพสต์แล้ว */}
-                    {canShare && moment.mine && !isDraft && (
-                        <ShareCardDialog
+                    {/* Own postcards share freely; the partner's need their OK first.
+                        โปสการ์ดของฉันแชร์ได้เลย ของคู่ต้องขออนุญาตก่อน */}
+                    {!readOnly && (
+                        <ShareAction
+                            state={moment.share}
+                            spaceId={spaceId}
+                            type="moment"
+                            id={moment.id}
+                            partnerName={moment.author}
+                            className="ml-auto"
                             fileName={`rao-postcard-${moment.id}`}
                             photos={moment.photos.map((p) => p.url)}
                             build={(o) => ({
@@ -161,18 +164,6 @@ export function MomentCard({
                                       })
                                     : null,
                             })}
-                            trigger={
-                                <button
-                                    type="button"
-                                    aria-label={t('share.title')}
-                                    className="press ml-auto grid size-9 place-items-center rounded-full text-ink-soft hover:text-ink"
-                                >
-                                    <Asset
-                                        name="icons.share"
-                                        className="size-4"
-                                    />
-                                </button>
-                            }
                         />
                     )}
                     {moment.mine && !readOnly && (
@@ -182,7 +173,10 @@ export function MomentCard({
                             aria-label={t('moment.delete')}
                             className={cn(
                                 'press grid size-9 place-items-center rounded-full text-ink-soft hover:text-wax',
-                                !(canShare && !isDraft) && 'ml-auto',
+                                (readOnly ||
+                                    !moment.share ||
+                                    moment.share === 'not_now') &&
+                                    'ml-auto',
                             )}
                         >
                             <Trash2 className="size-4" {...icon} />

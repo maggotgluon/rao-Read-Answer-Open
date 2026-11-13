@@ -2,6 +2,14 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.19.0] - 2026-11-14
+
+- Public links for cards: make a link that shows only the card picture, for 7 days, 30 days or until you turn it off
+- New Settings → Shared links: see every link, how often it was opened, and turn any of them off (the picture is deleted at once)
+- Ask to share: your partner's postcards and your letters from a day can be shared once your partner says Allow (that one item, for 7 days); they can also turn those links off
+- Letter cards: the day's question with both letters
+- Privacy policy and terms updated for sharing
+
 ## [0.18.0] - 2026-11-13
 
 - Share as a picture: turn your own postcards and your stamps into a card for Instagram, Facebook, LINE… (post 4:5 or story 9:16)

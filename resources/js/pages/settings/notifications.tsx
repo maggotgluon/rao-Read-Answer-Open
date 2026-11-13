@@ -25,7 +25,8 @@ type Prefs = Record<
     | 'partner_moment'
     | 'moment_activity'
     | 'dates'
-    | 'achievements',
+    | 'achievements'
+    | 'share_asks',
     boolean
 >;
 
@@ -198,6 +199,7 @@ export default function Notifications({
                     {row('moment_activity')}
                     {row('dates')}
                     {row('achievements')}
+                    {row('share_asks')}
                     <Button
                         type="submit"
                         disabled={form.processing}

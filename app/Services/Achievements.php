@@ -136,6 +136,7 @@ class Achievements
         return [
             'earned' => $earned->map(fn (Achievement $a) => [
                 ...self::describe($a->key),
+                'id' => $a->id,
                 'earned_at' => $a->earned_at->toIso8601String(),
                 'new' => ! $a->seenBy($viewer),
             ])->values()->all(),

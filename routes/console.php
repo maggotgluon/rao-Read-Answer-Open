@@ -19,6 +19,7 @@ $task = fn (string $command, array $args = []) => fn () => Artisan::call($comman
 
 Schedule::call($task('spaces:purge'))->name('spaces:purge')->dailyAt('03:00');
 Schedule::call($task('accounts:purge'))->name('accounts:purge')->dailyAt('03:15');
+Schedule::call($task('share:prune'))->name('share:prune')->dailyAt('03:30');
 Schedule::call($task('prompts:assign'))->name('prompts:assign')->hourly();
 Schedule::call($task('push:daily'))->name('push:daily')->everyFiveMinutes()->withoutOverlapping(10);
 // Short so a web request finishes within the host's time limit. / สั้นพอให้ไม่เกินเวลาของโฮสต์

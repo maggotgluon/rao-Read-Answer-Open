@@ -1,10 +1,11 @@
-import { router, useForm } from '@inertiajs/react';
+import { router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Asset } from '@/components/rao/asset';
 import { StampText } from '@/components/rao/stamp-text';
 import { AirmailIcon, EnvelopeIcon, SealIcon } from '@/components/rao/icons';
 import { useT } from '@/lib/i18n';
+import { ShareAction } from './share-action';
 import { cn } from '@/lib/utils';
 import { store } from '@/routes/spaces/answers';
 import { nudge } from '@/routes/spaces';
@@ -36,6 +37,8 @@ export function DayCard({
     compact,
 }: Props) {
     const { t, locale } = useT();
+    const myName =
+        (usePage().props.auth as { user?: { name: string } }).user?.name ?? '';
     const [editing, setEditing] = useState(false);
     const form = useForm({ body: day.mine?.body ?? '' });
     const canWrite =
@@ -242,6 +245,45 @@ export function DayCard({
                     </p>
                 )}
 
+                {!readOnly && day.mine && day.partner && (
+                    <ShareAction
+                        state={day.share}
+                        spaceId={spaceId}
+                        type="letter"
+                        id={day.id}
+                        partnerName={partnerName}
+                        className="self-start"
+                        fileName={`rao-letters-${day.date}`}
+                        build={(o) => ({
+                            kind: 'letters',
+                            question: day.text,
+                            letters: [
+                                {
+                                    who: o.names ? myName.split(' ')[0] : null,
+                                    body: day.mine!.body,
+                                    tone: 'you',
+                                },
+                                {
+                                    who: o.names
+                                        ? partnerName.split(' ')[0]
+                                        : null,
+                                    body: day.partner!.body,
+                                    tone: 'partner',
+                                },
+                            ],
+                            meta: new Date(
+                                day.date + 'T00:00:00',
+                            ).toLocaleDateString(
+                                locale === 'th' ? 'th-TH' : 'en-GB',
+                                {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    year: 'numeric',
+                                },
+                            ),
+                        })}
+                    />
+                )}
                 {!readOnly && <Rating day={day} spaceId={spaceId} />}
             </div>
         </article>

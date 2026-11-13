@@ -88,6 +88,11 @@ and everything after that runs through secret maintenance URLs (`/_ops/*`).
    adds new library prompts (admin edits are kept). Safe to open again; shows what ran.
    เปิดลิงก์ migrate หลัง deploy ทุกครั้ง เปิดซ้ำได้ไม่เป็นไร
 
+**Getting 404 with the token?** Make the token with the command above (48 letters and numbers only).
+Hand-typed tokens break: under 32 characters turns `/_ops` off; `#` in `.env` starts a comment;
+`$`, spaces, `&`, `+` change it on the way. A too-short token is noted in `storage/logs/laravel.log`.
+ได้ 404 ทั้งที่ใส่โทเค็น: ให้สร้างโทเค็นด้วยคำสั่งข้างบน อย่าพิมพ์เอง
+
 The token is the only lock on `/_ops/*`: keep it out of chat/screenshots, and change it in
 `.env` if it leaks. Without a token (or with a short one) every `/_ops` URL returns 404, and
 5 wrong tries lock the IP out for 10 minutes.

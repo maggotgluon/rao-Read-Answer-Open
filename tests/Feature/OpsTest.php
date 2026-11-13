@@ -19,7 +19,9 @@ test('ops URLs are off without a token, and 404 for a wrong or short token', fun
     $this->get('/_ops/status?token=')->assertNotFound();
 
     config(['rao.ops_token' => 'short']);
+    Illuminate\Support\Facades\Log::spy();
     $this->get('/_ops/status?token=short')->assertNotFound();
+    Illuminate\Support\Facades\Log::shouldHaveReceived('warning')->withArgs(fn ($m) => str_contains($m, 'shorter than 32'));
 
     config(['rao.ops_token' => OPS_TOKEN]);
     $this->get('/_ops/migrate?token=wrong')->assertNotFound();

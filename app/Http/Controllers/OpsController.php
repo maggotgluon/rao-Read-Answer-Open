@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Throwable;
 
@@ -58,6 +59,11 @@ class OpsController extends Controller
         abort_if(RateLimiter::tooManyAttempts($key, 5), 429);
 
         $given = (string) ($request->header('X-Ops-Token') ?: $request->query('token', ''));
+        if ($expected !== '' && strlen($expected) < 32) {
+            // Visible in storage/logs (Plesk File Manager); the visitor still only sees 404.
+            // บอกในไฟล์ log ว่าโทเค็นสั้นเกินไป ผู้เข้าชมยังเห็นแค่ 404
+            Log::warning('RAO_OPS_TOKEN is shorter than 32 characters, so /_ops is off. Use: php -r "echo bin2hex(random_bytes(24));"');
+        }
         if (strlen($expected) < 32 || ! hash_equals($expected, $given)) {
             RateLimiter::hit($key, 600);
             abort(404);

@@ -118,6 +118,15 @@ export type DayStatus =
     | 'future'
     | 'before';
 
+/** Mood stamps on one day (null = none). / อารมณ์ของวันนั้น */
+export type DayMoods = { mine: string | null; partner: string | null };
+
+export type MoodSummary = {
+    top: string | null;
+    top_days: number;
+    days: number;
+};
+
 export type CalendarMonth = {
     month: string;
     prev: string;
@@ -129,7 +138,9 @@ export type CalendarMonth = {
         is_today: boolean;
         moments: number;
         events: string[];
+        moods: DayMoods;
     }[];
+    mood_summary: { mine: MoodSummary; partner: MoodSummary };
     stats: {
         month_complete: number;
         month_elapsed: number;
@@ -183,6 +194,7 @@ export type DayDetail = {
     }[];
     events: EventOccurrence[];
     memories: Memory[];
+    moods?: DayMoods;
 };
 
 export type ActivityItem = {

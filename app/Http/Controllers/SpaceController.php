@@ -86,7 +86,7 @@ class SpaceController extends Controller
 
         return Inertia::render('spaces/show', [
             ...$this->shell($space, $user),
-            'calendar' => fn () => $calendar->month($space, $month),
+            'calendar' => fn () => $calendar->month($space, $month, $user),
             'upcoming' => fn () => $calendar->upcoming($space),
             'events' => fn () => $calendar->eventList($space),
             // Loaded on demand when a day is tapped: router.reload({ only: ['day'], data: { day } })

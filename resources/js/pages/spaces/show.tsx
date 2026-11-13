@@ -4,7 +4,7 @@ import { DaySheet } from '@/components/space/day-sheet';
 import { DistanceCard } from '@/components/space/distance-card';
 import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
 import { InviteCard } from '@/components/space/invite-card';
-import { MonthCalendar } from '@/components/space/month-calendar';
+import { MonthCalendar, MoodMonth } from '@/components/space/month-calendar';
 import { SpaceSettings } from '@/components/space/space-settings';
 import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
@@ -62,6 +62,7 @@ export default function SpaceOverview({
             <MonthCalendar
                 calendar={calendar}
                 spaceId={space.id}
+                partnerName={space.partner?.name}
                 onPick={pick}
             />
 
@@ -73,6 +74,11 @@ export default function SpaceOverview({
                     mall: calendar.stats.month_elapsed,
                 })}
             </p>
+
+            <MoodMonth
+                summary={calendar.mood_summary}
+                partnerName={space.partner?.name}
+            />
 
             <UpcomingEvents upcoming={upcoming} />
 

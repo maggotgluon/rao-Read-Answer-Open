@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DailyPrompt;
 use App\Models\Moment;
+use App\Models\Mood;
 use App\Models\Space;
 use App\Models\SpaceEvent;
 use App\Models\SpecialDay;
@@ -31,7 +32,7 @@ class SpaceCalendar
     public function __construct(private DailyPrompts $prompts) {}
 
     /** @return array<string, mixed> */
-    public function month(Space $space, Carbon $month): array
+    public function month(Space $space, Carbon $month, ?User $viewer = null): array
     {
         $start = $month->copy()->startOfMonth();
         $end = $month->copy()->endOfMonth();
@@ -50,6 +51,7 @@ class SpaceCalendar
             ->countBy();
 
         $events = $this->occurrences($space, $start, $end)->groupBy('date');
+        $moods = $viewer ? $this->moods($space, $viewer, $start, $end) : collect();
 
         $missesPerWeek = [];
         $days = [];
@@ -84,6 +86,7 @@ class SpaceCalendar
                 'is_today' => $d->equalTo($today),
                 'moments' => $momentDays[$key] ?? 0,
                 'events' => ($events[$key] ?? collect())->pluck('title')->values()->all(),
+                'moods' => $moods[$key] ?? ['mine' => null, 'partner' => null],
             ];
         }
 
@@ -96,6 +99,10 @@ class SpaceCalendar
             'next' => $start->copy()->addMonth()->format('Y-m'),
             'is_current' => $start->format('Y-m') === $today->format('Y-m'),
             'days' => $days,
+            'mood_summary' => [
+                'mine' => $this->moodSummary($moods->pluck('mine')),
+                'partner' => $this->moodSummary($moods->pluck('partner')),
+            ],
             'stats' => [
                 'month_complete' => $past->where('status', 'complete')->count(),
                 'month_elapsed' => $past->count(),
@@ -140,7 +147,46 @@ class SpaceCalendar
             'moments' => $moments->all(),
             'events' => $this->occurrences($space, $date, $date)->values()->all(),
             'memories' => $this->memories($space, $date),
+            'moods' => $this->moods($space, $viewer, $date, $date)[$date->toDateString()] ?? ['mine' => null, 'partner' => null],
         ];
+    }
+
+    /**
+     * Mood stamps of the viewer and their partner in this space, by date (nothing later than
+     * the space's today). Only members of this space, so a poly partner elsewhere never shows.
+     * อารมณ์ของเราและคู่ในพื้นที่นี้ ตามวันที่ (เฉพาะสมาชิกของพื้นที่นี้)
+     *
+     * @return Collection<string, array{mine: ?string, partner: ?string}>
+     */
+    private function moods(Space $space, User $viewer, Carbon $from, Carbon $to): Collection
+    {
+        $partner = $space->partnerOf($viewer);
+        $last = $to->copy()->min($space->today())->toDateString();
+        $rows = Mood::whereIn('user_id', array_filter([$viewer->id, $partner?->id]))
+            ->whereBetween('date', [$from->toDateString(), $last])
+            ->get(['user_id', 'date', 'mood']);
+
+        return $rows->groupBy(fn (Mood $m) => $m->date->toDateString())
+            ->map(fn (Collection $day) => [
+                'mine' => $day->firstWhere('user_id', $viewer->id)?->mood,
+                'partner' => $partner ? $day->firstWhere('user_id', $partner->id)?->mood : null,
+            ]);
+    }
+
+    /**
+     * Most common mood + how many days had one. Ties go to the order moods are shown in.
+     * อารมณ์ที่พบบ่อยที่สุด และจำนวนวันที่มีแสตมป์อารมณ์
+     *
+     * @param  Collection<string, ?string>  $moods
+     * @return array{top: ?string, top_days: int, days: int}
+     */
+    private function moodSummary(Collection $moods): array
+    {
+        $counts = $moods->filter()->countBy();
+        $order = array_flip(array_keys(Mood::MOODS));
+        $top = $counts->keys()->sortBy(fn ($k) => [-$counts[$k], $order[$k] ?? 99])->first();
+
+        return ['top' => $top, 'top_days' => $top ? $counts[$top] : 0, 'days' => (int) $counts->sum()];
     }
 
     /**

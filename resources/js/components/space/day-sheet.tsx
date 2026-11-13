@@ -52,6 +52,39 @@ export function DaySheet({ date, day, spaceId, partnerName, onClose }: Props) {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-5">
+                        {(day.moods?.mine || day.moods?.partner) && (
+                            <section className="flex flex-wrap gap-2 text-sm">
+                                {(
+                                    [
+                                        ['mine', t('today.you')],
+                                        ['partner', partnerName],
+                                    ] as const
+                                ).map(([who, name]) => {
+                                    const mood = day.moods?.[who];
+                                    return mood ? (
+                                        <span
+                                            key={who}
+                                            className={
+                                                who === 'mine'
+                                                    ? 'flex items-center gap-1.5 rounded-full bg-stamp-soft py-1 pr-3 pl-1.5 text-ink'
+                                                    : 'flex items-center gap-1.5 rounded-full bg-airmail-soft py-1 pr-3 pl-1.5 text-ink'
+                                            }
+                                        >
+                                            <Asset
+                                                name={`moods.${mood}`}
+                                                className={
+                                                    who === 'mine'
+                                                        ? 'size-5 text-stamp'
+                                                        : 'size-5 text-airmail'
+                                                }
+                                            />
+                                            {name}: {t(`mood.${mood}`)}
+                                        </span>
+                                    ) : null;
+                                })}
+                            </section>
+                        )}
+
                         {day.events.length > 0 && (
                             <ul className="grid gap-1">
                                 {day.events.map((e, i) => (

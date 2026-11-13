@@ -1,14 +1,21 @@
 import { router } from '@inertiajs/react';
+import { Asset } from '@/components/rao/asset';
 import { ChevronLeft, ChevronRight } from '@/components/rao/ui-icons';
 import { useT } from '@/lib/i18n';
 import { organic, seeded } from '@/lib/organic';
 import { cn } from '@/lib/utils';
 import { show } from '@/routes/spaces';
-import type { CalendarMonth, DayStatus } from '@/types/space';
+import type {
+    CalendarMonth,
+    DayMoods,
+    DayStatus,
+    MoodSummary,
+} from '@/types/space';
 
 type Props = {
     calendar: CalendarMonth;
     spaceId: string;
+    partnerName?: string;
     onPick: (date: string) => void;
 };
 
@@ -19,7 +26,12 @@ type Props = {
  * so it never jumps around between visits.
  * เดือนเป็นแผ่นแสตมป์: เขียนทั้งคู่ = แสตมป์แดงมีตราประทับ แต่ละดวงเอียงไม่เท่ากัน (คงที่ตามวันที่)
  */
-export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
+export function MonthCalendar({
+    calendar,
+    spaceId,
+    partnerName,
+    onPick,
+}: Props) {
     const { t, locale } = useT();
     const loc = locale === 'th' ? 'th-TH' : 'en-GB';
     const first = new Date(calendar.month + '-01T00:00:00');
@@ -90,6 +102,15 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
                             status={d.status}
                             events={d.events}
                             moments={d.moments}
+                            moods={d.moods}
+                            moodLabel={[
+                                d.moods?.mine &&
+                                    `${t('today.you')}: ${t(`mood.${d.moods.mine}`)}`,
+                                d.moods?.partner &&
+                                    `${partnerName ?? ''}: ${t(`mood.${d.moods.partner}`)}`,
+                            ]
+                                .filter(Boolean)
+                                .join(', ')}
                             onPick={() => onPick(d.date)}
                             label={new Date(
                                 d.date + 'T00:00:00',
@@ -129,6 +150,16 @@ export function MonthCalendar({ calendar, spaceId, onPick }: Props) {
                     <span className="size-1.5 rounded-full bg-kraft" />
                     {t('day.moments')}
                 </span>
+                <span className="flex items-center gap-1.5">
+                    <MoodDot mood="happy" who="mine" />
+                    {t('mood.legend_mine')}
+                </span>
+                {partnerName && (
+                    <span className="flex items-center gap-1.5">
+                        <MoodDot mood="happy" who="partner" />
+                        {t('mood.legend_partner', { name: partnerName })}
+                    </span>
+                )}
             </footer>
         </section>
     );
@@ -146,6 +177,8 @@ function DayStamp({
     status,
     events,
     moments,
+    moods,
+    moodLabel,
     onPick,
     label,
     statusLabel,
@@ -155,6 +188,8 @@ function DayStamp({
     status: DayStatus;
     events: string[];
     moments: number;
+    moods?: DayMoods;
+    moodLabel: string;
     onPick: () => void;
     label: string;
     statusLabel: string;
@@ -182,7 +217,7 @@ function DayStamp({
             disabled={!clickable && events.length === 0}
             onClick={onPick}
             title={events.join(', ')}
-            aria-label={`${label} · ${statusLabel}${events.length ? ' · ' + events.join(', ') : ''}`}
+            aria-label={`${label} · ${statusLabel}${events.length ? ' · ' + events.join(', ') : ''}${moodLabel ? ' · ' + moodLabel : ''}`}
             className="press relative aspect-[5/6] disabled:cursor-default"
         >
             {face ? (
@@ -231,6 +266,20 @@ function DayStamp({
                 </span>
             )}
             {dots}
+            {moods?.mine && (
+                <MoodDot
+                    mood={moods.mine}
+                    who="mine"
+                    className="absolute -top-1 -left-1"
+                />
+            )}
+            {moods?.partner && (
+                <MoodDot
+                    mood={moods.partner}
+                    who="partner"
+                    className="absolute -top-1 -right-1"
+                />
+            )}
         </button>
     );
 }
@@ -296,5 +345,101 @@ function Legend({
             </span>
             {label}
         </span>
+    );
+}
+
+/**
+ * A tiny mood stamp in the corner of a day: yours in red ink (top left), your partner's in
+ * blue ink (top right), like the two letters.
+ * แสตมป์อารมณ์เล็ก ๆ ที่มุมวัน ของเราสีแดง (ซ้าย) ของคู่สีน้ำเงิน (ขวา)
+ */
+function MoodDot({
+    mood,
+    who,
+    className,
+}: {
+    mood: string;
+    who: 'mine' | 'partner';
+    className?: string;
+}) {
+    return (
+        <span
+            aria-hidden
+            className={cn(
+                'pointer-events-none z-10 grid size-4 place-items-center rounded-full bg-paper shadow-[0_0_0_1px_var(--rule)]',
+                who === 'mine' ? 'text-stamp' : 'text-airmail',
+                className,
+            )}
+        >
+            <Asset name={`moods.${mood}`} className="size-3" />
+        </span>
+    );
+}
+
+/** "Moods this month": each person's most common mood. / สรุปอารมณ์ของเดือน */
+export function MoodMonth({
+    summary,
+    partnerName,
+}: {
+    summary: { mine: MoodSummary; partner: MoodSummary };
+    partnerName?: string;
+}) {
+    const { t } = useT();
+    const rows = [
+        { who: 'mine' as const, name: t('today.you'), s: summary.mine },
+        ...(partnerName
+            ? [
+                  {
+                      who: 'partner' as const,
+                      name: partnerName,
+                      s: summary.partner,
+                  },
+              ]
+            : []),
+    ].filter((r) => r.s.top);
+
+    if (rows.length === 0) {
+        return null;
+    }
+
+    return (
+        <section className="paper flex flex-col gap-2 p-4">
+            <h3 className="text-sm font-medium text-ink">
+                {t('mood.month_title')}
+            </h3>
+            <ul className="flex flex-col gap-2">
+                {rows.map((r) => (
+                    <li key={r.who} className="flex items-center gap-3 text-sm">
+                        <span
+                            className={cn(
+                                'grid size-9 shrink-0 place-items-center rounded-full',
+                                r.who === 'mine'
+                                    ? 'bg-stamp-soft text-stamp'
+                                    : 'bg-airmail-soft text-airmail',
+                            )}
+                        >
+                            <Asset
+                                name={`moods.${r.s.top}`}
+                                className="size-5"
+                            />
+                        </span>
+                        <span className="flex flex-col">
+                            <span className="text-ink">
+                                {t('mood.mostly', {
+                                    name: r.name,
+                                    mood: t(`mood.${r.s.top}`),
+                                })}
+                            </span>
+                            <span className="text-xs text-ink-soft">
+                                {t('mood.month_days', {
+                                    top: r.s.top_days,
+                                    days: r.s.days,
+                                })}
+                            </span>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </section>
     );
 }

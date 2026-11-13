@@ -655,5 +655,10 @@
     "seo.doc_data-rights": "How to download, correct or delete your data in Rao, and how to contact us.",
     "seo.doc_changelog": "What's new in Rao: every update, in plain words.",
     "seo.image_alt": "Rao (เรา): two letters, one sealed with wax. One letter a day, to each other.",
-    "seo.invite_alt": "An envelope with a wax seal: you're invited to a private space on Rao."
+    "seo.invite_alt": "An envelope with a wax seal: you're invited to a private space on Rao.",
+    "mood.legend_mine": "Your mood",
+    "mood.legend_partner": ":name's mood",
+    "mood.month_title": "Moods this month",
+    "mood.mostly": ":name: mostly :mood",
+    "mood.month_days": ":top of :days days with a mood"
 }

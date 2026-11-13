@@ -2,6 +2,10 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.14.0] - 2026-11-12
+
+- Past moods now show: a small mood stamp for each of you on every calendar day, both moods in the day's details, and a "Moods this month" summary
+
 ## [0.13.0] - 2026-11-12
 
 - Links to Rao now show a proper preview card with a picture when shared in LINE, Facebook, X and other apps; invite links get their own card (it never shows who sent it)

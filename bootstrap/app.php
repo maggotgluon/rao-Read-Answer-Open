@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             // Maintenance URLs for hosts without artisan; no web middleware. / งานดูแลระบบผ่าน URL
             Route::middleware([])->group(base_path('routes/ops.php'));
+            Route::middleware([])->group(base_path('routes/seo.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

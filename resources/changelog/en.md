@@ -2,6 +2,12 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.13.0] - 2026-11-12
+
+- Links to Rao now show a proper preview card with a picture when shared in LINE, Facebook, X and other apps; invite links get their own card (it never shows who sent it)
+- Better search results: page descriptions in Thai and English, and answers to common questions that search engines and AI assistants can read
+- Private pages are never shown in search results
+
 ## [0.12.0] - 2026-11-11
 
 - New home page for visitors: what Rao is, how it works in 5 steps, what's inside, privacy, installing on your phone, and common questions

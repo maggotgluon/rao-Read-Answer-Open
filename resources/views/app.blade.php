@@ -23,8 +23,40 @@
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        {{-- Search + share previews, server-rendered (chat apps don't run JS). / SEO และตัวอย่างลิงก์ --}}
+        @php($seo = \App\Support\Seo::for($page, request()->path()))
+        <meta name="description" content="{{ $seo['description'] }}">
+        <meta name="robots" content="{{ $seo['robots'] }}">
+        <meta name="application-name" content="Rao · เรา">
+        @if ($seo['canonical'])
+            <link rel="canonical" href="{{ $seo['canonical'] }}">
+        @endif
+        @foreach ($seo['alternates'] as $lang => $href)
+            <link rel="alternate" hreflang="{{ $lang }}" href="{{ $href }}">
+        @endforeach
+        <meta property="og:type" content="{{ $seo['type'] }}">
+        <meta property="og:site_name" content="Rao · เรา">
+        <meta property="og:title" content="{{ $seo['og_title'] }}">
+        <meta property="og:description" content="{{ $seo['description'] }}">
+        <meta property="og:url" content="{{ $seo['url'] }}">
+        <meta property="og:locale" content="{{ $seo['locale'] }}">
+        <meta property="og:locale:alternate" content="{{ $seo['locale_alt'] }}">
+        <meta property="og:image" content="{{ $seo['image'] }}">
+        <meta property="og:image:secure_url" content="{{ $seo['image'] }}">
+        <meta property="og:image:type" content="image/png">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="{{ $seo['image_alt'] }}">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="{{ $seo['og_title'] }}">
+        <meta name="twitter:description" content="{{ $seo['description'] }}">
+        <meta name="twitter:image" content="{{ $seo['image'] }}">
+        <meta name="twitter:image:alt" content="{{ $seo['image_alt'] }}">
+        @if ($seo['schema'])
+            <script type="application/ld+json">{!! \App\Support\Seo::jsonLd($seo['schema']) !!}</script>
+        @endif
         <x-inertia::head>
-            <title>{{ config('app.name', 'Laravel') }}</title>
+            <title>{{ $seo['title'] }}</title>
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">

@@ -7,8 +7,9 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Locale order: signed-in user's setting → session (guests) → browser → Thai.
- * ลำดับภาษา: ตั้งค่าผู้ใช้ → session → เบราว์เซอร์ → ไทย
+ * Locale order: ?lang= (the hreflang links search engines follow) → signed-in user's
+ * setting → session (guests) → browser → Thai. A guest's ?lang= is remembered.
+ * ลำดับภาษา: ?lang= → ตั้งค่าผู้ใช้ → session → เบราว์เซอร์ → ไทย
  */
 class SetLocale
 {
@@ -16,6 +17,16 @@ class SetLocale
 
     public function handle(Request $request, Closure $next): Response
     {
+        $asked = $request->query('lang');
+        if (is_string($asked) && in_array($asked, self::SUPPORTED, true)) {
+            if (! $request->user()) {
+                $request->session()->put('locale', $asked);
+            }
+            app()->setLocale($asked);
+
+            return $next($request);
+        }
+
         $locale = $request->user()?->locale
             ?? $request->session()->get('locale')
             ?? $request->getPreferredLanguage(self::SUPPORTED)

@@ -20,9 +20,8 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title={t('app.tagline')}>
-                <meta name="description" content={t('home.meta')} />
-            </Head>
+            {/* description/og/schema come from the server (app.blade.php) / meta มาจากฝั่งเซิร์ฟเวอร์ */}
+            <Head title={t('welcome.title')} />
             <div className="relative flex min-h-dvh flex-col px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+2rem)]">
                 <header className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
                     <StampLogo className="h-12 w-auto -rotate-6" />

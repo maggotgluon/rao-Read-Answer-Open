@@ -643,5 +643,17 @@
     "home.faq6_q": "Which languages?",
     "home.faq6_a": "Thai and English. You each choose your own, and every question comes in both.",
     "home.cta_title": "Write the first letter today",
-    "home.cta_body": "It takes a minute to set up."
+    "home.cta_body": "It takes a minute to set up.",
+    "seo.private": "A private space for two. Sign in to open it.",
+    "seo.home_og_title": "Rao (เรา) · One letter a day, to each other",
+    "seo.register": "Create your free Rao account and invite your person. One small question a day, sealed letters, postcards and your dates, just for the two of you.",
+    "seo.login": "Log in to Rao, your private space for two.",
+    "seo.invite": "Someone you know invited you to a private space for two on Rao. Open the link to join.",
+    "seo.doc_privacy": "How Rao collects, uses and protects your data under Thailand's PDPA, and your rights.",
+    "seo.doc_terms": "The terms for using Rao: accounts, spaces, your content, and the beta.",
+    "seo.doc_cookies": "Which cookies and local storage Rao uses, and why.",
+    "seo.doc_data-rights": "How to download, correct or delete your data in Rao, and how to contact us.",
+    "seo.doc_changelog": "What's new in Rao: every update, in plain words.",
+    "seo.image_alt": "Rao (เรา): two letters, one sealed with wax. One letter a day, to each other.",
+    "seo.invite_alt": "An envelope with a wax seal: you're invited to a private space on Rao."
 }

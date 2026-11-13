@@ -218,6 +218,7 @@ class SpaceCalendar
                 'date' => $e->date->toDateString(),
                 'repeats_yearly' => $e->repeats_yearly,
                 'author' => $e->author?->name,
+                'place_id' => $e->place_id,
             ])->all();
     }
 

@@ -23,6 +23,7 @@ class Features
         'custom_prompts' => 'space',  // couple-written questions / คำถามที่คู่เขียนเอง
         'location' => 'space',        // distance + long-distance mode / ระยะทาง + โหมดไกลกัน
         'memories' => 'space',        // "On this day" / วันนี้ในความทรงจำ
+        'places' => 'space',          // our places / สถานที่ของเรา
         'themes' => 'user',           // choose a theme / เลือกธีม
         'poly' => 'user',             // more than one active space / มีได้หลาย space
     ];

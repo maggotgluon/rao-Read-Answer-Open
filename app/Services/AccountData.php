@@ -7,7 +7,9 @@ use App\Models\LetterReply;
 use App\Models\Moment;
 use App\Models\MomentComment;
 use App\Models\MomentReaction;
+use App\Models\CityVisit;
 use App\Models\Mood;
+use App\Models\Place;
 use App\Models\Prompt;
 use App\Models\SpaceEvent;
 use App\Models\SurveyResponse;
@@ -44,6 +46,7 @@ class AccountData
                 'morning_at' => $user->morning_at,
                 'evening_at' => $user->evening_at,
                 'share_location' => $user->share_location,
+                'keep_city_history' => $user->keep_city_history,
                 'analytics' => $user->analyticsOn(),
                 'created_at' => $user->created_at?->toIso8601String(),
             ],
@@ -79,6 +82,10 @@ class AccountData
                 ->map(fn ($c) => ['body' => $c->body, 'at' => $c->created_at?->toIso8601String()])->values(),
             'reactions' => MomentReaction::where('user_id', $user->id)->get()
                 ->map(fn ($r) => ['emoji' => $r->emoji, 'at' => $r->created_at?->toIso8601String()])->values(),
+            'places_added' => Place::where('created_by', $user->id)->orderBy('created_at')->get()
+                ->map(fn ($p) => ['space' => $space($p->space_id), 'name' => $p->name, 'kind' => $p->kind, 'city' => $p->city, 'note' => $p->note, 'date' => $p->date?->toDateString()])->values(),
+            'city_history' => CityVisit::where('user_id', $user->id)->orderBy('from_date')->get()
+                ->map(fn ($v) => ['city' => $v->city, 'from' => $v->from_date->toDateString(), 'to' => $v->to_date?->toDateString()])->values(),
             'moods' => Mood::where('user_id', $user->id)->orderBy('date')->get()
                 ->map(fn ($m) => ['date' => $m->date->toDateString(), 'mood' => $m->mood])->values(),
             'dates' => SpaceEvent::where('created_by', $user->id)->get()

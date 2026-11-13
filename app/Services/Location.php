@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\CityVisit;
 use App\Models\Space;
 use App\Models\User;
 use Illuminate\Support\Carbon;
@@ -50,8 +51,33 @@ class Location
         ])->save();
 
         app(SpaceStory::class)->recordFor($user);   // today's distance, if both share / ระยะห่างวันนี้
+        $this->logCity($user);
 
         return true;
+    }
+
+    /**
+     * City history (only if the person turned it on): a new stay starts when the city
+     * changes. City names and dates only. / ประวัติเมือง เก็บแค่ชื่อเมืองและวันที่
+     */
+    public function logCity(User $user): void
+    {
+        if (! $user->keep_city_history || ! $user->loc_city) {
+            return;
+        }
+        $today = now($user->loc_tz ?: 'Asia/Bangkok')->toDateString();
+        $open = CityVisit::where('user_id', $user->id)->whereNull('to_date')->latest('from_date')->latest('id')->first();
+        if ($open?->city === $user->loc_city) {
+            return;
+        }
+        $open?->update(['to_date' => max($open->from_date->toDateString(), $today)]);
+        CityVisit::create(['user_id' => $user->id, 'city' => $user->loc_city, 'from_date' => $today]);
+    }
+
+    /** City name for a spot (rounded first, nothing stored). / ชื่อเมืองจากพิกัด ไม่บันทึก */
+    public function cityAt(float $lat, float $lng, string $locale): ?string
+    {
+        return $this->city(self::round($lat), self::round($lng), $locale);
     }
 
     public function clear(User $user): void
@@ -93,6 +119,7 @@ class Location
             'partner_tz' => $both ? $partner->loc_tz : null,
             'partner_updated_at' => $both ? $partner->loc_at?->toIso8601String() : null,
             'suggest_long_distance' => $km !== null && $km >= self::SUGGEST_KM && ! $space->long_distance,
+            'me_keeps_history' => (bool) $viewer->keep_city_history,
         ];
     }
 

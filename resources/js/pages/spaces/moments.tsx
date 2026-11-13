@@ -4,7 +4,7 @@ import { SpaceShell } from '@/components/space/space-shell';
 import { PostcardIcon } from '@/components/rao/icons';
 import { Asset } from '@/components/rao/asset';
 import { useT } from '@/lib/i18n';
-import type { MomentItem, SpaceDetail, SpaceEvent } from '@/types/space';
+import type { MomentItem, Place, SpaceDetail, SpaceEvent } from '@/types/space';
 
 type Props = {
     space: SpaceDetail;
@@ -12,6 +12,7 @@ type Props = {
     drafts: MomentItem[];
     reactionKeys: string[];
     dateOptions: SpaceEvent[];
+    placeOptions: Place[];
 };
 
 /** Tab 3 — Moments: the couple's shared wall. / ช่วงเวลา */
@@ -21,6 +22,7 @@ export default function SpaceMoments({
     drafts,
     reactionKeys,
     dateOptions,
+    placeOptions,
 }: Props) {
     const { t } = useT();
     const frozen = space.status === 'frozen';
@@ -32,6 +34,7 @@ export default function SpaceMoments({
             emojis={reactionKeys}
             readOnly={frozen}
             dateOptions={dateOptions}
+            placeOptions={space.features.places ? placeOptions : undefined}
         />
     );
 

@@ -17,6 +17,7 @@ use App\Http\Controllers\LetterReplyController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MomentCommentController;
 use App\Http\Controllers\MomentController;
+use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\MomentDateController;
 use App\Http\Controllers\MomentMediaController;
 use App\Http\Controllers\MomentReactionController;
@@ -92,6 +93,11 @@ Route::middleware(['auth', 'verified', 'consent'])->group(function () {
             Route::put('mood', [MoodController::class, 'update'])->middleware('throttle:30,1')->name('mood');
             Route::put('long-distance', [SpaceController::class, 'longDistance'])->name('long-distance');
             Route::delete('distance', [SpaceController::class, 'forgetDistance'])->name('distance.forget');
+            Route::post('places', [PlaceController::class, 'store'])->name('places.store');
+            Route::patch('places/{place}', [PlaceController::class, 'update'])->name('places.update');
+            Route::delete('places/{place}', [PlaceController::class, 'destroy'])->name('places.destroy');
+            Route::post('places/here', [PlaceController::class, 'here'])->middleware('throttle:10,1')->name('places.here');
+            Route::put('moments/{moment}/place', [PlaceController::class, 'moment'])->name('moments.place');
             Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
 
             Route::post('events', [SpaceEventController::class, 'store'])->name('events.store');

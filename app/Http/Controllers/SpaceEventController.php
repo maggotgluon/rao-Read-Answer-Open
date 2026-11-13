@@ -48,6 +48,8 @@ class SpaceEventController extends Controller
             'date' => ['required', 'date_format:Y-m-d', 'after:1900-01-01', 'before:2200-01-01'],
             'kind' => ['required', Rule::in(SpaceEvent::KINDS)],
             'repeats_yearly' => ['boolean'],
+            // Only this space's places (the wall). / เฉพาะสถานที่ของพื้นที่นี้
+            'place_id' => ['nullable', 'integer', Rule::exists('places', 'id')->where('space_id', $request->route('space')->id)],
         ]);
     }
 }

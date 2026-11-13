@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\CityVisit;
 use App\Services\Analytics;
 use App\Services\Location;
 use App\Support\Features;
@@ -26,6 +27,22 @@ class LocationController extends Controller
 
         Analytics::track($user, $on ? 'location_on' : 'location_off');
         Inertia::flash('toast', ['type' => 'success', 'message' => __($on ? 'location.on_flash' : 'location.off_flash')]);
+
+        return back();
+    }
+
+    /** Keep a list of cities (off by default); turning it off deletes the list. / ประวัติเมือง */
+    public function history(Request $request, Location $location): RedirectResponse
+    {
+        $on = $request->validate(['on' => ['required', 'boolean']])['on'];
+        $user = $request->user();
+        $user->forceFill(['keep_city_history' => $on])->save();
+        if ($on) {
+            $location->logCity($user);
+        } else {
+            CityVisit::where('user_id', $user->id)->delete();
+        }
+        Inertia::flash('toast', ['type' => 'success', 'message' => __($on ? 'places.history_on_flash' : 'places.history_off_flash')]);
 
         return back();
     }

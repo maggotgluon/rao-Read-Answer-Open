@@ -10,7 +10,7 @@ import { Asset } from '@/components/rao/asset';
 import { LettersIcon, PostmarkIcon } from '@/components/rao/icons';
 import { cn } from '@/lib/utils';
 import { destroy, store, update } from '@/routes/spaces/events';
-import type { EventOccurrence, SpaceEvent } from '@/types/space';
+import type { EventOccurrence, Place, SpaceEvent } from '@/types/space';
 
 export function EventLabel({
     event,
@@ -167,15 +167,19 @@ type Draft = {
     date: string;
     kind: SpaceEvent['kind'];
     repeats_yearly: boolean;
+    place_id: number | null;
 };
 
 export function ManageEvents({
     spaceId,
     events,
+    places,
     readOnly,
 }: {
     spaceId: string;
     events: SpaceEvent[];
+    /** undefined = places switched off / ปิดฟีเจอร์สถานที่ */
+    places?: Place[];
     readOnly: boolean;
 }) {
     const { t, locale } = useT();
@@ -194,6 +198,7 @@ export function ManageEvents({
                             <EventForm
                                 spaceId={spaceId}
                                 event={e}
+                                places={places}
                                 onDone={() => setEditing(null)}
                             />
                         </li>
@@ -265,6 +270,7 @@ export function ManageEvents({
                 (editing === 'new' ? (
                     <EventForm
                         spaceId={spaceId}
+                        places={places}
                         onDone={() => setEditing(null)}
                     />
                 ) : (
@@ -283,10 +289,12 @@ export function ManageEvents({
 function EventForm({
     spaceId,
     event,
+    places,
     onDone,
 }: {
     spaceId: string;
     event?: SpaceEvent;
+    places?: Place[];
     onDone: () => void;
 }) {
     const { t } = useT();
@@ -295,6 +303,7 @@ function EventForm({
         date: event?.date ?? '',
         kind: event?.kind === 'other' ? 'other' : 'special',
         repeats_yearly: event?.repeats_yearly ?? true,
+        place_id: event?.place_id ?? null,
     });
 
     const submit = (e: React.FormEvent) => {
@@ -359,6 +368,26 @@ function EventForm({
                 </label>
             </div>
             <InputError message={form.errors.date} />
+            {places && places.length > 0 && (
+                <select
+                    value={form.data.place_id ?? ''}
+                    onChange={(e) =>
+                        form.setData(
+                            'place_id',
+                            e.target.value ? Number(e.target.value) : null,
+                        )
+                    }
+                    aria-label={t('places.title')}
+                    className="h-9 rounded-md border border-input bg-transparent px-3 text-sm"
+                >
+                    <option value="">{t('places.no_place')}</option>
+                    {places.map((p) => (
+                        <option key={p.id} value={p.id}>
+                            {p.name}
+                        </option>
+                    ))}
+                </select>
+            )}
             <div className="flex gap-2">
                 <Button type="submit" size="sm" disabled={form.processing}>
                     {t('event.save')}

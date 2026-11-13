@@ -2,6 +2,12 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.16.0] - 2026-11-13
+
+- New "Our places" on the Calendar: pin the places that matter to you (where you met, first date, home, trips, food…) with a city, date and note
+- Link a postcard or a date to one of your places
+- Optional city list: keep a list of the cities you've been to, from your shared location (city names and dates only, off unless you turn it on)
+
 ## [0.15.0] - 2026-11-13
 
 - New "Together & apart" card on the Calendar: how long you've been near or far, every period since, totals, and a chart of how far apart you were each day (saved only on days you both share your location, in km, rounded to 10)

@@ -23,7 +23,7 @@ class SpaceEvent extends Model
 
     public const ANNIVERSARY = 'anniversary';
 
-    protected $fillable = ['space_id', 'created_by', 'kind', 'title', 'date', 'repeats_yearly'];
+    protected $fillable = ['space_id', 'created_by', 'kind', 'title', 'date', 'repeats_yearly', 'place_id'];
 
     protected function casts(): array
     {
@@ -43,6 +43,11 @@ class SpaceEvent extends Model
     }
 
     /** @return BelongsTo<Space, $this> */
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class);
+    }
+
     public function space(): BelongsTo
     {
         return $this->belongsTo(Space::class);

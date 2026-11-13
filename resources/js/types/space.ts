@@ -26,6 +26,7 @@ export type SpaceFeatures = {
     custom_prompts: boolean;
     location: boolean;
     memories: boolean;
+    places: boolean;
 };
 
 export type LocationInfo = {
@@ -36,6 +37,7 @@ export type LocationInfo = {
     partner_tz: string | null;
     partner_updated_at: string | null;
     suggest_long_distance: boolean;
+    me_keeps_history: boolean;
 };
 
 export type SpaceNavItem = {
@@ -98,6 +100,7 @@ export type MomentItem = {
     status: 'draft' | 'posted';
     posted_at: string | null;
     date: { id: number; kind: string; title: string } | null;
+    place: { id: number; name: string; kind: PlaceKind } | null;
     photos: { url: string; width: number; height: number }[];
     reactions: { emoji: string; mine: boolean }[];
     comments: {
@@ -172,6 +175,7 @@ export type SpaceEvent = {
     repeats_yearly: boolean;
     author: string | null;
     moments: number;
+    place_id?: number | null;
 };
 
 export type Memory = {
@@ -222,3 +226,35 @@ export type SpaceStory = {
     apart_days: number;
     has_distance: boolean;
 };
+
+export type PlaceKind =
+    | 'met'
+    | 'first_date'
+    | 'home'
+    | 'trip'
+    | 'food'
+    | 'other';
+
+export type Place = {
+    id: number;
+    name: string;
+    kind: PlaceKind;
+    city: string | null;
+    note: string | null;
+    date: string | null;
+    author: string | null;
+    moments: number;
+    events: number;
+};
+
+/** One city stay (to = null: still there). / ช่วงที่อยู่ในเมืองหนึ่ง */
+export type CityVisit = {
+    id: number;
+    mine: boolean;
+    who: string;
+    city: string;
+    from: string;
+    to: string | null;
+};
+
+export type PlacesData = { items: Place[]; visits: CityVisit[] };

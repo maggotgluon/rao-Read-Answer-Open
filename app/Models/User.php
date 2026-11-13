@@ -29,6 +29,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $evening_at
  * @property bool $is_admin
  * @property bool $share_location
+ * @property bool $keep_city_history
  * @property float|null $loc_lat
  * @property float|null $loc_lng
  * @property string|null $loc_city
@@ -107,6 +108,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'notify' => 'array',
             'is_admin' => 'boolean',
             'share_location' => 'boolean',
+            'keep_city_history' => 'boolean',
             'loc_lat' => 'float',
             'loc_lng' => 'float',
             'loc_at' => 'datetime',

@@ -2,7 +2,7 @@
 
 # แผน: แชร์ออกโซเชียล สถานที่ บันทึกใกล้/ไกล ประวัติอารมณ์
 
-Status: approved; phases 1–2 done. / อนุมัติแล้ว เสร็จเฟส 1–2
+Status: approved; phases 1–3 done. / อนุมัติแล้ว เสร็จเฟส 1–3
 
 Decisions (Mag, 2026-11-12) / สิ่งที่ตัดสินใจแล้ว:
 
@@ -46,7 +46,7 @@ UI (Calendar tab or a "Our story" section):
 
 Privacy: only km between you (no places, no coordinates). Deleted with the space; in export.
 
-## Phase 3: Places / สถานที่ของเรา (medium–large)
+## Phase 3: Places / สถานที่ของเรา (medium–large) ✅ done (0.16.0), list only, no map
 
 3a. Pinned places (both partners can add/edit):
 
@@ -112,7 +112,7 @@ post anything ourselves).
 
 ## Open questions for later / ค้างตัดสินใจ
 
-- Map view in 3a: yes (OSM tiles) or list only?
+- Map view in 3a: shipped list-only (0.16.0); add a map later?
 - Share card style per theme, or one fixed style?
 - Feature switches for each phase in Admin → Features (default on)?
 

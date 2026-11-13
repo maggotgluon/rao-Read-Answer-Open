@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Location;
+use App\Services\SpacePlaces;
 use App\Services\SpaceStory;
 use App\Services\SpaceActivity;
 use App\Services\SpaceCalendar;
@@ -97,6 +98,10 @@ class SpaceController extends Controller
             'invite' => fn () => $this->inviteFor($space, $user),
             'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
             'story' => fn () => Features::on('location', $space) ? app(SpaceStory::class)->timeline($space) : null,
+            'places' => fn () => Features::on('places', $space) ? [
+                'items' => app(SpacePlaces::class)->list($space),
+                'visits' => app(SpacePlaces::class)->visits($space, $user),
+            ] : null,
         ]);
     }
 
@@ -147,6 +152,7 @@ class SpaceController extends Controller
             'drafts' => fn () => $this->momentList($space, $user, Moment::STATUS_DRAFT),
             'reactionKeys' => array_keys(MomentReaction::REACTIONS),
             'dateOptions' => fn () => $calendar->eventList($space),
+            'placeOptions' => fn () => Features::on('places', $space) ? app(SpacePlaces::class)->list($space) : [],
         ]);
     }
 
@@ -315,7 +321,7 @@ class SpaceController extends Controller
     private function momentList(Space $space, User $user, string $status): array
     {
         $query = $space->moments()->where('status', $status)
-            ->with(['user:id,name', 'media', 'reactions', 'comments.user:id,name', 'event:id,kind,title']);
+            ->with(['user:id,name', 'media', 'reactions', 'comments.user:id,name', 'event:id,kind,title', 'place:id,name,kind']);
 
         $status === Moment::STATUS_DRAFT
             ? $query->where('user_id', $user->id)->latest()
@@ -333,6 +339,7 @@ class SpaceController extends Controller
                 'kind' => $m->event->kind,
                 'title' => $m->event->kind === SpaceEvent::ANNIVERSARY ? __('event.anniversary') : $m->event->title,
             ] : null,
+            'place' => $m->place ? ['id' => $m->place->id, 'name' => $m->place->name, 'kind' => $m->place->kind] : null,
             'photos' => $m->media->map(fn ($media) => [
                 'url' => route('spaces.media.show', [$space, $m, $media]),
                 'width' => $media->width,

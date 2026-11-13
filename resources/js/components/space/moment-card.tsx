@@ -11,8 +11,9 @@ import {
 } from '@/routes/spaces/comments';
 import { destroy, publish } from '@/routes/spaces/moments';
 import { update as react } from '@/routes/spaces/reactions';
-import type { MomentItem, SpaceEvent } from '@/types/space';
+import type { MomentItem, Place, SpaceEvent } from '@/types/space';
 import { MarkDateDialog } from './mark-date-dialog';
+import { MarkPlaceDialog } from './mark-place-dialog';
 
 type Props = {
     moment: MomentItem;
@@ -20,6 +21,7 @@ type Props = {
     emojis: string[];
     readOnly: boolean;
     dateOptions?: SpaceEvent[];
+    placeOptions?: Place[];
 };
 
 /**
@@ -33,6 +35,7 @@ export function MomentCard({
     emojis,
     readOnly,
     dateOptions = [],
+    placeOptions,
 }: Props) {
     const { t, locale } = useT();
     const args = { space: spaceId, moment: moment.id };
@@ -139,7 +142,7 @@ export function MomentCard({
                     </p>
                 )}
 
-                {!isDraft && (moment.date || !readOnly) && (
+                {!isDraft && (moment.date || moment.place || !readOnly) && (
                     <div className="flex flex-wrap items-center gap-2">
                         {moment.date && (
                             <span className="flex items-center gap-1.5 rounded-full border border-dashed border-stamp/50 px-2.5 py-1 text-xs text-stamp">
@@ -147,11 +150,28 @@ export function MomentCard({
                                 {moment.date.title}
                             </span>
                         )}
+                        {moment.place && (
+                            <span className="flex items-center gap-1.5 rounded-full border border-dashed border-airmail/50 px-2.5 py-1 text-xs text-airmail">
+                                <Asset
+                                    name={`places.${moment.place.kind}`}
+                                    className="size-3.5"
+                                />
+                                {moment.place.name}
+                            </span>
+                        )}
                         {!readOnly && (
                             <MarkDateDialog
                                 moment={moment}
                                 spaceId={spaceId}
                                 options={dateOptions}
+                            />
+                        )}
+                        {/* hidden when places are switched off / ซ่อนเมื่อปิดฟีเจอร์ */}
+                        {!readOnly && placeOptions && (
+                            <MarkPlaceDialog
+                                moment={moment}
+                                spaceId={spaceId}
+                                options={placeOptions}
                             />
                         )}
                     </div>

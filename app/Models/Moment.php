@@ -29,7 +29,7 @@ class Moment extends Model
 
     public const STATUS_POSTED = 'posted';
 
-    protected $fillable = ['space_id', 'user_id', 'space_event_id', 'body', 'status', 'posted_at'];
+    protected $fillable = ['space_id', 'user_id', 'space_event_id', 'place_id', 'body', 'status', 'posted_at'];
 
     /** @return array<int, string> */
     public function uniqueIds(): array
@@ -61,6 +61,11 @@ class Moment extends Model
     }
 
     /** @return BelongsTo<Space, $this> */
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class);
+    }
+
     public function space(): BelongsTo
     {
         return $this->belongsTo(Space::class);

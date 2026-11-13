@@ -68,6 +68,10 @@ Your partner or space members see only your **distance, city and local time**, a
 
 **Daily distance (together/apart timeline):** on days when both of you share a location from the last 24 hours, the space keeps one number for that day: how many kilometres apart you were, rounded to 10 km. No places or coordinates are kept with it. It belongs to the space, both members see it, and either member can delete the whole distance history at any time (Calendar → Together & apart). It is also deleted with the space. The space also remembers when long-distance mode was switched on or off.
 
+**City list (optional, off by default):** if you turn on "Keep my city list", each time the city from your shared location changes we save the city name and the dates you were there, never coordinates. People in your spaces can see the list. Turning it off deletes it straight away, and it is deleted with your account.
+
+**Our places:** places you pin yourselves (a name, kind, optional city, date and note) are content of your space, like postcards. We keep no map coordinates for them. "Where I am" sends your current location to our server once to look up the city name (via Nominatim, rounded first) and stores nothing.
+
 **Lawful basis:** your consent (s.19).
 
 ### 2.5 Feedback on daily questions

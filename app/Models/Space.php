@@ -93,6 +93,12 @@ class Space extends Model
         ]));
     }
 
+    /** @return HasMany<Place, $this> */
+    public function places(): HasMany
+    {
+        return $this->hasMany(Place::class);
+    }
+
     /** @return HasMany<SpaceModeChange, $this> */
     public function modeChanges(): HasMany
     {

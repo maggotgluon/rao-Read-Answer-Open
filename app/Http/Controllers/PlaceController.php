@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Moment;
 use App\Models\Place;
 use App\Models\Space;
+use App\Services\Achievements;
 use App\Services\Analytics;
 use App\Services\Location;
 use App\Support\Features;
@@ -27,6 +28,7 @@ class PlaceController extends Controller
 
         $space->places()->create([...$this->validated($request), 'created_by' => $request->user()->id]);
         Analytics::track($request->user(), 'place_added', [], $space);   // which place stays private
+        app(Achievements::class)->check($space);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('places.added')]);
 
         return back();

@@ -37,9 +37,12 @@ function pushCouple(): array
     return [$space, $a, $b];
 }
 
+/** Pushes to $u, leaving out "new stamp" pushes (tested in AchievementsTest). */
 function pushedTo(User $u): Collection
 {
-    return Queue::pushed(SendPush::class)->filter(fn ($j) => $j->userId === $u->id)->values();
+    return Queue::pushed(SendPush::class)
+        ->filter(fn ($j) => $j->userId === $u->id && ! str_starts_with($j->payload['tag'] ?? '', 'achievements'))
+        ->values();
 }
 
 beforeEach(fn () => Queue::fake());

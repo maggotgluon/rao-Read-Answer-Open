@@ -27,6 +27,7 @@ export type SpaceFeatures = {
     location: boolean;
     memories: boolean;
     places: boolean;
+    achievements: boolean;
 };
 
 export type LocationInfo = {
@@ -258,3 +259,25 @@ export type CityVisit = {
 };
 
 export type PlacesData = { items: Place[]; visits: CityVisit[] };
+
+export type AchievementGroup =
+    | 'streak'
+    | 'letters'
+    | 'postcards'
+    | 'days'
+    | 'years'
+    | 'first';
+
+export type AchievementInfo = {
+    key: string;
+    group: AchievementGroup;
+    /** the milestone number (null for "first" stamps) / ตัวเลขของแสตมป์ */
+    n: number | null;
+    earned_at: string;
+    new: boolean;
+};
+
+export type AchievementSheet = {
+    earned: AchievementInfo[];
+    next: { key: string; group: AchievementGroup; n: number; have: number }[];
+};

@@ -46,5 +46,14 @@
         "airmail-edge": null,
         "grunge": "textures/grunge.png"
     },
-    "mono": ["icons", "moods", "faces", "reactions", "dates", "decor"]
+    "mono": [
+        "icons",
+        "moods",
+        "faces",
+        "reactions",
+        "dates",
+        "decor",
+        "places",
+        "achievements"
+    ]
 }

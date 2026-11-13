@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { EnvelopeIcon, PostcardIcon, StampsIcon } from '@/components/rao/icons';
 import { Button } from '@/components/ui/button';
+import { NewAchievements } from '@/components/space/achievements';
 import { useT } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { daily, moments, restore, show } from '@/routes/spaces';
@@ -50,6 +51,9 @@ export function SpaceShell({
             <Head title={`${t(`tabs.${tab}`)} · ${title}`} />
             <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 pt-5 pb-2 md:px-6 md:pb-6">
                 {/* On phones the space name is already in the top bar. / มือถือมีชื่อในแถบบนแล้ว */}
+                {space.features.achievements && (
+                    <NewAchievements spaceId={space.id} />
+                )}
                 <h1 className="sr-only text-3xl leading-tight text-ink md:not-sr-only">
                     {title}
                 </h1>

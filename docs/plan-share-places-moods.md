@@ -2,7 +2,7 @@
 
 # แผน: แชร์ออกโซเชียล สถานที่ บันทึกใกล้/ไกล ประวัติอารมณ์
 
-Status: approved; phases 1–3 done. / อนุมัติแล้ว เสร็จเฟส 1–3
+Status: approved; phases 1–4 done. / อนุมัติแล้ว เสร็จเฟส 1–4
 
 Decisions (Mag, 2026-11-12) / สิ่งที่ตัดสินใจแล้ว:
 
@@ -69,7 +69,7 @@ Privacy: only km between you (no places, no coordinates). Deleted with the space
 Legal: privacy policy + consent text need an update (location history is new personal data;
 pinned places are content). / ต้องแก้นโยบายความเป็นส่วนตัวและข้อความยินยอม
 
-## Phase 4: Achievements / ความสำเร็จ (medium)
+## Phase 4: Achievements / ความสำเร็จ (medium) ✅ done (0.17.0)
 
 Stored when earned (`achievements`: space, key, earned_at), so a broken streak never takes
 one away (fits "never shame"). No "lost" or "missed" badges.

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Space;
+use App\Services\Achievements;
 use App\Services\DailyPrompts;
 use Illuminate\Console\Command;
 
@@ -18,14 +19,16 @@ class AssignDailyPrompts extends Command
 
     protected $description = 'Assign today\'s question/quest to every active paired space';
 
-    public function handle(DailyPrompts $prompts): int
+    public function handle(DailyPrompts $prompts, Achievements $achievements): int
     {
         $count = 0;
 
-        Space::active()->has('members', '>=', Space::MAX_MEMBERS)->each(function (Space $space) use ($prompts, &$count) {
+        Space::active()->has('members', '>=', Space::MAX_MEMBERS)->each(function (Space $space) use ($prompts, $achievements, &$count) {
             if ($prompts->forDate($space, $space->today())) {
                 $count++;
             }
+            // Day counts and anniversaries arrive with the date. / ครบวัน/ครบรอบ มากับวันที่
+            $achievements->check($space);
         });
 
         $this->info("Assigned/checked {$count} space(s).");

@@ -77,6 +77,7 @@ Route::middleware(['auth', 'verified', 'consent'])->group(function () {
         Route::get('daily', [SpaceController::class, 'daily'])->name('daily');
         Route::get('moments', [SpaceController::class, 'moments'])->name('moments');
         Route::post('restore', [SpaceController::class, 'restore'])->name('restore');
+        Route::post('achievements/seen', [SpaceController::class, 'seenAchievements'])->name('achievements.seen');
         Route::get('moments/{moment}/media/{media}', [MomentMediaController::class, 'show'])->name('media.show');
 
         // Writes need an active (not frozen) space.

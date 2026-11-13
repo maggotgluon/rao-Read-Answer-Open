@@ -5,12 +5,14 @@ import { DistanceCard } from '@/components/space/distance-card';
 import { ManageEvents, UpcomingEvents } from '@/components/space/events-panel';
 import { InviteCard } from '@/components/space/invite-card';
 import { MonthCalendar, MoodMonth } from '@/components/space/month-calendar';
+import { AchievementPanel } from '@/components/space/achievements';
 import { PlacesPanel } from '@/components/space/places-panel';
 import { TogetherApart } from '@/components/space/together-apart';
 import { SpaceSettings } from '@/components/space/space-settings';
 import { SpaceShell } from '@/components/space/space-shell';
 import { useT } from '@/lib/i18n';
 import type {
+    AchievementSheet,
     CalendarMonth,
     DayDetail,
     EventOccurrence,
@@ -32,6 +34,7 @@ type Props = {
     location: LocationInfo | null;
     story: SpaceStory | null;
     places: PlacesData | null;
+    achievements: AchievementSheet | null;
 };
 
 /** Tab 1 — Overview / ภาพรวม */
@@ -45,6 +48,7 @@ export default function SpaceOverview({
     location,
     story,
     places,
+    achievements,
 }: Props) {
     const { t } = useT();
     const [picked, setPicked] = useState<string | null>(null);
@@ -87,6 +91,8 @@ export default function SpaceOverview({
                 summary={calendar.mood_summary}
                 partnerName={space.partner?.name}
             />
+
+            {achievements && <AchievementPanel sheet={achievements} />}
 
             {story && (
                 <TogetherApart

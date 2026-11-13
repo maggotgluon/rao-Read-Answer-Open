@@ -2,6 +2,13 @@
 
 Everything added or changed in Rao, newest first.
 
+## [0.17.0] - 2026-11-13
+
+- New stamp sheet "Our stamps" on the Calendar: milestone stamps for days in a row, letters together, postcards, days together, each anniversary year, and firsts (first letters, postcard, place)
+- Stamps stay yours for good, even if a streak breaks; "Coming up" shows how close the next ones are
+- A small celebration when you earn a new stamp, and an optional notification (Settings → Notifications)
+- Fix: place pictures now take the theme's colours
+
 ## [0.16.0] - 2026-11-13
 
 - New "Our places" on the Calendar: pin the places that matter to you (where you met, first date, home, trips, food…) with a city, date and note

@@ -93,6 +93,12 @@ class Space extends Model
         ]));
     }
 
+    /** @return HasMany<Achievement, $this> */
+    public function achievements(): HasMany
+    {
+        return $this->hasMany(Achievement::class);
+    }
+
     /** @return HasMany<Place, $this> */
     public function places(): HasMany
     {

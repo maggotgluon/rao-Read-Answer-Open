@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DailyPrompt;
 use App\Models\Space;
+use App\Services\Achievements;
 use App\Services\Analytics;
 use App\Services\DailyPrompts;
 use App\Services\Push;
@@ -54,6 +55,10 @@ class AnswerController extends Controller
             $isQuest = $dailyPrompt->prompt->kind === 'quest';
             $push->notify($partner, 'partner_answered', $isQuest ? 'quest_done' : 'answered',
                 ['name' => $user->name], route('spaces.daily', $space), $space);
+        }
+
+        if ($isNew) {
+            app(Achievements::class)->check($space);
         }
 
         return back();

@@ -12,6 +12,7 @@ use App\Models\SurveyResponse;
 use App\Models\User;
 use App\Services\Analytics;
 use App\Services\DailyPrompts;
+use App\Services\Achievements;
 use App\Services\Location;
 use App\Services\SpacePlaces;
 use App\Services\SpaceStory;
@@ -98,6 +99,7 @@ class SpaceController extends Controller
             'invite' => fn () => $this->inviteFor($space, $user),
             'location' => fn () => Features::on('location', $space) ? app(Location::class)->forSpace($space, $user) : null,
             'story' => fn () => Features::on('location', $space) ? app(SpaceStory::class)->timeline($space) : null,
+            'achievements' => fn () => Features::on('achievements', $space) ? app(Achievements::class)->sheet($space, $user) : null,
             'places' => fn () => Features::on('places', $space) ? [
                 'items' => app(SpacePlaces::class)->list($space),
                 'visits' => app(SpacePlaces::class)->visits($space, $user),
@@ -261,7 +263,22 @@ class SpaceController extends Controller
                 'premium' => (bool) $space->premium,
                 'features' => Features::forSpace($space),
             ],
+            // New stamps this person hasn't seen yet: a small celebration on any tab.
+            // แสตมป์ใหม่ที่ยังไม่เคยเห็น แสดงฉลองบนทุกแท็บ
+            'newAchievements' => Features::on('achievements', $space)
+                ? $space->achievements()->orderBy('earned_at')->get()
+                    ->reject(fn ($a) => $a->seenBy($user))
+                    ->map(fn ($a) => Achievements::describe($a->key))->values()->all()
+                : [],
         ];
+    }
+
+    /** The viewer saw their new stamps. / ดูแสตมป์ใหม่แล้ว */
+    public function seenAchievements(Request $request, Space $space, Achievements $achievements): RedirectResponse
+    {
+        $achievements->markSeen($space, $request->user());
+
+        return back();
     }
 
     /** @return array<string, string>|null */
